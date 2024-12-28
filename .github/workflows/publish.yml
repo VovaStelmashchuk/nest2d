@@ -5,13 +5,14 @@ on:
     branches:
       - "new-version"
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository | toLower() }}
-
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository | toLower() }}
+
     permissions:
       contents: read
       packages: write
