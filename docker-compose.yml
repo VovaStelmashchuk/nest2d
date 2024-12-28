@@ -1,9 +1,0 @@
-services:
-  nest2d-backend:
-    image: vovochkastelmashchuk/nest2d:0.0.5
-    container_name: nest2d-backend
-    restart: always
-    ports:
-      - 5000:8080
-    volumes:
-      - ./test-mount:/mount

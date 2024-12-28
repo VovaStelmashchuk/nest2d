@@ -1,1 +1,0 @@
-curl -X POST http://0.0.0.0:3030/run/ -d @uuid-2.json -H "Content-Type: application/json" -v

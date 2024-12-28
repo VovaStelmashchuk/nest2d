@@ -1,9 +1,0 @@
-version: '3.9'
-
-services:
-    nest2d-web:
-        build: .
-        container_name: nest2d-web
-        restart: always
-        ports:
-            - "5500:80"
