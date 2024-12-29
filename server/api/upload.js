@@ -1,65 +1,80 @@
 import { defineEventHandler, createError, readMultipartFormData } from "h3";
-import { promises as fs } from "fs";
-import path from "path";
-import { db } from "~/server/db/mongo";
+import { connectDB } from "~~/server/db/mongo";
+import standardSlugify from "standard-slugify";
 
 export default defineEventHandler(async (event) => {
-  db.collection("uploads").insertOne({ test: "test" });
-  const uploadBasePath = path.resolve(".uploads");
-  await fs.mkdir(uploadBasePath, { recursive: true });
-
   try {
     const fields = await readMultipartFormData(event);
 
-    const projectNameBuffer = fields.find(
+    const projectNameField = fields.find(
       (field) => field.name === "projectName"
-    )?.data;
-    const projectName = projectNameBuffer ? projectNameBuffer.toString() : null;
-    if (!projectName) {
-      throw createError({
-        statusCode: 400,
-        message: "Project name is required.",
-      });
-    }
-
-    const projectPath = path.join(uploadBasePath, projectName);
-    await fs.mkdir(projectPath, { recursive: true });
+    );
+    const projectName = getProjectName(projectNameField);
+    const slug = standardSlugify(projectName);
 
     const imageField = fields.find((field) => field.name === "image");
-    const imageBuffer = imageField?.data;
-    if (!imageBuffer) {
-      throw createError({
-        statusCode: 400,
-        message: "Image file is required.",
-      });
-    }
-
-    const imagePath = path.join(projectPath, "image_" + imageField.filename);
-    await fs.writeFile(imagePath, imageBuffer);
+    const imageBase64 = getImageAsBase64(imageField);
 
     const dxfFileFields = fields.filter((field) => field.name === "dxf");
-    if (!dxfFileFields || dxfFileFields.length === 0) {
-      throw createError({
-        statusCode: 400,
-        message: "At least one DXF file is required.",
-      });
-    }
+    const dxfStrings = getDxfStringArray(dxfFileFields);
 
-    const dxfBuffers = dxfFileFields.map((field) => ({
-      filename: field.filename,
-      buffer: field.data,
-    }));
+    const db = await connectDB();
+    await db.collection("projects_v2").insertOne({
+      slug: slug,
+      projectName: projectName,
+      image: imageBase64,
+      dxf: dxfStrings,
+    });
 
-    for (const dxf of dxfBuffers) {
-      const dxfPath = path.join(projectPath, "dxf_" + dxf.filename);
-      await fs.writeFile(dxfPath, dxf.buffer);
-    }
+    const projectFromDb = await db
+      .collection("projects_v2")
+      .findOne(
+        { slug: slug },
+        { projection: { slug: 1, projectName: 1, _id: 0 } }
+      );
 
-    return {
-      success: true,
-      message: `Files uploaded successfully for project ${projectName}`,
-    };
+    return projectFromDb;
   } catch (err) {
+    console.error(err);
     throw createError({ statusCode: 500, message: err.message });
   }
 });
+
+function getProjectName(field) {
+  const projectNameRaw = field?.data;
+  const projectName = projectNameRaw ? projectNameRaw.toString() : null;
+  if (!projectName) {
+    throw createError({
+      statusCode: 400,
+      message: "Project name is required.",
+    });
+  }
+
+  return projectName;
+}
+
+function getImageAsBase64(field) {
+  const imageBuffer = field?.data;
+  if (!imageBuffer) {
+    throw createError({
+      statusCode: 400,
+      message: "Image file is required.",
+    });
+  }
+
+  return imageBuffer.toString("base64");
+}
+
+function getDxfStringArray(fields) {
+  return fields.map((field) => {
+    const dxfBuffer = field.data;
+    if (!dxfBuffer) {
+      throw createError({
+        statusCode: 400,
+        message: "DXF file is required.",
+      });
+    }
+
+    return dxfBuffer.toString();
+  });
+}

@@ -1,20 +1,24 @@
 import { MongoClient } from "mongodb";
+
 const runtimeConfig = useRuntimeConfig();
-const mongoUrl = runtimeConfig.dbUrl;
+const uri = runtimeConfig.dbUrl;
 
-console.log("mongoUrl", mongoUrl);
+let client;
+let db;
 
-const client = new MongoClient(mongoUrl, {
-  socketTimeoutMS: 10000,
-  connectTimeoutMS: 10000,
-});
-
-client
-  .connect()
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((e) => {
-    console.error("Failed to connect to MongoDB:", e);
-    process.exit(1);
-  });
-
-export const db = client.db();
+export async function connectDB() {
+  if (!client) {
+    try {
+      client = new MongoClient(uri);
+      await client.connect();
+      console.log("Connected to MongoDB");
+    } catch (error) {
+      console.error("Failed to connect to MongoDB", error);
+      throw error;
+    }
+  }
+  if (!db) {
+    db = client.db();
+  }
+  return db;
+}
