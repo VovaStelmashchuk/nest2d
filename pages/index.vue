@@ -10,11 +10,11 @@
       <UploadProjectCard />
 
       <ProjectGridItem
-        v-for="project in data"
-        :key="project.id"
+        v-for="project in data.projects"
+        :key="project.slug"
         :imageSrc="project.imageUrl"
-        :imageAlt="project.title"
-        :text="project.title"
+        :imageAlt="project.projectName"
+        :text="project.projectName"
       />
     </div>
   </div>

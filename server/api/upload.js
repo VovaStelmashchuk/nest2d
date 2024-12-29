@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     const slug = standardSlugify(projectName);
 
     const imageField = fields.find((field) => field.name === "image");
-    const imageBase64 = getImageAsBase64(imageField);
+    const imageBuffer = getImageBuffer(imageField);
 
     const dxfFileFields = fields.filter((field) => field.name === "dxf");
     const dxfStrings = getDxfStringArray(dxfFileFields);
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     await db.collection("projects_v2").insertOne({
       slug: slug,
       projectName: projectName,
-      image: imageBase64,
+      image: imageBuffer,
       dxf: dxfStrings,
     });
 
@@ -53,7 +53,7 @@ function getProjectName(field) {
   return projectName;
 }
 
-function getImageAsBase64(field) {
+function getImageBuffer(field) {
   const imageBuffer = field?.data;
   if (!imageBuffer) {
     throw createError({
@@ -62,7 +62,7 @@ function getImageAsBase64(field) {
     });
   }
 
-  return imageBuffer.toString("base64");
+  return imageBuffer;
 }
 
 function getDxfStringArray(fields) {
