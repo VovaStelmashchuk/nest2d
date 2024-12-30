@@ -24,13 +24,6 @@
     </form>
 
     <div
-      v-if="message"
-      class="mt-6 p-4 bg-green-50 border border-green-400 text-green-800 rounded-lg"
-    >
-      {{ message }}
-    </div>
-
-    <div
       v-if="error"
       class="mt-6 p-4 bg-red-50 border border-red-400 text-red-800 rounded-lg"
     >
@@ -49,7 +42,6 @@ export default {
   data() {
     return {
       dxfFiles: [],
-      message: "",
       error: "",
     };
   },
@@ -60,7 +52,6 @@ export default {
     },
     async handleSubmit() {
       try {
-        this.message = "";
         this.error = "";
 
         if (this.dxfFiles.length === 0) {
@@ -70,7 +61,7 @@ export default {
         const formData = new FormData();
         this.dxfFiles.forEach((file) => formData.append("dxf", file));
 
-        const response = await fetch("/api/upload", {
+        const response = await fetch("/api/nest", {
           method: "POST",
           body: formData,
         });
@@ -81,7 +72,7 @@ export default {
         }
 
         const data = await response.json();
-        this.message = data.message;
+        this.error = data.message;
       } catch (err) {
         this.error = err.message;
       }

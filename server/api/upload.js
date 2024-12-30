@@ -1,5 +1,7 @@
 import { defineEventHandler, createError, readMultipartFormData } from "h3";
 import { connectDB } from "~~/server/db/mongo";
+import { getDxfArray } from "~~/server/utils/multipart";
+
 import standardSlugify from "standard-slugify";
 
 export default defineEventHandler(async (event) => {
@@ -24,6 +26,7 @@ export default defineEventHandler(async (event) => {
       projectName: projectName,
       image: imageBuffer,
       dxf: dxfStrings,
+      uploadedAt: new Date(),
     });
 
     const projectFromDb = await db
@@ -63,23 +66,4 @@ function getImageBuffer(field) {
   }
 
   return imageBuffer;
-}
-
-function getDxfArray(fields) {
-  return fields.map((field) => {
-    const dxfBuffer = field.data;
-    if (!dxfBuffer) {
-      throw createError({
-        statusCode: 400,
-        message: "DXF file is required.",
-      });
-    }
-
-    const dxfString = dxfBuffer.toString();
-
-    return {
-      filename: field.filename,
-      data: dxfString,
-    };
-  });
 }
