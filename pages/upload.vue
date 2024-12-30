@@ -60,42 +60,12 @@
 
       <div class="mb-6">
         <label
-          for="dxfFiles"
+          for="dxfFilesLabel"
           class="block text-xl font-medium text-gray-800 mb-2"
         >
           DXF Files
         </label>
-        <label
-          for="dxfFiles"
-          class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-black"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-12 h-12 text-black"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          <span class="mt-2 text-l text-black">
-            Drag & drop or click to upload DXF files
-          </span>
-        </label>
-        <input
-          type="file"
-          id="dxfFiles"
-          name="dxf"
-          accept=".dxf"
-          multiple
-          @change="handleDXFUpload"
-          class="hidden"
-        />
+        <DxfUpload @files="handleDxfChange" />
       </div>
 
       <button
@@ -123,12 +93,17 @@
 </template>
 
 <script>
+import DxfUpload from "~/components/DxfUpload.vue";
+
 export default {
+  components: {
+    DxfUpload,
+  },
   data() {
     return {
       projectName: "",
       imageFile: null,
-      dxfFiles: [],
+      dxfFiles: [], // Will be updated via the DxfUpload component
       message: "",
       error: "",
     };
@@ -137,22 +112,30 @@ export default {
     handleImageUpload(event) {
       this.imageFile = event.target.files[0];
     },
-    handleDXFUpload(event) {
-      this.dxfFiles = Array.from(event.target.files);
+    handleDxfChange(files) {
+      this.dxfFiles = files;
+      console.log("from child DXF files event: ", files);
     },
     async handleSubmit() {
       try {
         this.message = "";
         this.error = "";
 
-        if (!this.projectName) throw new Error("Project name is required.");
-        if (!this.imageFile) throw new Error("An image file is required.");
-        if (this.dxfFiles.length === 0)
+        if (!this.projectName) {
+          throw new Error("Project name is required.");
+        }
+        if (!this.imageFile) {
+          throw new Error("An image file is required.");
+        }
+        if (this.dxfFiles.length === 0) {
           throw new Error("At least one DXF file is required.");
+        }
 
         const formData = new FormData();
         formData.append("projectName", this.projectName);
         formData.append("image", this.imageFile);
+
+        // Append each of our DXF files
         this.dxfFiles.forEach((file) => formData.append("dxf", file));
 
         const response = await fetch("/api/upload", {

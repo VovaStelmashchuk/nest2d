@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const imageBuffer = getImageBuffer(imageField);
 
     const dxfFileFields = fields.filter((field) => field.name === "dxf");
-    const dxfStrings = getDxfStringArray(dxfFileFields);
+    const dxfStrings = getDxfArray(dxfFileFields);
 
     const db = await connectDB();
     await db.collection("projects_v2").insertOne({
@@ -65,7 +65,7 @@ function getImageBuffer(field) {
   return imageBuffer;
 }
 
-function getDxfStringArray(fields) {
+function getDxfArray(fields) {
   return fields.map((field) => {
     const dxfBuffer = field.data;
     if (!dxfBuffer) {
@@ -75,6 +75,11 @@ function getDxfStringArray(fields) {
       });
     }
 
-    return dxfBuffer.toString();
+    const dxfString = dxfBuffer.toString();
+
+    return {
+      filename: field.filename,
+      data: dxfString,
+    };
   });
 }
