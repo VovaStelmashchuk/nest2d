@@ -8,7 +8,7 @@ import { entityToPoints } from "./entityToPoints.js";
  * @returns {{closed: {polygon: {x: number, y: number}[], originEntities: any[]}[], open: {polygon: {x: number, y: number}[], originEntities: any[]}[]}}
  */
 export function parseAndCombine(dxfString, tolerance) {
-  const dxfObj = new Entities(dxfString);
+  const dxfObj = new Entities(dxfString, tolerance);
   const rawEntities = dxfObj.entities || [];
 
   const lines = [];

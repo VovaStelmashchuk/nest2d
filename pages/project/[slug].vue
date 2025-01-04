@@ -7,7 +7,7 @@
     <div class="flex flex-row">
       <div v-if="data" class="flex-grow">
         <div
-          v-if="data.files && data.files.length"
+          v-if="data && data.files && data.files.length"
           class="grid gap-2"
           :class="gridColsClass"
         >
@@ -57,6 +57,7 @@
             <input
               id="width"
               type="text"
+              v-model="widthPlate"
               class="w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
@@ -69,6 +70,7 @@
             <input
               id="height"
               type="text"
+              v-model="heightPlate"
               class="w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
@@ -81,6 +83,7 @@
             <input
               id="tolerance"
               type="text"
+              v-model="tolerance"
               class="w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
@@ -96,6 +99,9 @@
             >
               Nest
             </button>
+            <div v-if="nestRequestError" class="text-red-500 mt-2">
+              {{ nestRequestError }}
+            </div>
           </div>
         </div>
       </div>
@@ -110,6 +116,12 @@ import { watch } from "vue";
 
 const route = useRoute();
 const slug = route.params.slug;
+
+const nestRequestError = ref(null);
+
+const widthPlate = ref("");
+const heightPlate = ref("");
+const tolerance = ref("");
 
 const counters = ref({});
 
@@ -126,6 +138,7 @@ const gridColsClass = computed(() => {
 watch(
   () => data,
   (data) => {
+    if (!data || !data.value || !data.value.files) return;
     data.value.files.forEach((file) => {
       counters.value[file.slug] = 0;
     });
@@ -134,6 +147,7 @@ watch(
 );
 
 const updateCounter = () => {
+  nestRequestError.value = null;
   const conuts = Object.values(counters.value);
   selectedFileCount.value = conuts.reduce((acc, curr) => acc + curr, 0);
 };
@@ -146,11 +160,54 @@ const increment = (slug) => {
 const decrement = (slug) => {
   if (counters.value[slug] > 0) {
     counters.value[slug]--;
+    updateCounter();
   }
 };
 
-const nest = () => {
-  console.log("Nest");
+const nest = async () => {
+  nestRequestError.value = null;
+  const filesToNest = Object.entries(counters.value)
+    .filter(([_, count]) => count > 0)
+    .map(([slug, count]) => {
+      return {
+        slug,
+        count,
+      };
+    });
+
+  if (filesToNest.length === 0) {
+    nestRequestError.value = "Please select at least one file to nest.";
+    return;
+  }
+
+  const widthValue = parseFloat(widthPlate.value);
+  const heightValue = parseFloat(heightPlate.value);
+  const toleranceValue = parseFloat(tolerance.value);
+
+  if (isNaN(widthValue) || isNaN(heightValue) || isNaN(toleranceValue)) {
+    nestRequestError.value =
+      "Please enter valid values for width, height, and tolerance.";
+    return;
+  }
+
+  const request = {
+    files: filesToNest,
+    params: {
+      width: widthValue,
+      height: heightValue,
+      tolerance: toleranceValue,
+    },
+  };
+
+  const response = await fetch(`/api/project/${slug}/nest`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+  });
+
+  console.log(response);
 };
 </script>
 

@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const project = await db.collection("projects_v2").findOne({ slug: slug });
 
   if (!project) {
-    return { statusCode: 404, body: { error: "Project not found" } };
+    throw createError({ statusCode: 404, message: "Project not found" });
   }
 
   return {
