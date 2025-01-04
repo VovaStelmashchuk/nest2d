@@ -4,6 +4,9 @@ const runtimeConfig = useRuntimeConfig();
 const uri = runtimeConfig.dbUrl;
 
 let client;
+/**
+ * @type {import('mongodb').Db}
+ */
 let db;
 
 export async function connectDB() {

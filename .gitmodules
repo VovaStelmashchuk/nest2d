@@ -1,0 +1,3 @@
+[submodule "libs/autocad-dxf"]
+	path = libs/autocad-dxf
+	url = git@github.com:VovaStelmashchuk/autocad-dxf.git

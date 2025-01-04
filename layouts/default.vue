@@ -20,11 +20,6 @@
           ><p class="underline underline-offset-2">Nest your project</p>
         </a>
         <a
-          href="/projects"
-          class="flex-1 text-xl text-center text-white bg-black hover:bg-white hover:text-black py-4"
-          ><p class="underline underline-offset-2">Projects</p>
-        </a>
-        <a
           href="/blog"
           class="flex-1 text-xl text-center text-white bg-black hover:bg-white hover:text-black py-4"
           ><p class="underline underline-offset-2">Blog</p>

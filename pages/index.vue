@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import { navigateTo } from "nuxt/app";
 import DxfUpload from "~/components/DxfUpload.vue";
 
 export default {
@@ -51,30 +52,27 @@ export default {
       console.log("from child DXF files event: ", files);
     },
     async handleSubmit() {
-      try {
-        this.error = "";
+      this.error = "";
 
-        if (this.dxfFiles.length === 0) {
-          throw new Error("At least one DXF file is required.");
-        }
+      if (this.dxfFiles.length === 0) {
+        this.error = "At least one DXF file is required.";
+        return;
+      }
 
-        const formData = new FormData();
-        this.dxfFiles.forEach((file) => formData.append("dxf", file));
+      const formData = new FormData();
+      this.dxfFiles.forEach((file) => formData.append("dxf", file));
 
-        const response = await fetch("/api/nest", {
-          method: "POST",
-          body: formData,
-        });
+      const response = await fetch("/api/project", {
+        method: "POST",
+        body: formData,
+      });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Upload failed.");
-        }
-
+      if (!response.ok) {
+        const errorData = await response.json();
+        this.error = errorData.message;
+      } else {
         const data = await response.json();
-        this.error = data.message;
-      } catch (err) {
-        this.error = err.message;
+        await navigateTo(`/project/${data.slug}`);
       }
     },
   },

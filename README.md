@@ -47,6 +47,10 @@ I use slightly modified version of his project. Can be found [here](https://gith
 - [Dexus](https://github.com/Dexus)
 - [Deepnest](https://github.com/deepnest-next)
 
+Also special thanks to:
+
+- [Autocad dxf](https://github.com/Asaye/autocad-dxf/tree/main)
+
 ## Development setup
 
 Make sure to install dependencies:

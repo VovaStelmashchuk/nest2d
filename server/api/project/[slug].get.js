@@ -10,10 +10,14 @@ export default defineEventHandler(async (event) => {
     return { statusCode: 404, body: { error: "Project not found" } };
   }
 
-  const response = {
-    projectName: project.projectName,
+  return {
+    slug: project.slug,
+    files: project.dxf.map((dxf) => {
+      return {
+        slug: dxf.slug,
+        name: dxf.name,
+        svg: dxf.svg,
+      };
+    }),
   };
-
-  event.node.res.setHeader("Content-Type", "image/jpeg");
-  return project.image.buffer;
 });
