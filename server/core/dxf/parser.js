@@ -11,6 +11,8 @@ export function parseAndCombine(dxfObject, tolerance) {
 
   const allProcessed = dxfEntities.map((ent) => {
     const points = entityToPoints(ent, tolerance);
+    // print points
+    console.log(points);
     const isClosed =
       isInherentlyClosed(ent) || isClosedPolygon(points, tolerance);
     return {
@@ -79,22 +81,7 @@ function isInherentlyClosed(entity) {
 
   if (etype === "lwpolyline" || etype === "polyline") {
     const polyline = entity.specific.LwPolyline || entity.specific.Polyline;
-    // Depending on the library, the property indicating closure might vary.
-    // Common possibilities: 'isClosed', 'closed', 'type === "Closed"'
-    // Adjust the property access based on your library's specification.
-
-    // Example 1: Using 'isClosed' boolean property
-    if (polyline.isClosed === true) {
-      return true;
-    }
-
-    // Example 2: Using 'type' property
-    if (polyline.type && polyline.type.toLowerCase() === "closed") {
-      return true;
-    }
-
-    // Example 3: Using 'closed' boolean property
-    if (polyline.closed === true) {
+    if (polyline.flags === 1) {
       return true;
     }
   }
