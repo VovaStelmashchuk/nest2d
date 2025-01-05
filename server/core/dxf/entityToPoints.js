@@ -11,9 +11,9 @@ export function entityToPoints(entity, tolerance) {
   const specificKeys = Object.keys(entity.specific);
   if (specificKeys.length === 0) return [];
 
-  const etype = specificKeys[0].toLowerCase(); // Assuming one key per entity
+  const type = specificKeys[0].toLowerCase(); // Assuming one key per entity
 
-  switch (etype) {
+  switch (type) {
     case "line":
       return lineToPoints(entity.specific.Line);
 
@@ -36,7 +36,7 @@ export function entityToPoints(entity, tolerance) {
       return splineToPoints(entity.specific.Spline, tolerance);
 
     default:
-      console.warn(`Unsupported entity type: ${etype}`);
+      console.warn(`Unsupported entity type: ${type}`);
       return [];
   }
 }

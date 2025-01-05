@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from "h3";
-import { parseAndCombine } from "~~/server/core/dxf/parser";
+import { nest } from "~~/server/core/nest";
 
 import { connectDB } from "~~/server/db/mongo";
 
@@ -8,40 +8,28 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const { files, params } = body;
 
+  const nestResultId = await nest(files, params, slug);
+
   const db = await connectDB();
-  db.collection("nest_request").insertOne({
-    slug: slug,
-    body: body,
-    requestedAt: new Date(),
-  });
 
-  const project = await db.collection("projects").findOne({ slug });
-  const arrayOfDxfWithCount = files.map((file) => {
-    const dxfString = project.dxf.find((d) => d.slug === file.slug).data;
-    return {
-      polygones: parseAndCombine(dxfString, 0.1).closed,
-      count: file.count,
-    };
-  });
+  const nestResult = await db
+    .collection("nest_request")
+    .findOne({ _id: nestResultId });
 
-  const jaguarRequest = buildNestJson(arrayOfDxfWithCount);
+  if (nestResult.isFail === true) {
+    throw creaError({
+      status: 400,
+      message: "Error during nesting, cannot placed all item into bin",
+    });
+  }
+
+  let message = "All items placed";
+  if (!nestResult.isAllItemsPlaced) {
+    message = "Not all items placed";
+  }
 
   return {
-    status: 200,
-    body: {
-      jaguarRequest,
-    },
+    message: message,
+    usage: nestResult.usage,
   };
 });
-
-function buildNestJson(arrayOfDxfWithCount) {
-  const polgyones = arrayOfDxfWithCount.map((dxf) => {
-    return dxf.polygones;
-  });
-
-  const firstDxf = polgyones[0];
-  const firstPolygone = firstDxf[0];
-
-  console.log(firstPolygone);
-  return 0;
-}
