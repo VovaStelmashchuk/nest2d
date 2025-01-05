@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
     const slug = `slug-${generateRandomString(6)}`;
 
-    const insertResult = await db.collection("projects_v2").insertOne({
+    const insertResult = await db.collection("projects").insertOne({
       slug: slug,
       dxf: dxfArray,
       uploadedAt: new Date(),
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       };
     });
 
-    db.collection("projects_v2").updateOne(
+    db.collection("projects").updateOne(
       { _id: insertResult.insertedId },
       { $set: { dxf: dxfRecords } }
     );
@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
       dxfRecord.svg = svgResult.svg;
       dxfRecord.generateSvgError = svgResult.error;
 
-      db.collection("projects_v2").updateOne(
+      db.collection("projects").updateOne(
         { _id: insertResult.insertedId },
         { $set: { dxf: dxfRecords } }
       );

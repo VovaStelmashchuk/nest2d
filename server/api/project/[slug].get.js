@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, "slug");
 
   const db = await connectDB();
-  const project = await db.collection("projects_v2").findOne({ slug: slug });
+  const project = await db.collection("projects").findOne({ slug: slug });
 
   if (!project) {
     throw createError({ statusCode: 404, message: "Project not found" });

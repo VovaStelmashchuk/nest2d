@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     requestedAt: new Date(),
   });
 
-  const project = await db.collection("projects_v2").findOne({ slug });
+  const project = await db.collection("projects").findOne({ slug });
   const arrayOfDxfWithCount = files.map((file) => {
     const dxfString = project.dxf.find((d) => d.slug === file.slug).data;
     return {
