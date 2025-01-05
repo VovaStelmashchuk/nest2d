@@ -3,35 +3,52 @@ import { connectDB } from "~~/server/db/mongo";
 import { getDxfArray } from "~~/server/utils/multipart";
 import { generateSvg } from "../core/svg/generator";
 import { generateRandomString } from "../utils";
+import { dxf2Json } from "~~/libs/deepnest_dxf2svg-processor";
 
 export default defineEventHandler(async (event) => {
+  const db = await connectDB();
   try {
     const fields = await readMultipartFormData(event);
     const dxfFileFields = fields.filter((field) => field.name === "dxf");
+    const dxfArray = getDxfArray(dxfFileFields);
 
-    const dxfRecords = getDxfArray(dxfFileFields).map(function (dxf) {
-      const svgResult = generateSvg(dxf.data);
+    const slug = `slug-${generateRandomString(6)}`;
+
+    const insertResult = await db.collection("projects_v2").insertOne({
+      slug: slug,
+      dxf: dxfArray,
+      uploadedAt: new Date(),
+    });
+
+    const dxfRecords = dxfArray.map(function (dxf) {
+      const dxfAsObjectStr = dxf2Json({
+        stringData: dxf.data,
+      });
+      const dxfAsObject = JSON.parse(dxfAsObjectStr);
+
       return {
         slug: `${dxf.filename}-${generateRandomString(6)}`,
         name: dxf.filename,
         data: dxf.data,
-        svg: svgResult.svg,
-        generateSvgError: svgResult.error,
+        asObject: dxfAsObject,
       };
     });
 
-    const db = await connectDB();
-    const insertResult = await db.collection("projects_v2").insertOne({
-      dxf: dxfRecords,
-      uploadedAt: new Date(),
+    db.collection("projects_v2").updateOne(
+      { _id: insertResult.insertedId },
+      { $set: { dxf: dxfRecords } }
+    );
+
+    dxfRecords.forEach((dxfRecord) => {
+      const svgResult = generateSvg(dxfRecord.asObject);
+      dxfRecord.svg = svgResult.svg;
+      dxfRecord.generateSvgError = svgResult.error;
+
+      db.collection("projects_v2").updateOne(
+        { _id: insertResult.insertedId },
+        { $set: { dxf: dxfRecords } }
+      );
     });
-
-    const id = insertResult.insertedId.toString();
-
-    const slug = `slug-${id}`;
-    await db
-      .collection("projects_v2")
-      .updateOne({ _id: insertResult.insertedId }, { $set: { slug: slug } });
 
     return {
       message: "Project saved",

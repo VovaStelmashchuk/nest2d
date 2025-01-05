@@ -1,10 +1,11 @@
 import { parseAndCombine } from "../dxf/parser";
+
 /**
- * @param {string} dxfString
+ * @param {string} any
  * @returns {{svg: string, error: string}}
  */
-export function generateSvg(dxfString) {
-  const polygones = parseAndCombine(dxfString, 0.1);
+export function generateSvg(dxfObject) {
+  const polygones = parseAndCombine(dxfObject, 0.1);
 
   const svg = createSVGFromPolygons(polygones.closed);
   let error = null;

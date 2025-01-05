@@ -18,7 +18,7 @@
     "vite": "^6.0.6",
     "vue": "latest",
     "vue-router": "latest",
-    "autocad-dxf": "file:./libs/autocad-dxf"
+    "@deepnest/dxf2svg-processor": "file:./libs/deepnest_dxf2svg-processor"
   },
   "devDependencies": {
     "patch-package": "^8.0.0",

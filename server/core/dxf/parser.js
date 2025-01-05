@@ -1,30 +1,16 @@
-import Entities from "autocad-dxf";
 import { entityToPoints } from "./entityToPoints.js";
 
 /**
- * @param {string} dxfString
+ * @param {Array} dxfEntities
  * @param {number} tolerance
  *
  * @returns {{closed: {polygon: {x: number, y: number}[], originEntities: any[]}[], open: {polygon: {x: number, y: number}[], originEntities: any[]}[]}}
  */
-export function parseAndCombine(dxfString, tolerance) {
-  const dxfObj = new Entities(dxfString, tolerance);
-  const rawEntities = dxfObj.entities || [];
+export function parseAndCombine(dxfObject, tolerance) {
+  const dxfEntities = dxfObject["__entities"];
 
-  const lines = [];
-  rawEntities.forEach((ent) => {
-    if (ent.etype === "LINE") {
-      lines.push({
-        start_x: ent.start_x,
-        start_y: ent.start_y,
-        end_x: ent.end_x,
-        end_y: ent.end_y,
-      });
-    }
-  });
-
-  const allProcessed = rawEntities.map((ent) => {
-    const points = entityToPoints(ent, dxfObj, tolerance);
+  const allProcessed = dxfEntities.map((ent) => {
+    const points = entityToPoints(ent, tolerance);
     const isClosed =
       isInherentlyClosed(ent) || isClosedPolygon(points, tolerance);
     return {
@@ -69,34 +55,61 @@ export function parseAndCombine(dxfString, tolerance) {
 }
 
 /**
- * Checks if an entity (based on its 'etype' or properties) is inherently closed:
- *   - circle
- *   - lwpolyline/polyline with `type==="Closed"`
+ * Determines if a DXF entity is inherently closed based on its type.
+ * Inherently closed entities include:
+ *   - Circle
+ *   - LwPolyline or Polyline with 'isClosed' property set to true
+ *
+ * @param {object} entity - A parsed DXF entity from the new library.
+ * @returns {boolean} - Returns true if the entity is inherently closed; otherwise, false.
  */
 function isInherentlyClosed(entity) {
-  if (!entity || !entity.etype) return false;
-  const etype = entity.etype.toLowerCase();
+  if (!entity || !entity.specific) return false;
 
-  // Circles => definitely closed
+  // Determine the entity type by examining the keys in 'specific'
+  const specificKeys = Object.keys(entity.specific);
+  if (specificKeys.length === 0) return false;
+
+  const etype = specificKeys[0].toLowerCase(); // Assuming one key per entity
+
+  // Check for inherently closed entity types
   if (etype === "circle") {
     return true;
   }
 
-  // "Closed" polylines
-  if (
-    (etype === "polyline" || etype === "lwpolyline") &&
-    entity.type === "Closed"
-  ) {
-    return true;
+  if (etype === "lwpolyline" || etype === "polyline") {
+    const polyline = entity.specific.LwPolyline || entity.specific.Polyline;
+    // Depending on the library, the property indicating closure might vary.
+    // Common possibilities: 'isClosed', 'closed', 'type === "Closed"'
+    // Adjust the property access based on your library's specification.
+
+    // Example 1: Using 'isClosed' boolean property
+    if (polyline.isClosed === true) {
+      return true;
+    }
+
+    // Example 2: Using 'type' property
+    if (polyline.type && polyline.type.toLowerCase() === "closed") {
+      return true;
+    }
+
+    // Example 3: Using 'closed' boolean property
+    if (polyline.closed === true) {
+      return true;
+    }
   }
 
   return false;
 }
 
 /**
- * Checks if a polygon is "closed" by verifying:
- *   - length >= 3
- *   - first point is within 'tolerance' distance of last point
+ * Determines if a polygon is closed by verifying:
+ *   - It has at least three points.
+ *   - The distance between the first and last points is within the specified tolerance.
+ *
+ * @param {Array<{x: number, y: number}>} points - An array of points defining the polygon.
+ * @param {number} tolerance - The maximum allowed distance between the first and last points to consider the polygon closed.
+ * @returns {boolean} - Returns true if the polygon is closed; otherwise, false.
  */
 function isClosedPolygon(points, tolerance) {
   if (!points || points.length < 3) return false;
@@ -104,6 +117,16 @@ function isClosedPolygon(points, tolerance) {
   const last = points[points.length - 1];
   return distance(first, last) <= tolerance;
 }
+
+/**
+ * Calculates the Euclidean distance between two points.
+ *
+ * Assumes that the function `distance` is already defined elsewhere in your codebase.
+ *
+ * @param {{x: number, y: number}} pointA - The first point.
+ * @param {{x: number, y: number}} pointB - The second point.
+ * @returns {number} - The distance between pointA and pointB.
+ */
 
 /**
  * Merge open polygons that share endpoints (within tolerance).
