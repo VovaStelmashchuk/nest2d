@@ -2,7 +2,7 @@ import { defineEventHandler, createError, readMultipartFormData } from "h3";
 import { connectDB } from "~~/server/db/mongo";
 import { getDxfArray } from "~~/server/utils/multipart";
 import { generateSvg } from "../core/svg/generator";
-import { generateRandomString } from "../utils";
+import { generateRandomString } from "~~/server/utils/strings";
 import { dxf2Json } from "~~/libs/deepnest_dxf2svg-processor";
 
 export default defineEventHandler(async (event) => {

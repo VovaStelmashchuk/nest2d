@@ -11,8 +11,6 @@ export function parseAndCombine(dxfObject, tolerance) {
 
   const allProcessed = dxfEntities.map((ent) => {
     const points = entityToPoints(ent, tolerance);
-    // print points
-    console.log(points);
     const isClosed =
       isInherentlyClosed(ent) || isClosedPolygon(points, tolerance);
     return {

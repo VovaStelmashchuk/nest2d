@@ -3,6 +3,8 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxtjs/tailwindcss"],
   runtimeConfig: {
-    dbUrl: "",
+    public: {
+      secretFile: ".secret.json",
+    },
   },
 });

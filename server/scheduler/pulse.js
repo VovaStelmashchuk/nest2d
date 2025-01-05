@@ -1,10 +1,11 @@
 import { Pulse } from "@pulsecron/pulse";
 
-const runtimeConfig = useRuntimeConfig();
-const mongoUrl = runtimeConfig.dbUrl;
+import { getConfig } from "../utils/config";
+
+const uri = getConfig().mongoUri;
 
 const pulse = new Pulse({
-  db: { address: mongoUrl, collection: "pulse_jobs" },
+  db: { address: uri, collection: "pulse_jobs" },
   resumeOnRestart: true,
 });
 

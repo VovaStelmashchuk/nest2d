@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
+import { getConfig } from "../utils/config";
 
-const runtimeConfig = useRuntimeConfig();
-const uri = runtimeConfig.dbUrl;
+const uri = getConfig().mongoUri;
 
 let client;
 /**

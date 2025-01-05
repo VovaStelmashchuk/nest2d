@@ -4,9 +4,17 @@ import { connectDB } from "~~/server/db/mongo";
 export default defineEventHandler(async (_) => {
   const db = await connectDB();
 
-  db.collection("uploads").insertOne({ name: "test1" });
+  let isDbConnected = false;
 
-  const response = {};
-  response.version = "0.6.0";
-  return response;
+  try {
+    await db.command({ ping: 1 });
+    isDbConnected = true;
+  } catch (e) {
+    console.error(e);
+  }
+
+  return {
+    isDbConnected: isDbConnected,
+    version: "0.1.0",
+  };
 });
