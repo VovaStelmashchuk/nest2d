@@ -48,45 +48,27 @@
           Nesting settings
         </h2>
         <div class="flex flex-col space-y-4 p-4">
-          <div>
-            <label
-              for="width"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Width</label
-            >
-            <input
-              id="width"
-              type="text"
-              v-model="widthPlate"
-              class="w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label
-              for="height"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Height</label
-            >
-            <input
-              id="height"
-              type="text"
-              v-model="heightPlate"
-              class="w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label
-              for="tolerance"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Tolerance</label
-            >
-            <input
-              id="tolerance"
-              type="text"
-              v-model="tolerance"
-              class="w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
+          <InputField
+            id="width"
+            label="Width"
+            v-model="widthPlate"
+            placeholder="Enter width"
+          />
+
+          <InputField
+            id="height"
+            label="Height"
+            v-model="heightPlate"
+            placeholder="Enter height"
+          />
+
+          <InputField
+            id="tolerance"
+            label="Tolerance"
+            v-model="tolerance"
+            placeholder="Enter tolerance"
+          />
+
           <div>
             <span class="text-2xl font-bold text-black my-2 text-center">
               Files selected: {{ selectedFileCount }}

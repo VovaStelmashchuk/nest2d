@@ -6,11 +6,15 @@ import { connectDB } from "~~/server/db/mongo";
 
 import fs from "fs";
 import { generateSvg } from "./svg/generator";
+import { generateRandomString } from "../utils/strings";
 
 export async function nest(files, params, projectSlug) {
   const db = await connectDB();
+  const nestedSlug = `${projectSlug}-nested-${generateRandomString(4)}`;
+
   const nestRequestInsert = await db.collection("nest_request").insertOne({
-    slug: projectSlug,
+    slug: nestedSlug,
+    projectSlug: projectSlug,
     files: files,
     params: params,
     requestedAt: new Date(),
@@ -59,16 +63,29 @@ export async function nest(files, params, projectSlug) {
 
   originDxfObject.__entities = newEntities;
 
+  await db
+    .collection("nest_request")
+    .updateOne(
+      { _id: nestRequestInsert.insertedId },
+      { $set: { dxfResultAsObject: originDxfObject } }
+    );
+
   const svg = generateSvg(originDxfObject);
 
   await db
     .collection("nest_request")
     .updateOne({ _id: nestRequestInsert.insertedId }, { $set: { svg: svg } });
 
-  fs.writeFileSync(
-    "test.dxf",
-    json2Dxf({ jsonData: JSON.stringify(originDxfObject) })
-  );
+  const dxfAsString = json2Dxf({ jsonData: JSON.stringify(originDxfObject) });
+
+  await db
+    .collection("nest_request")
+    .updateOne(
+      { _id: nestRequestInsert.insertedId },
+      { $set: { dxfResult: dxfAsString } }
+    );
+
+  fs.writeFileSync("test.dxf", dxfAsString);
 
   return nestRequestInsert.insertedId;
 }

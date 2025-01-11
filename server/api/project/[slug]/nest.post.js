@@ -31,5 +31,8 @@ export default defineEventHandler(async (event) => {
   return {
     message: message,
     usage: nestResult.usage,
+    nestResult: {
+      svg: nestResult.svg.svg,
+    },
   };
 });
