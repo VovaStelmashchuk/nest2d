@@ -84,6 +84,16 @@
             <div v-if="nestRequestError" class="text-red-500 mt-2">
               {{ nestRequestError }}
             </div>
+
+            <div v-if="nestResult" class="text-green-500 mt-2">
+              <p class="text-l py-2">Nest task added to the queue.</p>
+              <a
+                :href="`/queue/${nestResult.slug}`"
+                class="w-full bg-green text-black py-2 px-4 rounded-lg border border-black hover:bg-white hover:text-black transition duration-300 ease-in-out transform focus:ring focus:ring-gray-400 inline-block text-center"
+              >
+                Go to next task
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -104,6 +114,7 @@ const nestRequestError = ref(null);
 const widthPlate = ref("");
 const heightPlate = ref("");
 const tolerance = ref("");
+const nestResult = ref(null);
 
 const counters = ref({});
 
@@ -148,6 +159,8 @@ const decrement = (slug) => {
 
 const nest = async () => {
   nestRequestError.value = null;
+  nestResult.value = null;
+
   const filesToNest = Object.entries(counters.value)
     .filter(([_, count]) => count > 0)
     .map(([slug, count]) => {
@@ -181,15 +194,18 @@ const nest = async () => {
     },
   };
 
-  const response = await fetch(`/api/project/${slug}/nest`, {
+  nestResult.value = await fetch(`/api/project/${slug}/nest`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(request),
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
   });
-
-  console.log(response);
 };
 </script>
 

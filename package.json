@@ -10,15 +10,15 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@deepnest/dxf2svg-processor": "file:./libs/deepnest_dxf2svg-processor",
     "@nuxtjs/tailwindcss": "^6.12.2",
-    "@pulsecron/pulse": "^1.6.7",
     "mongodb": "6.8",
     "nuxt": "^3.15.0",
     "standard-slugify": "^4.0.0",
+    "tslib": "^2.8.1",
     "vite": "^6.0.6",
     "vue": "latest",
-    "vue-router": "latest",
-    "@deepnest/dxf2svg-processor": "file:./libs/deepnest_dxf2svg-processor"
+    "vue-router": "latest"
   },
   "devDependencies": {
     "patch-package": "^8.0.0",

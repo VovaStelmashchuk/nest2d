@@ -7,4 +7,11 @@ export default defineNuxtConfig({
       secretFile: ".secret.json",
     },
   },
+  nitro: {
+    hooks: {
+      "server:setup": async () => {
+        console.log("Server setup hook");
+      },
+    },
+  },
 });

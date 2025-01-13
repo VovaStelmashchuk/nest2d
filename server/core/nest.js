@@ -4,56 +4,62 @@ import { transformEntity } from "~~/server/core/dxf/transform";
 
 import { connectDB } from "~~/server/db/mongo";
 
-import fs from "fs";
 import { generateSvg } from "./svg/generator";
-import { generateRandomString } from "../utils/strings";
 
-export async function nest(files, params, projectSlug) {
+export async function nest(jobId) {
   const db = await connectDB();
-  const nestedSlug = `${projectSlug}-nested-${generateRandomString(4)}`;
 
-  const nestRequestInsert = await db.collection("nest_request").insertOne({
-    slug: nestedSlug,
-    projectSlug: projectSlug,
-    files: files,
-    params: params,
-    requestedAt: new Date(),
-  });
+  const nestRequest = await db
+    .collection("nest_request")
+    .findOne({ _id: jobId });
 
-  const project = await db
-    .collection("projects")
-    .findOne({ slug: projectSlug });
+  if (!nestRequest) {
+    throw new Error(`No job found with ID: ${jobId}`);
+  }
 
-  const polygonsWithCount = files.flatMap((file) => {
-    const dxfObject = project.dxf.find((d) => d.slug === file.slug).asObject;
+  const { objectsToNest, params } = nestRequest;
 
-    return parseAndCombine(dxfObject, 0.1).closed.map((polygon) => {
-      return {
-        polygon: polygon,
-        count: file.count,
-      };
-    });
+  const polygonsWithCount = objectsToNest.flatMap((objectWithCount) => {
+    return parseAndCombine(objectWithCount.dxfObject, 0.1).closed.map(
+      (polygon) => {
+        return {
+          polygon: polygon,
+          count: objectWithCount.count,
+        };
+      }
+    );
   });
 
   const solution = await performJaguarRequest(
-    nestRequestInsert.insertedId,
+    jobId,
     polygonsWithCount,
     params.width,
     params.height
   );
 
-  await validateSolution(nestRequestInsert.insertedId, solution);
+  if (
+    !solution ||
+    solution.Usage === null ||
+    solution.Usage === undefined ||
+    solution.Layouts.length === 0
+  ) {
+    await db
+      .collection("nest_request")
+      .updateOne({ _id: jobId }, { $set: { isFail: true } });
+
+    return {
+      error: "No solution found",
+      nestId: jobId,
+    };
+  }
 
   const placementInstruction = await getPlacementInstruction(
-    nestRequestInsert.insertedId,
+    jobId,
     solution,
     polygonsWithCount
   );
 
-  const firstFile = files[0].slug;
-  const originDxfObject = project.dxf.find(
-    (d) => d.slug === firstFile
-  ).asObject;
+  const originDxfObject = objectsToNest[0].dxfObject;
 
   const newEntities = placementInstruction.flatMap((inst) => {
     return inst.entities.map((entity) => {
@@ -66,7 +72,7 @@ export async function nest(files, params, projectSlug) {
   await db
     .collection("nest_request")
     .updateOne(
-      { _id: nestRequestInsert.insertedId },
+      { _id: jobId },
       { $set: { dxfResultAsObject: originDxfObject } }
     );
 
@@ -74,20 +80,13 @@ export async function nest(files, params, projectSlug) {
 
   await db
     .collection("nest_request")
-    .updateOne({ _id: nestRequestInsert.insertedId }, { $set: { svg: svg } });
+    .updateOne({ _id: jobId }, { $set: { svg: svg } });
 
   const dxfAsString = json2Dxf({ jsonData: JSON.stringify(originDxfObject) });
 
   await db
     .collection("nest_request")
-    .updateOne(
-      { _id: nestRequestInsert.insertedId },
-      { $set: { dxfResult: dxfAsString } }
-    );
-
-  fs.writeFileSync("test.dxf", dxfAsString);
-
-  return nestRequestInsert.insertedId;
+    .updateOne({ _id: jobId }, { $set: { dxfResult: dxfAsString } });
 }
 
 async function getPlacementInstruction(
@@ -127,22 +126,6 @@ async function getPlacementInstruction(
       entities: entities,
     };
   });
-}
-
-async function validateSolution(insertId, solution) {
-  const db = await connectDB();
-
-  if (
-    !solution ||
-    solution.Usage === null ||
-    solution.Usage === undefined ||
-    solution.Layouts.length === 0
-  ) {
-    await db
-      .collection("nest_request")
-      .updateOne({ _id: insertId }, { $set: { isFail: true } });
-    throw createError(400, "Solution not found");
-  }
 }
 
 async function performJaguarRequest(

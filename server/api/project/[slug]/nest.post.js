@@ -1,38 +1,44 @@
 import { defineEventHandler, readBody } from "h3";
-import { nest } from "~~/server/core/nest";
-
 import { connectDB } from "~~/server/db/mongo";
+import { generateRandomString } from "~~/server/utils/strings";
 
 export default defineEventHandler(async (event) => {
-  const slug = getRouterParam(event, "slug");
+  const projectSlug = getRouterParam(event, "slug");
   const body = await readBody(event);
   const { files, params } = body;
 
-  const nestResultId = await nest(files, params, slug);
-
   const db = await connectDB();
 
-  const nestResult = await db
-    .collection("nest_request")
-    .findOne({ _id: nestResultId });
+  const project = await db
+    .collection("projects")
+    .findOne({ slug: projectSlug });
 
-  if (nestResult.isFail === true) {
-    throw creaError({
-      status: 400,
-      message: "Error during nesting, cannot placed all item into bin",
-    });
-  }
+  const objectsToNest = files.flatMap((file) => {
+    const dxfObject = project.dxf.find((d) => d.slug === file.slug).asObject;
 
-  let message = "All items placed";
-  if (!nestResult.isAllItemsPlaced) {
-    message = "Not all items placed";
-  }
+    return {
+      dxfObject: dxfObject,
+      count: file.count,
+    };
+  });
+
+  const slug = `nest-${generateRandomString(6)}`;
+
+  const jobData = {
+    slug,
+    projectSlug,
+    files,
+    params,
+    objectsToNest,
+    status: "pending",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const { insertedId } = await db.collection("nest_request").insertOne(jobData);
 
   return {
-    message: message,
-    usage: nestResult.usage,
-    nestResult: {
-      svg: nestResult.svg.svg,
-    },
+    jobId: insertedId,
+    slug: slug,
   };
 });
