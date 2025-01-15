@@ -7,7 +7,7 @@ let client;
 /**
  * @type {import('mongodb').Db}
  */
-let db;
+export let db;
 
 export async function connectDB() {
   if (!client) {

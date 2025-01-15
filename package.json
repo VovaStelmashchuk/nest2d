@@ -18,7 +18,8 @@
     "tslib": "^2.8.1",
     "vite": "^6.0.6",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "vue3-google-login": "^2.0.33"
   },
   "devDependencies": {
     "patch-package": "^8.0.0",

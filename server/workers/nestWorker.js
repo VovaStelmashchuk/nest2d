@@ -15,8 +15,6 @@ export async function startNestWorker() {
         { returnDocument: "after" }
       );
 
-    console.log("task", task);
-
     if (task) {
       const { _id } = task;
 

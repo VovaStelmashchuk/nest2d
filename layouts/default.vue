@@ -1,64 +1,117 @@
 <template>
   <div class="flex flex-col min-h-screen">
-    <header class="bg-black text-white">
-      <p class="text-center text-red-600 text-xl font-bold p-4">
-        The project is under development. Some DXF format not supported and some
-        geometry can be broken. You can create an issue on
+    <header class="py-4 lg:py-6 border-b border-gray-300">
+      <div
+        class="container mx-auto flex justify-between items-center px-4 lg:px-8"
+      >
+        <h1 class="text-2xl lg:text-3xl font-bold">Nest2d</h1>
+        <nav class="hidden lg:flex items-center space-x-6">
+          <a href="#features" class="text-lg hover:text-gray-500">Features</a>
+          <a href="#how-it-works" class="text-lg hover:text-gray-500"
+            >How It Works</a
+          >
+          <a href="#get-started" class="text-lg hover:text-gray-500"
+            >Get Started</a
+          >
+          <a href="#faq" class="text-lg hover:text-gray-500">FAQ</a>
+        </nav>
         <a
-          href="https://github.com/VovaStelmashchuk/nest2D/issues/new"
-          class="text-blue-600 underline hover:text-blue-800"
-          target="_blank"
-          rel="noopener noreferrer"
+          @click="loginDialog = true"
+          class="hidden lg:inline-block bg-black text-white py-2 px-6 rounded-lg text-lg shadow-md hover:bg-gray-800"
         >
-          here </a
-        >.
-      </p>
-      <div class="flex flex-col sm:flex-row justify-between pt-4">
-        <a
-          href="/"
-          class="flex-1 text-xl text-center text-white bg-black hover:bg-white hover:text-black py-4"
-          ><p class="underline underline-offset-2">Nest your project</p>
+          Login / Sign Up
         </a>
-        <a
-          href="/blog"
-          class="flex-1 text-xl text-center text-white bg-black hover:bg-white hover:text-black py-4"
-          ><p class="underline underline-offset-2">Blog</p>
-        </a>
+        <button
+          @click="menuOpen = !menuOpen"
+          class="lg:hidden text-black focus:outline-none"
+          aria-label="Toggle Menu"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+      </div>
+      <!-- Mobile Menu -->
+      <div
+        v-if="menuOpen"
+        class="lg:hidden bg-white shadow-md border-t border-gray-200 px-4 py-2"
+      >
+        <nav class="flex flex-col space-y-4">
+          <a href="#features" class="text-lg hover:text-gray-500">Features</a>
+          <a href="#how-it-works" class="text-lg hover:text-gray-500"
+            >How It Works</a
+          >
+          <a href="#get-started" class="text-lg hover:text-gray-500"
+            >Get Started</a
+          >
+          <a href="#faq" class="text-lg hover:text-gray-500">FAQ</a>
+          <button
+            @click="loginDialog = true"
+            class="bg-black text-white py-2 px-4 rounded-lg text-lg shadow-md hover:bg-gray-800"
+          >
+            Login / Sign Up
+          </button>
+        </nav>
       </div>
     </header>
 
+    <!-- Main Content -->
     <main class="flex-1 mt-4 mb-4 lg:mt-8 lg:mb-8">
       <slot />
     </main>
 
+    <!-- Footer -->
     <footer class="bg-black text-white p-4">
-      <ul class="flex flex-col">
-        <li class="mr-4">
-          <a
-            href="https://github.com/VovaStelmashchuk/nest2D"
-            target="_blank"
-            class="hover:underline"
-            >GitHub</a
-          >
-        </li>
-        <li class="mr-4">
-          <a href="/terms-and-conditions" class="hover:underline"
-            >Terms and Conditions</a
-          >
-        </li>
-        <li class="mr-4">
-          <a href="/blog" class="hover:underline">Blog</a>
-        </li>
-      </ul>
-      <p class="text-end text-gray-400">
-        © 2025 Vova Stelmashchuk. All rights reserved.
-      </p>
+      <div
+        class="container mx-auto px-4 lg:px-8 flex flex-col lg:flex-row justify-between items-center"
+      >
+        <ul class="flex flex-col lg:flex-row">
+          <li class="mr-4 mb-2 lg:mb-0">
+            <a
+              href="https://github.com/VovaStelmashchuk/nest2d"
+              target="_blank"
+              class="hover:underline"
+              >GitHub</a
+            >
+          </li>
+          <li class="mr-4 mb-2 lg:mb-0">
+            <a href="/terms-and-conditions" class="hover:underline"
+              >Terms and Conditions</a
+            >
+          </li>
+        </ul>
+        <p class="text-sm text-gray-400 mt-4 lg:mt-0 text-center lg:text-end">
+          © 2025 Vova Stelmashchuk. All rights reserved. Built with ♥ and open
+          source principles.
+        </p>
+      </div>
     </footer>
+    <!-- Login Dialog -->
+    <DialogWrapper v-model:isOpen="loginDialog">
+      <LoginView />
+    </DialogWrapper>
   </div>
 </template>
 
-<script>
-import { defineComponent } from "vue";
+<script setup lang="js">
 
-export default defineComponent({});
+const callback = (response) => {
+  // This callback will be triggered when the user selects or login to
+  // his Google account from the popup
+  console.log("Handle the response", response)
+}
+
+const loginDialog = useLoginDialog();
+const menuOpen = ref(false);
 </script>

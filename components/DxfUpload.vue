@@ -26,9 +26,7 @@
             d="M12 4v16m8-8H4"
           />
         </svg>
-        <span class="mt-2 text-l text-black">
-          Drag & drop or click to upload DXF files
-        </span>
+        <span class="mt-2 text-l text-black">Select DXF files</span>
       </label>
       <input
         type="file"
