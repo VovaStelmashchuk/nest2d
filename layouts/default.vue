@@ -4,7 +4,7 @@
       <div
         class="container mx-auto flex justify-between items-center px-4 lg:px-8"
       >
-        <h1 class="text-2xl lg:text-3xl font-bold">Nest2d</h1>
+        <a class="text-2xl lg:text-3xl font-bold" href="/"> Nest2d </a>
         <nav class="hidden lg:flex items-center space-x-6">
           <a href="#features" class="text-lg hover:text-gray-500">Features</a>
           <a href="#how-it-works" class="text-lg hover:text-gray-500"
@@ -97,7 +97,6 @@
         </p>
       </div>
     </footer>
-    <!-- Login Dialog -->
     <DialogWrapper v-model:isOpen="loginDialog">
       <LoginView />
     </DialogWrapper>
@@ -105,13 +104,6 @@
 </template>
 
 <script setup lang="js">
-
-const callback = (response) => {
-  // This callback will be triggered when the user selects or login to
-  // his Google account from the popup
-  console.log("Handle the response", response)
-}
-
 const loginDialog = useLoginDialog();
 const menuOpen = ref(false);
 </script>

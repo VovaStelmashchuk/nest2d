@@ -8,3 +8,4 @@ export function generateRandomString(count) {
   }
   return result;
 }
+

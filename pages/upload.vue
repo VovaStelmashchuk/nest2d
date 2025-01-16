@@ -93,6 +93,10 @@
 </template>
 
 <script>
+definePageMeta({
+  layout: "auth",
+});
+
 import DxfUpload from "~/components/DxfUpload.vue";
 
 export default {

@@ -102,6 +102,9 @@
 </template>
 
 <script setup>
+definePageMeta({
+  layout: "auth",
+});
 import { useRoute } from "vue-router";
 import { useFetch } from "#app";
 import { watch } from "vue";
