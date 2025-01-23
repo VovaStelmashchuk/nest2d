@@ -1,6 +1,11 @@
 import { db } from "~/server/db/mongo";
 
 export default defineEventHandler(async (event) => {
+  const userId = event.context?.auth?.userId;
+  if (!userId) {
+    setResponseStatusCode(401);
+    return;
+  }
   const slug = getRouterParam(event, "slug");
 
   const queueItem = await db.collection("nest_request").findOne({ slug: slug });

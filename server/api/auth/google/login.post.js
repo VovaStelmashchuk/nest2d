@@ -1,5 +1,6 @@
 import { db } from "~/server/db/mongo";
 import { generateSession } from "~~/server/utils/auth";
+import { fetchImageAsBase64 } from "~~/server/utils/image";
 
 export default defineEventHandler(async (event) => {
   const { googleAccessToken } = await readBody(event);
@@ -11,13 +12,15 @@ export default defineEventHandler(async (event) => {
 
   const { sub, picture, email, name } = data;
 
-  if (!sub || !email) {
+  const avatarBase64 = await fetchImageAsBase64(picture);
+
+  if (!sub || !email || !avatarBase64) {
     setResponseStatus(event, 401);
     return {
-      status: 400,
-      body: {
-        error: "Invalid access token",
-      },
+      error: "Invalid access token",
+      isSub: !!sub,
+      isEmail: !!email,
+      isAvatar: !!avatarBase64,
     };
   }
 
@@ -29,7 +32,7 @@ export default defineEventHandler(async (event) => {
       $set: {
         email: email,
         name: name,
-        avatar: picture,
+        avatar: avatarBase64,
         provider: "google",
         google: {
           sub: sub,

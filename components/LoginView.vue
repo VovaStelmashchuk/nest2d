@@ -38,16 +38,11 @@
 import {navigateTo} from 'nuxt/app';
 
 const doAuth = async (provider) => {
-  const request = {
-    provider: provider,
-  }
-
-  const response = await $fetch('/api/auth/start', {
-    method: 'POST',
+  const response = await $fetch(`/api/auth/${provider}/redirect`, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(request),
   });
 
   navigateTo(response.url, { external: true });

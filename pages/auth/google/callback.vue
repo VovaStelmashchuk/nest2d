@@ -33,7 +33,7 @@ onMounted(async () => {
     googleAccessToken: accessToken,
   };
 
-  await $fetch("/api/auth/google", {
+  await $fetch("/api/auth/google/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

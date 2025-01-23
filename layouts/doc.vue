@@ -4,17 +4,7 @@
       <div
         class="container mx-auto flex justify-between items-center px-4 lg:px-8"
       >
-        <a class="text-2xl lg:text-3xl font-bold" href="/home"> Nest2d </a>
-
-        <nav class="lg:flex items-center space-x-6">
-          <a href="/home" class="text-lg hover:text-gray-500">Projects</a>
-          <a href="/queue/all" class="text-lg hover:text-gray-500">Queue</a>
-        </nav>
-
-        <Avatar
-          class="inline-block bg-black text-white rounded-lg text-lg shadow-md"
-        >
-        </Avatar>
+        <a class="text-2xl lg:text-3xl font-bold" href="/"> Nest2d docs </a>
       </div>
     </header>
 
@@ -29,7 +19,7 @@
         <ul class="flex flex-col lg:flex-row">
           <li class="mr-4 mb-2 lg:mb-0">
             <a
-              href="https://github.com/VovaStelmashchuk/nest2d"
+              href="https://github.com/VovaStelmashchuk/nest2donline"
               target="_blank"
               class="hover:underline"
               >GitHub</a
@@ -49,4 +39,5 @@
     </footer>
   </div>
 </template>
-<script setup></script>
+
+<script></script>

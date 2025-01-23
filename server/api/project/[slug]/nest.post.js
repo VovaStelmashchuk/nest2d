@@ -3,6 +3,12 @@ import { connectDB } from "~~/server/db/mongo";
 import { generateRandomString } from "~~/server/utils/strings";
 
 export default defineEventHandler(async (event) => {
+  const userId = event.context?.auth?.userId;
+  if (!userId) {
+    setResponseStatusCode(401);
+    return;
+  }
+
   const projectSlug = getRouterParam(event, "slug");
   const body = await readBody(event);
   const { files, params } = body;
@@ -33,6 +39,7 @@ export default defineEventHandler(async (event) => {
     status: "pending",
     createdAt: new Date(),
     updatedAt: new Date(),
+    ownerId: userId,
   };
 
   const { insertedId } = await db.collection("nest_request").insertOne(jobData);

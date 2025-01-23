@@ -6,6 +6,10 @@ import { generateRandomString } from "~~/server/utils/strings";
 import { dxf2Json } from "~~/libs/deepnest_dxf2svg-processor";
 
 export default defineEventHandler(async (event) => {
+  const userId = event.context?.auth?.userId;
+  if (!userId) {
+    throw createError({ statusCode: 401, message: "Unauthorized" });
+  }
   const db = await connectDB();
   try {
     const fields = await readMultipartFormData(event);
@@ -18,6 +22,7 @@ export default defineEventHandler(async (event) => {
       slug: slug,
       dxf: dxfArray,
       uploadedAt: new Date(),
+      ownerId: userId,
     });
 
     const dxfRecords = dxfArray.map(function (dxf) {

@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-4">
+  <div class="container mx-auto p-4" v-if="data">
     <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
       Project slug: {{ data.projectSlug }}
     </h2>
@@ -50,7 +50,7 @@
             specName="Tolerance"
             :specValue="`${data.params.tolerance} mm`"
           />
-          <SpecBlock specName="Usage" :specValue="data.usage" />
+          <SpecBlock specName="Usage" :specValue="`${data.usage}`" />
         </div>
       </div>
     </div>
@@ -58,10 +58,41 @@
 </template>
 
 <script setup>
-import { useFetch } from "#app";
+import { ref, onMounted, onBeforeUnmount } from "vue";
+definePageMeta({
+  layout: "auth",
+});
 
 const route = useRoute();
 const slug = route.params.slug;
 
-const { data, pending, error } = await useFetch(`/api/queue/${slug}`);
+const data = ref(null);
+let intervalId;
+
+const fetchData = async () => {
+  try {
+    const response = await $fetch(`/api/queue/${slug}`);
+    data.value = response;
+    if (response.status == "completed") {
+      stopPolling();
+    }
+  } catch (err) {}
+};
+
+const startPolling = () => {
+  fetchData();
+  intervalId = setInterval(fetchData, 5000);
+};
+
+const stopPolling = () => {
+  if (intervalId) clearInterval(intervalId);
+};
+
+onMounted(() => {
+  startPolling();
+});
+
+onBeforeUnmount(() => {
+  stopPolling();
+});
 </script>

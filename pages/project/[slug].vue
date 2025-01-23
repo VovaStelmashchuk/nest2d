@@ -84,16 +84,6 @@
             <div v-if="nestRequestError" class="text-red-500 mt-2">
               {{ nestRequestError }}
             </div>
-
-            <div v-if="nestResult" class="text-green-500 mt-2">
-              <p class="text-l py-2">Nest task added to the queue.</p>
-              <a
-                :href="`/queue/${nestResult.slug}`"
-                class="w-full bg-green text-black py-2 px-4 rounded-lg border border-black hover:bg-white hover:text-black transition duration-300 ease-in-out transform focus:ring focus:ring-gray-400 inline-block text-center"
-              >
-                Go to next task
-              </a>
-            </div>
           </div>
         </div>
       </div>
@@ -108,16 +98,16 @@ definePageMeta({
 import { useRoute } from "vue-router";
 import { useFetch } from "#app";
 import { watch } from "vue";
+import { navigateTo } from "nuxt/app";
 
 const route = useRoute();
 const slug = route.params.slug;
 
 const nestRequestError = ref(null);
 
-const widthPlate = ref("");
-const heightPlate = ref("");
-const tolerance = ref("");
-const nestResult = ref(null);
+const widthPlate = ref(400);
+const heightPlate = ref(560);
+const tolerance = ref(0.1);
 
 const counters = ref({});
 
@@ -131,38 +121,43 @@ const gridColsClass = computed(() => {
   `;
 });
 
-watch(
-  () => data,
-  (data) => {
-    if (!data || !data.value || !data.value.files) return;
-    data.value.files.forEach((file) => {
-      counters.value[file.slug] = 0;
-    });
-  },
-  { immediate: true }
-);
-
 const updateCounter = () => {
   nestRequestError.value = null;
   const conuts = Object.values(counters.value);
   selectedFileCount.value = conuts.reduce((acc, curr) => acc + curr, 0);
 };
 
+watch(
+  () => data,
+  (data) => {
+    if (!data || !data.value || !data.value.files) return;
+    data.value.files.forEach((file) => {
+      counters.value[file.slug] = 1;
+    });
+  },
+  { immediate: true }
+);
+
+watch(
+  () => counters.value,
+  () => {
+    updateCounter();
+  },
+  { deep: true, immediate: true }
+);
+
 const increment = (slug) => {
   counters.value[slug]++;
-  updateCounter();
 };
 
 const decrement = (slug) => {
   if (counters.value[slug] > 0) {
     counters.value[slug]--;
-    updateCounter();
   }
 };
 
 const nest = async () => {
   nestRequestError.value = null;
-  nestResult.value = null;
 
   const filesToNest = Object.entries(counters.value)
     .filter(([_, count]) => count > 0)
@@ -197,18 +192,16 @@ const nest = async () => {
     },
   };
 
-  nestResult.value = await fetch(`/api/project/${slug}/nest`, {
+  const nestResultResponse = await fetch(`/api/project/${slug}/nest`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(request),
-  }).then((response) => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
   });
+  const nestResult = await nestResultResponse.json();
+
+  navigateTo(`/queue/${nestResult.slug}`);
 };
 </script>
 

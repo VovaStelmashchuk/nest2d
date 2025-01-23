@@ -1,4 +1,3 @@
-import { __asyncValues } from "tslib";
 import { db } from "~/server/db/mongo";
 
 export default defineEventHandler(async (event) => {

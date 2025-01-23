@@ -1,7 +1,8 @@
 import { defineEventHandler } from "h3";
 import { connectDB } from "~~/server/db/mongo";
 
-export default defineEventHandler(async (_) => {
+export default defineEventHandler(async (event) => {
+  const userId = event.context?.auth?.userId || "anonymous";
   const db = await connectDB();
 
   let isDbConnected = false;
@@ -14,6 +15,7 @@ export default defineEventHandler(async (_) => {
   }
 
   return {
+    userId: userId,
     isDbConnected: isDbConnected,
     version: "0.1.0",
   };

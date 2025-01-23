@@ -1,33 +1,38 @@
 <template>
-  <div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
-      Lets make your laser cutting economical
-    </h2>
+  <div>
+    <div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+        Upload your DXF files
+      </h2>
 
-    <form @submit.prevent="handleSubmit" enctype="multipart/form-data">
-      <div class="mb-6">
-        <label
-          for="dxfFilesLabel"
-          class="block text-xl font-medium text-gray-800 mb-2"
+      <form @submit.prevent="handleSubmit" enctype="multipart/form-data">
+        <div class="mb-6">
+          <label
+            for="dxfFilesLabel"
+            class="block text-xl font-medium text-gray-800 mb-2"
+          >
+            DXF Files
+          </label>
+          <DxfUpload @files="handleDxfChange" />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-black text-white py-2 px-4 rounded-lg shadow-md border border-black hover:bg-white hover:text-black transition duration-300 ease-in-out transform focus:ring focus:ring-gray-400"
         >
-          DXF Files
-        </label>
-        <DxfUpload @files="handleDxfChange" />
-      </div>
+          Save money
+        </button>
+      </form>
 
-      <button
-        type="submit"
-        class="w-full bg-black text-white py-2 px-4 rounded-lg shadow-md border border-black hover:bg-white hover:text-black transition duration-300 ease-in-out transform focus:ring focus:ring-gray-400"
+      <div
+        v-if="error"
+        class="mt-6 p-4 bg-red-50 border border-red-400 text-red-800 rounded-lg"
       >
-        Save money
-      </button>
-    </form>
-
-    <div
-      v-if="error"
-      class="mt-6 p-4 bg-red-50 border border-red-400 text-red-800 rounded-lg"
-    >
-      {{ error }}
+        {{ error }}
+      </div>
+    </div>
+    <div class="max-w-2xl mx-auto">
+      <UserProjects />
     </div>
   </div>
 </template>

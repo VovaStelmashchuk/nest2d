@@ -9,12 +9,12 @@
           efficiency.
         </p>
         <div class="mt-8">
-          <a
+          <button
             @click="loginDialog = true"
-            class="bg-black text-white py-3 px-6 rounded-lg text-lg shadow-md hover:bg-gray-800"
+            class="bg-black text-white py-2 px-4 rounded-lg text-lg shadow-md hover:bg-gray-800"
           >
             Get Started for Free
-          </a>
+          </button>
         </div>
       </div>
     </section>
@@ -142,5 +142,8 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: "auth-redirect",
+});
 const loginDialog = useLoginDialog();
 </script>

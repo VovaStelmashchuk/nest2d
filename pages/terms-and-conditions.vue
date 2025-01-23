@@ -102,3 +102,9 @@
     </p>
   </div>
 </template>
+
+<script setup>
+definePageMeta({
+  layout: "doc",
+});
+</script>

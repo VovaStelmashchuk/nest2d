@@ -1,8 +1,6 @@
 import { getConfig } from "~/server/utils/config";
 
-export default defineEventHandler(async (event) => {
-  const { provider } = await readBody(event);
-
+export default defineEventHandler(async (_) => {
   return {
     url: await buildGoogleAuthLink(),
   };
