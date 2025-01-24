@@ -18,8 +18,22 @@ export function useAuth() {
     return user.value;
   }
 
+  async function logout() {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      user.value = null;
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  }
+
   return {
     user,
     fetchUser,
+    logout,
   };
 }

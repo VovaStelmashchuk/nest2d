@@ -46,6 +46,26 @@ export function generateSession() {
   };
 }
 
+export async function removeSessionFromUser(sessionId) {
+  const db = await connectDB();
+  await db.collection("users").updateOne(
+    {
+      sessions: {
+        $elemMatch: {
+          sessionId: sessionId,
+        },
+      },
+    },
+    {
+      $pull: {
+        sessions: {
+          sessionId: sessionId,
+        },
+      },
+    }
+  );
+}
+
 export async function getUserBySessionId(sessionId) {
   const db = await connectDB();
   return await db.collection("users").findOne({

@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const user = await db.collection("users").findOne({ id: userId });
   return {
     id: user.id,
-    username: user.username,
+    name: user.name,
     email: user.email,
     avatar: user.avatar,
   };
