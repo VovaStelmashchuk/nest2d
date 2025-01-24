@@ -69,6 +69,13 @@
             placeholder="Enter tolerance"
           />
 
+          <InputField
+            id="space"
+            label="Space"
+            v-model="space"
+            placeholder="Enter space"
+          />
+
           <div>
             <span class="text-2xl font-bold text-black my-2 text-center">
               Files selected: {{ selectedFileCount }}
@@ -108,6 +115,7 @@ const nestRequestError = ref(null);
 const widthPlate = ref(400);
 const heightPlate = ref(560);
 const tolerance = ref(0.1);
+const space = ref(0.1);
 
 const counters = ref({});
 
@@ -176,10 +184,16 @@ const nest = async () => {
   const widthValue = parseFloat(widthPlate.value);
   const heightValue = parseFloat(heightPlate.value);
   const toleranceValue = parseFloat(tolerance.value);
+  const spaceValue = parseFloat(space.value);
 
-  if (isNaN(widthValue) || isNaN(heightValue) || isNaN(toleranceValue)) {
+  if (
+    isNaN(widthValue) ||
+    isNaN(heightValue) ||
+    isNaN(toleranceValue) ||
+    isNaN(spaceValue)
+  ) {
     nestRequestError.value =
-      "Please enter valid values for width, height, and tolerance.";
+      "Please enter valid values for width, height, tolerance and space.";
     return;
   }
 
@@ -189,6 +203,7 @@ const nest = async () => {
       width: widthValue,
       height: heightValue,
       tolerance: toleranceValue,
+      space: spaceValue,
     },
   };
 

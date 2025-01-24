@@ -38,7 +38,7 @@ function getIcon(status) {
     case "pending":
       return "/pending.svg";
     case "failed":
-      return "/failed.svg";
+      return "/fail.svg";
     default:
       return "/unknown.svg";
   }

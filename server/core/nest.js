@@ -1,10 +1,9 @@
 import { json2Dxf } from "@deepnest/dxf2svg-processor";
 import { parseAndCombine } from "~~/server/core/dxf/parser";
 import { transformEntity } from "~~/server/core/dxf/transform";
-
 import { connectDB } from "~~/server/db/mongo";
-
 import { generateSvg } from "./svg/generator";
+import { buildPolygon } from "./polygones";
 
 export async function nest(jobId) {
   const db = await connectDB();
@@ -20,21 +19,23 @@ export async function nest(jobId) {
   const { objectsToNest, params } = nestRequest;
 
   const polygonsWithCount = objectsToNest.flatMap((objectWithCount) => {
-    return parseAndCombine(objectWithCount.dxfObject, 0.1).closed.map(
-      (polygon) => {
-        return {
-          polygon: polygon,
-          count: objectWithCount.count,
-        };
-      }
-    );
+    return parseAndCombine(
+      objectWithCount.dxfObject,
+      params.tolerance
+    ).closed.map((polygon) => {
+      return {
+        polygon: polygon,
+        count: objectWithCount.count,
+      };
+    });
   });
 
   const solution = await performJaguarRequest(
     jobId,
     polygonsWithCount,
     params.width,
-    params.height
+    params.height,
+    params.space
   );
 
   if (
@@ -136,10 +137,11 @@ async function performJaguarRequest(
   insertedId,
   polygonesWithCount,
   width,
-  height
+  height,
+  space
 ) {
   const db = await connectDB();
-  const jaguarRequest = buildNestJson(polygonesWithCount, width, height);
+  const jaguarRequest = buildNestJson(polygonesWithCount, width, height, space);
 
   await db
     .collection("nest_request")
@@ -166,16 +168,14 @@ function countOfPolygons(polygonsWithCount) {
   }, 0);
 }
 
-function buildNestJson(polygonsWithCount, width, height) {
+function buildNestJson(polygonsWithCount, width, height, space) {
   const items = polygonsWithCount.map((polygoneWithCount) => {
     return {
       Demand: polygoneWithCount.count,
       AllowedOrientations: [0.0, 90.0, 180.0, 270.0],
       Shape: {
         Type: "SimplePolygon",
-        Data: polygoneWithCount.polygon.polygon.map((point) => {
-          return [point.x, point.y];
-        }),
+        Data: buildPolygon(polygoneWithCount.polygon.polygon, space),
       },
     };
   });

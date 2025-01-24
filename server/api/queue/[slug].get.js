@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
       width: queueItem.params.width,
       height: queueItem.params.height,
       tolerance: queueItem.params.tolerance,
+      space: queueItem.params.space,
     },
     usage: queueItem.usage,
   };

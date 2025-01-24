@@ -58,7 +58,6 @@ function createSVGFromPolygons(closedPolygons) {
     console.warn("No closed polygons provided.");
   }
 
-  // 2. Calculate Bounding Box
   let minX = Infinity,
     minY = Infinity,
     maxX = -Infinity,
@@ -73,7 +72,6 @@ function createSVGFromPolygons(closedPolygons) {
     });
   });
 
-  // Handle the case when no polygons are provided
   if (minX === Infinity) minX = minY = 0;
   if (maxX === -Infinity) maxX = maxY = 100;
 
@@ -85,6 +83,9 @@ function createSVGFromPolygons(closedPolygons) {
 
   const viewBoxWidth = maxX - minX;
   const viewBoxHeight = maxY - minY;
+
+  // Calculate the center for horizontal mirroring
+  const centerY = (minY + maxY) / 2;
 
   let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${viewBoxWidth}" height="${viewBoxHeight}" viewBox="${minX} ${minY} ${viewBoxWidth} ${viewBoxHeight}">\n`;
 
@@ -98,11 +99,20 @@ function createSVGFromPolygons(closedPolygons) {
       return;
     }
 
-    const pointsStr = polygon.map((pt) => `${pt.x},${pt.y}`).join(" ");
+    // Create mirrored points
+    const mirroredPolygon = polygon.map(({ x, y }) => ({
+      x,
+      y: centerY * 2 - y,
+    }));
+
+    const mirroredPointsStr = mirroredPolygon
+      .map((pt) => `${pt.x},${pt.y}`)
+      .join(" ");
 
     const color = colors[index % colors.length];
 
-    svgContent += `  <polygon points="${pointsStr}" fill="${color}" stroke="black" stroke-width="1" />\n`;
+    // Add mirrored polygon
+    svgContent += `  <polygon points="${mirroredPointsStr}" fill="${color}" stroke="black" stroke-width="1"/>\n`;
   });
 
   svgContent += `</svg>`;

@@ -4,7 +4,7 @@
       Project slug: {{ data.projectSlug }}
     </h2>
     <h2 class="text-2xl font-semibold text-gray-800 my-2">Nest result</h2>
-    <div class="flex flex-row h-96 py-2">
+    <div class="flex flex-row py-2">
       <div
         class="flex-1 flex items-center justify-center border border-gray-200 rounded-lg"
       >
@@ -18,10 +18,10 @@
           <p class="mt-2 text-gray-600">Nesting in progress...</p>
         </div>
 
-        <SvgDisplay v-else class="w-full h-full" :svgContent="data.resultSvg" />
+        <SvgDisplay v-else class="w-full h-96" :svgContent="data.resultSvg" />
       </div>
 
-      <div class="container mx-auto flex-1 flex flex-col px-4">
+      <div class="flex-1 flex flex-col px-4">
         <div class="space-y-4" v-if="data.params">
           <a
             :href="`/api/queue/${slug}/dxf`"
@@ -40,6 +40,7 @@
             specName="Tolerance"
             :specValue="`${data.params.tolerance} mm`"
           />
+          <SpecBlock specName="Space" :specValue="`${data.params.space} mm`" />
           <SpecBlock
             v-if="data.status == 'completed'"
             specName="Usage"
