@@ -4,7 +4,7 @@
       <div
         class="container mx-auto flex justify-between items-center px-4 lg:px-8"
       >
-        <a class="text-2xl lg:text-3xl font-bold" href="/"> Nest2d docs </a>
+        <a class="text-2xl lg:text-3xl font-bold" href="/">Nest2d</a>
       </div>
     </header>
 
