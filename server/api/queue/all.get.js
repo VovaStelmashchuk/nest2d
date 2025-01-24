@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
 
   if (!userId) {
-    setResponseStatusCode(401);
+    setResponseStatus(event, 401);
     return;
   }
 

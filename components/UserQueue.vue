@@ -1,9 +1,10 @@
 <template>
   <div>
     <div class="max-w-2xl mx-auto p-6">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Queue</h2>
-      <div class="grid grid-cols-1 gap-4">
-        <div
+      <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Queue</h2>
+      <div class="grid grid-cols-1 gap-2">
+        <a
+          :href="`/queue/${item.slug}`"
           v-for="item in data.items"
           :key="item.id"
           class="border border-gray-200 rounded-lg p-4 flex flex-col"
@@ -17,7 +18,7 @@
             />
           </div>
           <p class="ml-auto text-gray-600">{{ item.createdAt }}</p>
-        </div>
+        </a>
       </div>
     </div>
   </div>

@@ -61,9 +61,13 @@ export async function nest(jobId) {
 
   const originDxfObject = objectsToNest[0].dxfObject;
 
+  let handle = 200;
+
   const newEntities = placementInstruction.flatMap((inst) => {
     return inst.entities.map((entity) => {
-      return transformEntity(entity, inst.transform);
+      const newEntity = transformEntity(entity, inst.transform);
+      newEntity.common.handle = handle++;
+      return newEntity;
     });
   });
 

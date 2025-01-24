@@ -35,6 +35,7 @@ export default defineEventHandler(async (event) => {
     status: queueItem.status,
     nestedFiles: nestedFiles,
     resultSvg: queueItem?.svg?.svg,
+    dxfResult: queueItem?.dxfResult,
     params: {
       width: queueItem.params.width,
       height: queueItem.params.height,

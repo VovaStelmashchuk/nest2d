@@ -1,18 +1,12 @@
 <template>
   <div>
     <div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">
         Upload your DXF files
       </h2>
 
       <form @submit.prevent="handleSubmit" enctype="multipart/form-data">
-        <div class="mb-6">
-          <label
-            for="dxfFilesLabel"
-            class="block text-xl font-medium text-gray-800 mb-2"
-          >
-            DXF Files
-          </label>
+        <div class="mb-4">
           <DxfUpload @files="handleDxfChange" />
         </div>
 

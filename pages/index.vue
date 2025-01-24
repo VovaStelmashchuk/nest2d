@@ -88,7 +88,6 @@
       </div>
     </section>
 
-    <!-- Call to Action -->
     <section id="get-started" class="py-16 text-center bg-gray-50">
       <div class="container mx-auto">
         <h3 class="text-3xl font-bold">Get Started Today</h3>
@@ -106,7 +105,6 @@
       </div>
     </section>
 
-    <!-- FAQ Section -->
     <section id="faq" class="py-16">
       <div class="container mx-auto">
         <h3 class="text-3xl font-bold text-center">
@@ -132,7 +130,15 @@
               Can I contribute to the project?
             </summary>
             <p class="mt-2 text-gray-600">
-              Absolutely! Check out our GitHub repository to contribute.
+              Absolutely! Check out our
+              <a
+                href="https://github.com/VovaStelmashchuk/nest2D"
+                target="_blank"
+                class="text-blue-500 hover:underline"
+              >
+                GitHub repository
+              </a>
+              to contribute.
             </p>
           </details>
         </div>
