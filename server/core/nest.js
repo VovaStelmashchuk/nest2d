@@ -109,12 +109,17 @@ async function getPlacementInstruction(
   const isAllItemsPlaced = placedItems.length === requestedPolygones;
 
   const usage = layout.Statistics.Usage;
-  await db
-    .collection("nest_request")
-    .updateOne(
-      { _id: insertedId },
-      { $set: { isAllItemsPlaced: isAllItemsPlaced, usage: usage } }
-    );
+  await db.collection("nest_request").updateOne(
+    { _id: insertedId },
+    {
+      $set: {
+        isAllItemsPlaced: isAllItemsPlaced,
+        usage: usage,
+        requested: requestedPolygones,
+        placed: placedItems.length,
+      },
+    }
+  );
 
   return placedItems.map((placedItem) => {
     const transform = {

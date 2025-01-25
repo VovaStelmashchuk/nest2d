@@ -18,7 +18,7 @@
 defineProps({
   id: { type: String, required: true },
   label: { type: String, required: true },
-  modelValue: { type: [String, Number], required: true }, // For v-model binding
+  modelValue: { type: [String, Number], required: true },
   type: { type: String, default: "text" },
   placeholder: { type: String, default: "" },
 });

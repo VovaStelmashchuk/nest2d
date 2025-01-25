@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
   return {
     slug: queueItem.slug,
     projectSlug: project.slug,
+    projectName: project.name,
     status: queueItem.status,
     nestedFiles: nestedFiles,
     resultSvg: queueItem?.svg?.svg,
@@ -42,6 +43,8 @@ export default defineEventHandler(async (event) => {
       tolerance: queueItem.params.tolerance,
       space: queueItem.params.space,
     },
+    placedItemCount: queueItem.placed,
+    requestedItemCount: queueItem.requested,
     usage: queueItem.usage,
   };
 });

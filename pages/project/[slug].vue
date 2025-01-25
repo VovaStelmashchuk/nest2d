@@ -1,9 +1,6 @@
 <template>
   <div class="container mx-auto relative flex flex-col">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
-      {{ data.slug }}
-    </h2>
-
+    <ProjectName :projectName="data.name" :slug="data.slug" />
     <div class="flex flex-row">
       <div v-if="data" class="flex-grow">
         <div
@@ -110,12 +107,14 @@ import { navigateTo } from "nuxt/app";
 const route = useRoute();
 const slug = route.params.slug;
 
+const query = route.query;
+
 const nestRequestError = ref(null);
 
-const widthPlate = ref(400);
-const heightPlate = ref(560);
-const tolerance = ref(0.1);
-const space = ref(0.1);
+const widthPlate = ref(query.width || 400);
+const heightPlate = ref(query.height || 560);
+const tolerance = ref(query.tolerance || 0.1);
+const space = ref(query.space || 0.1);
 
 const counters = ref({});
 
@@ -134,17 +133,22 @@ const updateCounter = () => {
   const conuts = Object.values(counters.value);
   selectedFileCount.value = conuts.reduce((acc, curr) => acc + curr, 0);
 };
-
-watch(
-  () => data,
-  (data) => {
-    if (!data || !data.value || !data.value.files) return;
-    data.value.files.forEach((file) => {
-      counters.value[file.slug] = 1;
-    });
-  },
-  { immediate: true }
-);
+const fileKeys = Object.keys(query).filter((key) => key.startsWith("file-"));
+if (fileKeys.length) {
+  fileKeys.forEach((key) => {
+    const slug = key.replace("file-", "");
+    counters.value[slug] = parseInt(query[key]);
+  });
+  data.value.files.forEach((file) => {
+    if (!counters.value[file.slug]) {
+      counters.value[file.slug] = 0;
+    }
+  });
+} else {
+  data.value.files.forEach((file) => {
+    counters.value[file.slug] = 1;
+  });
+}
 
 watch(
   () => counters.value,

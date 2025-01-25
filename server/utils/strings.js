@@ -9,3 +9,35 @@ export function generateRandomString(count) {
   return result;
 }
 
+export function generateEntityName() {
+  const adjectives = [
+    "brave",
+    "clever",
+    "bright",
+    "swift",
+    "mighty",
+    "calm",
+    "gentle",
+    "fierce",
+    "happy",
+    "bold",
+  ];
+  const nouns = [
+    "turing",
+    "curie",
+    "einstein",
+    "newton",
+    "tesla",
+    "bohr",
+    "feynman",
+    "lovelace",
+    "hopper",
+    "galileo",
+  ];
+
+  const getRandomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+  const name = `${getRandomElement(adjectives)}-${getRandomElement(nouns)}`;
+
+  return name;
+}

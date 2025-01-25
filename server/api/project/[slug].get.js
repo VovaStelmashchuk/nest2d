@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
+    name: project.name,
     slug: project.slug,
     files: project.dxf.map((dxf) => {
       return {

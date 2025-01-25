@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto p-4" v-if="data">
     <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
-      Project slug: {{ data.projectSlug }}
+      Project: {{ data.projectName }}
     </h2>
     <h2 class="text-2xl font-semibold text-gray-800 my-2">Nest result</h2>
     <div class="flex flex-row py-2">
@@ -9,15 +9,21 @@
         class="flex-1 flex items-center justify-center border border-gray-200 rounded-lg"
       >
         <div v-if="!data.resultSvg" class="flex flex-col items-center">
-          <div class="w-3/4 bg-gray-200 rounded-full h-4">
+          <div class="relative w-16 h-16">
             <div
-              class="bg-blue-500 h-4 rounded-full animate-pulse"
-              style="width: 50%"
+              class="absolute inset-0 rounded-full border-4 border-gray-200"
+            ></div>
+            <div
+              class="absolute inset-0 rounded-full border-4 border-t-black animate-spin"
             ></div>
           </div>
-          <p class="mt-2 text-gray-600">Nesting in progress...</p>
-        </div>
 
+          <p class="m-4 text-gray-600 text-center">
+            Nesting is in progress. This process may take some time. You can
+            safely leave this page and check the status in the
+            <a href="/queue/all" class="text-blue-500 underline">Queue</a> page.
+          </p>
+        </div>
         <SvgDisplay v-else class="w-full h-96" :svgContent="data.resultSvg" />
       </div>
 
@@ -31,6 +37,7 @@
           >
             Download DXF
           </a>
+
           <SpecBlock specName="Width" :specValue="`${data.params.width} mm`" />
           <SpecBlock
             specName="Height"
@@ -46,6 +53,21 @@
             specName="Usage"
             :specValue="`${formattedUsage(data.usage)}`"
           />
+          <SpecBlock
+            v-if="data.status == 'completed'"
+            specName="Placed items"
+            :specValue="`${data.placedItemCount}/${data.requestedItemCount}`"
+            :bgColor="
+              data.placedItemCount < data.requestedItemCount ? '#ff0011' : ''
+            "
+          />
+          <a
+            :href="`${buildNestParamsUrl()}`"
+            target="_blank"
+            class="block text-center w-full bg-black text-white py-2 px-4 rounded-lg shadow-md border border-black hover:bg-white hover:text-black transition duration-300 ease-in-out transform focus:ring focus:ring-gray-400"
+          >
+            Adjust nesting settings
+          </a>
         </div>
       </div>
     </div>
@@ -77,6 +99,19 @@ definePageMeta({
 
 function formattedUsage(usage) {
   return `${(usage * 100).toFixed(0)}%`;
+}
+
+function buildNestParamsUrl() {
+  const projectSlug = data.value.projectSlug;
+  const params = new URLSearchParams();
+  params.append("width", data.value.params.width);
+  params.append("height", data.value.params.height);
+  params.append("tolerance", data.value.params.tolerance);
+  params.append("space", data.value.params.space);
+  data.value.nestedFiles.forEach((file) => {
+    params.append(`file-${file.slug}`, file.count);
+  });
+  return `/project/${projectSlug}?${params.toString()}`;
 }
 
 const route = useRoute();

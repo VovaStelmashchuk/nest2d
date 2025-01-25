@@ -1,7 +1,10 @@
 <template>
-  <div class="p-2 bg-white border rounded-md">
-    <h3 class="text-lg font-medium text-gray-700">{{ specName }}</h3>
-    <p class="text-gray-600 text-sm">{{ specValue }}</p>
+  <div
+    :class="['p-2 border rounded-md', textColor]"
+    :style="{ backgroundColor: bgColor }"
+  >
+    <h3 class="text-lg font-medium">{{ specName }}</h3>
+    <p class="text-sm">{{ specValue }}</p>
   </div>
 </template>
 
@@ -15,6 +18,10 @@ export default {
     specValue: {
       type: String,
       required: true,
+    },
+    bgColor: {
+      type: String,
+      default: "#ffffff",
     },
   },
 };

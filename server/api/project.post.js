@@ -16,10 +16,12 @@ export default defineEventHandler(async (event) => {
     const dxfFileFields = fields.filter((field) => field.name === "dxf");
     const dxfArray = getDxfArray(dxfFileFields);
 
-    const slug = `slug-${generateRandomString(6)}`;
+    const name = generateEntityName();
+    const slug = `${name}-${generateRandomString(6)}`;
 
     const insertResult = await db.collection("projects").insertOne({
       slug: slug,
+      name: name,
       dxf: dxfArray,
       uploadedAt: new Date(),
       ownerId: userId,

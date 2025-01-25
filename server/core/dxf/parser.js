@@ -15,7 +15,7 @@ export function parseAndCombine(dxfObject, tolerance) {
       isInherentlyClosed(ent) || isClosedPolygon(points, tolerance);
     return {
       polygon: points,
-      originEntities: [ent], // keep track of which entity/ies form this polygon
+      originEntities: [ent],
       isClosed,
     };
   });

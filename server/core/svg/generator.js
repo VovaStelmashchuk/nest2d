@@ -5,7 +5,7 @@ import { parseAndCombine } from "../dxf/parser";
  * @returns {{svg: string, error: string}}
  */
 export function generateSvg(dxfObject) {
-  const polygones = parseAndCombine(dxfObject, 0.1);
+  const polygones = parseAndCombine(dxfObject, 1);
 
   const svg = createSVGFromPolygons(polygones.closed);
   let error = null;

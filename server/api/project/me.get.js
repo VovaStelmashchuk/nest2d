@@ -23,7 +23,7 @@ function mapProject(project) {
 
   return {
     slug: project.slug,
-    name: project.slug,
+    name: project.name,
     imageSvg: firstFile.svg,
   };
 }
