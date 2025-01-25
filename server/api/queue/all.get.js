@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
     .collection("nest_request")
     .find({ ownerId: userId })
     .sort({ createdAt: -1 })
+    .project({ slug: 1, status: 1, createdAt: 1 })
     .toArray();
 
   return {

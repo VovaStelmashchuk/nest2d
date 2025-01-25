@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     .collection("projects")
     .find({ ownerId: userId })
     .sort({ uploadedAt: -1 })
+    .project({ slug: 1, name: 1 })
     .toArray();
 
   const uiProjects = userProjects.map(mapProject);
@@ -19,11 +20,9 @@ export default defineEventHandler(async (event) => {
 });
 
 function mapProject(project) {
-  const firstFile = project.dxf[0];
-
   return {
     slug: project.slug,
     name: project.name,
-    imageSvg: firstFile.svg,
+    imageUrl: "/placeholder.svg",
   };
 }

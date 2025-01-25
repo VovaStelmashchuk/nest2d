@@ -112,7 +112,7 @@ function createSVGFromPolygons(closedPolygons) {
     const color = colors[index % colors.length];
 
     // Add mirrored polygon
-    svgContent += `  <polygon points="${mirroredPointsStr}" fill="${color}" stroke="black" stroke-width="1"/>\n`;
+    svgContent += `  <polygon points="${mirroredPointsStr}" stroke="#000000" fill="${color}" stroke-width="1"/>\n`;
   });
 
   svgContent += `</svg>`;

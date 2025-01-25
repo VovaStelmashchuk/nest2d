@@ -7,7 +7,7 @@
       <div v-for="project in data.projects" :key="project.id">
         <UserProjectItem
           :key="project.slug"
-          :imageSvg="project.imageSvg"
+          :imageUrl="project.imageUrl"
           :slug="project.slug"
           :text="project.name"
         />

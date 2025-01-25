@@ -3,7 +3,7 @@
     <div
       class="flex flex-row bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow duration-200 cursor-pointer"
     >
-      <SvgDisplay class="w-32 h-32 mr-4" :svgContent="imageSvg" />
+      <img v-if="imageUrl" class="w-32 h-32 mr-4" :src="imageUrl" :alt="text" />
 
       <div
         class="p-4 text-center text-2xl font-semibold text-black line-clamp-2"
@@ -22,9 +22,9 @@ export default {
       type: String,
       required: true,
     },
-    imageSvg: {
+    imageUrl: {
       type: String,
-      required: true,
+      required: false,
     },
     text: {
       type: String,

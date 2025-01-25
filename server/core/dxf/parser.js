@@ -1,4 +1,5 @@
 import { entityToPoints } from "./entityToPoints.js";
+import { combineSegmentsIntoPolygons } from "./combineSegmentsIntoPolygons.js";
 
 /**
  * @param {Array} dxfEntities
@@ -9,10 +10,12 @@ import { entityToPoints } from "./entityToPoints.js";
 export function parseAndCombine(dxfObject, tolerance) {
   const dxfEntities = dxfObject["__entities"];
 
+  // Convert each entity into { polygon, originEntities, isClosed }
   const allProcessed = dxfEntities.map((ent) => {
     const points = entityToPoints(ent, tolerance);
     const isClosed =
       isInherentlyClosed(ent) || isClosedPolygon(points, tolerance);
+
     return {
       polygon: points,
       originEntities: [ent],
@@ -20,38 +23,29 @@ export function parseAndCombine(dxfObject, tolerance) {
     };
   });
 
-  const closed = [];
-  let open = [];
+  // Separate those that are "already closed" vs. "open"
+  const originClose = [];
+  let originOpen = [];
 
   for (const item of allProcessed) {
     if (item.isClosed) {
-      closed.push({
+      originClose.push({
         polygon: item.polygon,
         originEntities: item.originEntities,
       });
     } else {
-      open.push({
+      originOpen.push({
         polygon: item.polygon,
         originEntities: item.originEntities,
       });
     }
   }
 
-  let mergedSomething = true;
-  while (mergedSomething) {
-    const result = mergeOpenPolygons(open, tolerance);
-    open = result.openPolygons;
-    const newlyClosed = result.newlyClosed;
+  const { closed, open } = combineSegmentsIntoPolygons(originOpen, 1e-1);
 
-    if (newlyClosed.length > 0) {
-      closed.push(...newlyClosed);
-      mergedSomething = true;
-    } else {
-      mergedSomething = false;
-    }
-  }
+  const allClosed = [...originClose, ...closed];
 
-  return { closed, open };
+  return { closed: allClosed, open: open };
 }
 
 /**

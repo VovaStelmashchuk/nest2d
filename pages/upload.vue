@@ -97,12 +97,7 @@ definePageMeta({
   layout: "auth",
 });
 
-import DxfUpload from "~/components/DxfUpload.vue";
-
 export default {
-  components: {
-    DxfUpload,
-  },
   data() {
     return {
       projectName: "",

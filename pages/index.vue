@@ -148,8 +148,15 @@
 </template>
 
 <script setup>
-definePageMeta({
-  middleware: "auth-redirect",
+import { navigateTo } from "nuxt/app";
+
+onMounted(() => {
+  console.log("mounted");
+  const { user, fetchUser, logout } = useAuth();
+  if (user) {
+    fetchUser();
+    navigateTo("/home");
+  }
 });
 const loginDialog = useLoginDialog();
 </script>

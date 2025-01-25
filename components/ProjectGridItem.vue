@@ -18,7 +18,7 @@ export default {
   props: {
     imageSrc: {
       type: String,
-      required: true,
+      required: false,
     },
     imageAlt: {
       type: String,

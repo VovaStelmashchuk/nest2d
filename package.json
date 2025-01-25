@@ -14,14 +14,13 @@
     "@nuxtjs/tailwindcss": "^6.12.2",
     "bcrypt": "^5.1.1",
     "mongodb": "6.8",
-    "nuxt": "^3.15.0",
+    "nuxt": "^3.15.3",
     "offset-polygon": "^0.9.2",
     "standard-slugify": "^4.0.0",
     "tslib": "^2.8.1",
     "vite": "^6.0.6",
-    "vue": "latest",
-    "vue-router": "latest",
-    "vue3-google-login": "^2.0.33"
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "patch-package": "^8.0.0",
