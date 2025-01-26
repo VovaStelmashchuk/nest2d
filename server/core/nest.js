@@ -35,7 +35,8 @@ export async function nest(jobId) {
     polygonsWithCount,
     params.width,
     params.height,
-    params.space
+    params.space,
+    params.tolerance,
   );
 
   if (
@@ -143,10 +144,11 @@ async function performJaguarRequest(
   polygonesWithCount,
   width,
   height,
-  space
+  space,
+  tolerance,
 ) {
   const db = await connectDB();
-  const jaguarRequest = buildNestJson(polygonesWithCount, width, height, space);
+  const jaguarRequest = buildNestJson(polygonesWithCount, width, height, space, tolerance);
 
   await db
     .collection("nest_request")
@@ -173,14 +175,14 @@ function countOfPolygons(polygonsWithCount) {
   }, 0);
 }
 
-function buildNestJson(polygonsWithCount, width, height, space) {
+function buildNestJson(polygonsWithCount, width, height, space, tolerance) {
   const items = polygonsWithCount.map((polygoneWithCount) => {
     return {
       Demand: polygoneWithCount.count,
       AllowedOrientations: [0.0, 90.0, 180.0, 270.0],
       Shape: {
         Type: "SimplePolygon",
-        Data: buildPolygon(polygoneWithCount.polygon.polygon, space),
+        Data: buildPolygon(polygoneWithCount.polygon.polygon, space, tolerance),
       },
     };
   });

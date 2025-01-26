@@ -23,7 +23,7 @@ export function parseAndCombine(dxfObject, tolerance) {
     };
   });
 
-  // Separate those that are "already closed" vs. "open"
+  // Separate those that are "already closed"
   const originClose = [];
   let originOpen = [];
 
@@ -95,132 +95,6 @@ function isClosedPolygon(points, tolerance) {
   const first = points[0];
   const last = points[points.length - 1];
   return distance(first, last) <= tolerance;
-}
-
-/**
- * Calculates the Euclidean distance between two points.
- *
- * Assumes that the function `distance` is already defined elsewhere in your codebase.
- *
- * @param {{x: number, y: number}} pointA - The first point.
- * @param {{x: number, y: number}} pointB - The second point.
- * @returns {number} - The distance between pointA and pointB.
- */
-
-/**
- * Merge open polygons that share endpoints (within tolerance).
- * If a merge forms a closed loop, it goes into `newlyClosed`.
- *
- * Returns:
- * {
- *   openPolygons: [ ... ],   // still open after merges
- *   newlyClosed:  [ ... ]    // newly closed polygons
- * }
- */
-function mergeOpenPolygons(openPolygons, tolerance) {
-  const used = new Array(openPolygons.length).fill(false);
-  const newlyClosed = [];
-  const resultOpen = [];
-
-  for (let i = 0; i < openPolygons.length; i++) {
-    if (used[i]) continue;
-    let current = openPolygons[i];
-    let mergedHappened = true;
-
-    while (mergedHappened) {
-      mergedHappened = false;
-      // Try to merge current with any other polygon j
-      for (let j = i + 1; j < openPolygons.length; j++) {
-        if (used[j]) continue;
-        const candidate = openPolygons[j];
-
-        const merged = tryMergePolygons(current, candidate, tolerance);
-        if (merged) {
-          // We have a new merged polygon
-          current = merged;
-          used[j] = true;
-          mergedHappened = true;
-
-          // Check if newly closed
-          if (isClosedPolygon(current.polygon, tolerance)) {
-            newlyClosed.push({
-              polygon: current.polygon,
-              originEntities: current.originEntities,
-            });
-            used[i] = true; // current is no longer open
-            break;
-          }
-        }
-      }
-    }
-
-    // If after all merges, it's still open, keep it
-    if (!used[i] && !isClosedPolygon(current.polygon, tolerance)) {
-      resultOpen.push(current);
-      used[i] = true;
-    }
-  }
-
-  return { openPolygons: resultOpen, newlyClosed };
-}
-
-/**
- * Attempts to merge polyA with polyB by matching endpoints.
- * Returns a new merged polygon object or null if not mergeable.
- */
-function tryMergePolygons(polyA, polyB, tolerance) {
-  const aPts = polyA.polygon;
-  const bPts = polyB.polygon;
-  if (!aPts.length || !bPts.length) return null;
-
-  const aStart = aPts[0];
-  const aEnd = aPts[aPts.length - 1];
-  const bStart = bPts[0];
-  const bEnd = bPts[bPts.length - 1];
-
-  //
-  // Case 1: A-end ~ B-start
-  //
-  if (distance(aEnd, bStart) <= tolerance) {
-    // Merge -> A + B (minus B's first point)
-    const mergedPoints = [...aPts, ...bPts.slice(1)];
-    const mergedOrigins = [...polyA.originEntities, ...polyB.originEntities];
-    return { polygon: mergedPoints, originEntities: mergedOrigins };
-  }
-
-  //
-  // Case 2: A-end ~ B-end => reverse B
-  //
-  if (distance(aEnd, bEnd) <= tolerance) {
-    const bReversed = [...bPts].reverse();
-    // Merge -> A + reversed(B minus first)
-    const mergedPoints = [...aPts, ...bReversed.slice(1)];
-    const mergedOrigins = [...polyA.originEntities, ...polyB.originEntities];
-    return { polygon: mergedPoints, originEntities: mergedOrigins };
-  }
-
-  //
-  // Case 3: B-end ~ A-start => B + A
-  //
-  if (distance(bEnd, aStart) <= tolerance) {
-    // Merge -> B + A (minus A's first)
-    const mergedPoints = [...bPts, ...aPts.slice(1)];
-    const mergedOrigins = [...polyB.originEntities, ...polyA.originEntities];
-    return { polygon: mergedPoints, originEntities: mergedOrigins };
-  }
-
-  //
-  // Case 4: B-start ~ A-start => reverse A or B
-  //
-  if (distance(bStart, aStart) <= tolerance) {
-    // Let’s reverse A, then do B + reversed(A minus first)
-    const aReversed = [...aPts].reverse();
-    const mergedPoints = [...bPts, ...aReversed.slice(1)];
-    const mergedOrigins = [...polyB.originEntities, ...polyA.originEntities];
-    return { polygon: mergedPoints, originEntities: mergedOrigins };
-  }
-
-  return null; // no match
 }
 
 /**

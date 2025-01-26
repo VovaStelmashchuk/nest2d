@@ -14,6 +14,17 @@ export default defineEventHandler(async (event) => {
   try {
     const fields = await readMultipartFormData(event);
     const dxfFileFields = fields.filter((field) => field.name === "dxf");
+
+    const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB in bytes
+    for (const field of fields) {
+      if (field.type && field.data && field.data.length > MAX_FILE_SIZE) {
+        throw createError({
+          statusCode: 400,
+          message: `File "${field.filename}" exceeds the 1MB size limit. We currently do not support files larger than 1MB.`,
+        });
+      }
+    }
+
     const dxfArray = getDxfArray(dxfFileFields);
 
     const name = generateEntityName();

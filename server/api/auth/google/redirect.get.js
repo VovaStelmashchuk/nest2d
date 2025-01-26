@@ -8,13 +8,11 @@ export default defineEventHandler(async (_) => {
 
 async function buildGoogleAuthLink() {
   const config = await getConfig();
+  const baseUrl = config.baseUrl;
   const googleConfig = config.google;
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.append("client_id", googleConfig.clientId);
-  url.searchParams.append(
-    "redirect_uri",
-    "http://localhost:3000/auth/google/callback"
-  );
+  url.searchParams.append("redirect_uri", `${baseUrl}/auth/google/callback`);
   url.searchParams.append("response_type", "token");
   url.searchParams.append("scope", "email profile");
 
