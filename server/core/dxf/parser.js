@@ -1,5 +1,6 @@
 import { entityToPoints } from "./entityToPoints.js";
 import { combineSegmentsIntoPolygons } from "./combineSegmentsIntoPolygons.js";
+import { groupInnerPolygons } from "./innercheck.js";
 
 /**
  * @param {Array} dxfEntities
@@ -45,7 +46,12 @@ export function parseAndCombine(dxfObject, tolerance) {
 
   const allClosed = [...originClose, ...closed];
 
-  return { closed: allClosed, open: open };
+  const mergedClosed = groupInnerPolygons(allClosed);
+
+  return {
+    closed: mergedClosed,
+    open: open,
+  };
 }
 
 /**

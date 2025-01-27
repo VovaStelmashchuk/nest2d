@@ -80,6 +80,17 @@ export function combineSegmentsIntoPolygons(originOpen, tolerance = 1e-7) {
     }
   }
 
+  // remove dublicates points from closed polygons
+  closed.forEach((polygon) => {
+    polygon.polygon = polygon.polygon.filter(
+      (point, index, self) =>
+        index ===
+        self.findIndex(
+          (t) => t.x === point.x && t.y === point.y
+        )
+    );
+  });
+
   return { closed, open };
 }
 

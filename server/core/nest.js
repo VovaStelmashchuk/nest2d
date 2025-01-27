@@ -36,7 +36,7 @@ export async function nest(jobId) {
     params.width,
     params.height,
     params.space,
-    params.tolerance,
+    params.tolerance
   );
 
   if (
@@ -145,10 +145,16 @@ async function performJaguarRequest(
   width,
   height,
   space,
-  tolerance,
+  tolerance
 ) {
   const db = await connectDB();
-  const jaguarRequest = buildNestJson(polygonesWithCount, width, height, space, tolerance);
+  const jaguarRequest = buildNestJson(
+    polygonesWithCount,
+    width,
+    height,
+    space,
+    tolerance
+  );
 
   await db
     .collection("nest_request")
