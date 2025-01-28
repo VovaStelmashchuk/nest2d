@@ -89,7 +89,7 @@ function createSVGFromPolygons(closedPolygons) {
 
   let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${viewBoxWidth}" height="${viewBoxHeight}" viewBox="${minX} ${minY} ${viewBoxWidth} ${viewBoxHeight}">\n`;
 
-  svgContent += `  <rect x="${minX}" y="${minY}" width="${viewBoxWidth}" height="${viewBoxHeight}" fill="white" />\n`;
+  svgContent += `<rect x="${minX}" y="${minY}" width="${viewBoxWidth}" height="${viewBoxHeight}" stroke="#000000" fill="none" stroke-width="1" />\n`;
 
   closedPolygons.forEach(({ polygon }, index) => {
     if (polygon.length < 3) {
@@ -99,7 +99,6 @@ function createSVGFromPolygons(closedPolygons) {
       return;
     }
 
-    // Create mirrored points
     const mirroredPolygon = polygon.map(({ x, y }) => ({
       x,
       y: centerY * 2 - y,
@@ -113,6 +112,22 @@ function createSVGFromPolygons(closedPolygons) {
 
     // Add mirrored polygon
     svgContent += `<polygon points="${mirroredPointsStr}" stroke="#000000" fill="${color}" stroke-width="1"/>\n`;
+  });
+
+  closedPolygons.forEach(({ innerPolygons }, _) => {
+    if (!innerPolygons || innerPolygons.length === 0) {
+      return;
+    }
+    innerPolygons.forEach((drawInner) => {
+      const mirroredPolygon = drawInner.map(({ x, y }) => ({
+        x,
+        y: centerY * 2 - y,
+      }));
+      const innerPointsStr = mirroredPolygon
+        .map((pt) => `${pt.x},${pt.y}`)
+        .join(" ");
+      svgContent += `<polygon points="${innerPointsStr}" stroke="#000000" fill="none" stroke-width="1"/>\n`;
+    });
   });
 
   svgContent += `</svg>`;

@@ -8,7 +8,10 @@
       <div
         class="flex-1 flex items-center justify-center border border-gray-200 rounded-lg"
       >
-        <div v-if="!data.resultSvg" class="flex flex-col items-center">
+        <div
+          v-if="data.status == 'pending' || data.status == 'in-progress'"
+          class="flex flex-col items-center"
+        >
           <div class="relative w-16 h-16">
             <div
               class="absolute inset-0 rounded-full border-4 border-gray-200"
@@ -24,7 +27,16 @@
             <a href="/queue/all" class="text-blue-500 underline">Queue</a> page.
           </p>
         </div>
-        <SvgDisplay v-else class="w-full h-96" :svgContent="data.resultSvg" />
+        <div v-if="data.status == 'failed'" class="flex flex-col items-center">
+          <p class="m-4 text-red-600 text-center text-2xl">
+            {{ data.error.message }}
+          </p>
+        </div>
+        <SvgDisplay
+          v-if="data.status == 'completed'"
+          class="w-full h-96"
+          :svgContent="data.resultSvg"
+        />
       </div>
 
       <div class="flex-1 flex flex-col px-4">

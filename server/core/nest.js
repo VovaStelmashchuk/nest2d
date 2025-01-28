@@ -4,6 +4,7 @@ import { transformEntity } from "~~/server/core/dxf/transform";
 import { connectDB } from "~~/server/db/mongo";
 import { generateSvg } from "./svg/generator";
 import { buildPolygon } from "./polygones";
+import { ERROR_NO_SOLUTION_FOUND } from "./constants";
 
 export async function nest(jobId) {
   const db = await connectDB();
@@ -50,7 +51,7 @@ export async function nest(jobId) {
       .updateOne({ _id: jobId }, { $set: { isFail: true } });
 
     return {
-      error: "No solution found",
+      error: ERROR_NO_SOLUTION_FOUND,
       nestId: jobId,
     };
   }
@@ -93,6 +94,9 @@ export async function nest(jobId) {
   await db
     .collection("nest_request")
     .updateOne({ _id: jobId }, { $set: { dxfResult: dxfAsString } });
+  return {
+    error: undefined,
+  };
 }
 
 async function getPlacementInstruction(

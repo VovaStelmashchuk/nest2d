@@ -2,7 +2,7 @@
   <div>
     <div class="max-w-2xl mx-auto p-6">
       <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Queue</h2>
-      <div class="grid grid-cols-1 gap-2">
+      <div class="grid grid-cols-1 gap-2" v-if="data?.items">
         <a
           :href="`/queue/${item.slug}`"
           v-for="item in data.items"
@@ -25,8 +25,31 @@
 </template>
 
 <script setup>
-const { data, pending, error } = await useFetch("/api/queue/all", {
-  credentials: "include",
+const data = ref(null);
+let intervalId;
+
+const fetchData = async () => {
+  try {
+    const response = await $fetch(`/api/queue/all`);
+    data.value = response;
+  } catch (err) {}
+};
+
+const startPolling = () => {
+  fetchData();
+  intervalId = setInterval(fetchData, 5000);
+};
+
+const stopPolling = () => {
+  if (intervalId) clearInterval(intervalId);
+};
+
+onMounted(() => {
+  startPolling();
+});
+
+onBeforeUnmount(() => {
+  stopPolling();
 });
 
 function getIcon(status) {

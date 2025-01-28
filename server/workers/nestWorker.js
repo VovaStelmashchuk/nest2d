@@ -23,11 +23,16 @@ export async function startNestWorker() {
       try {
         const result = await nest(_id);
 
+        let status = "completed";
+        if (result.error) {
+          status = "failed";
+        }
+
         await db
           .collection("nest_request")
           .updateOne(
             { _id },
-            { $set: { status: "completed", result, completedAt: new Date() } }
+            { $set: { status: status, result, completedAt: new Date() } }
           );
 
         console.log(`Task ${_id} completed`);
@@ -37,7 +42,9 @@ export async function startNestWorker() {
           {
             $set: {
               status: "failed",
-              error: error.message,
+              error: {
+                message: error.message,
+              },
               failedAt: new Date(),
             },
           }

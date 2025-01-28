@@ -1,4 +1,5 @@
 import { db } from "~/server/db/mongo";
+import { ERROR_NO_SOLUTION_FOUND } from "~~/server/core/constants";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -8,11 +9,36 @@ export default defineEventHandler(async (event) => {
   }
   const slug = getRouterParam(event, "slug");
 
-  const queueItem = await db.collection("nest_request").findOne({ slug: slug });
+  const queueItem = await db.collection("nest_request").findOne(
+    { slug: slug },
+    {
+      projection: {
+        slug: 1,
+        projectSlug: 1,
+        files: 1,
+        status: 1,
+        params: 1,
+        placed: 1,
+        requested: 1,
+        usage: 1,
+        svg: 1,
+        result: 1,
+      },
+    }
+  );
 
-  const project = await db
-    .collection("projects")
-    .findOne({ slug: queueItem.projectSlug });
+  const project = await db.collection("projects").findOne(
+    { slug: queueItem.projectSlug },
+    {
+      projection: {
+        name: 1,
+        slug: 1,
+        "dxf.slug": 1,
+        "dxf.name": 1,
+        "dxf.svg": 1,
+      },
+    }
+  );
 
   const nestedFiles = queueItem.files.map((file) => {
     const count = file.count;
@@ -29,11 +55,21 @@ export default defineEventHandler(async (event) => {
     };
   });
 
+  let status = queueItem.status;
+  let error = undefined;
+  if (queueItem.result?.error == ERROR_NO_SOLUTION_FOUND) {
+    status = "fail";
+    error = {
+      message: "No solution found try to increase plate size",
+    };
+  }
+
   return {
     slug: queueItem.slug,
     projectSlug: project.slug,
     projectName: project.name,
-    status: queueItem.status,
+    status: status,
+    error: error,
     nestedFiles: nestedFiles,
     resultSvg: queueItem?.svg?.svg,
     dxfResult: queueItem?.dxfResult,
