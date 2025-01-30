@@ -150,13 +150,13 @@
 <script setup>
 import { navigateTo } from "nuxt/app";
 
-onMounted(() => {
-  console.log("mounted");
-  const { user, fetchUser, logout } = useAuth();
-  if (user) {
-    fetchUser();
-    navigateTo("/home");
-  }
-});
+const useAuthState = useAuth();
+const user = await useAuthState.fetchUser();
+if (user) {
+  console.log("User is logged in");
+  fetchUser();
+  navigateTo("/home");
+}
+
 const loginDialog = useLoginDialog();
 </script>

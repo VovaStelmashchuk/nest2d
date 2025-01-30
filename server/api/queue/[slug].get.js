@@ -4,13 +4,13 @@ import { ERROR_NO_SOLUTION_FOUND } from "~~/server/core/constants";
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
   if (!userId) {
-    setResponseStatusCode(401);
+    setResponseStatus(401);
     return;
   }
   const slug = getRouterParam(event, "slug");
 
   const queueItem = await db.collection("nest_request").findOne(
-    { slug: slug },
+    { slug: slug, ownerId: userId },
     {
       projection: {
         slug: 1,

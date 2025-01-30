@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-col min-h-screen">
-    <header class="py-4 lg:py-6 border-b border-gray-300">
+    <header class="border-b border-gray-300">
+      <p class="text-center text-black bg-gray-200">
+        The project still under development.
+      </p>
       <div
         class="container mx-auto flex justify-between items-center px-4 lg:px-8"
       >

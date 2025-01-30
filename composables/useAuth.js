@@ -1,20 +1,26 @@
 import { ref } from "vue";
-import { useFetch } from "#app";
+import { useFetch } from "nuxt/app";
 
 const user = ref(null);
 
 export function useAuth() {
   async function fetchUser() {
-    const { data, error } = await useFetch("/api/user", {
-      credentials: "include",
-    });
-
-    if (error.value) {
-      console.error("Failed to fetch user:", error.value);
+    try {
+      const { data, error } = await useFetch("/api/user", {
+        credentials: "include",
+      });
+      if (error.value || !data.value) {
+        console.error("Failed to fetch user:", error.value);
+        user.value = null;
+        return null;
+      }
+      user.value = data.value;
+    } catch (err) {
+      console.error("Failed to fetch user:", err);
+      user.value = null;
       return null;
     }
 
-    user.value = data.value;
     return user.value;
   }
 

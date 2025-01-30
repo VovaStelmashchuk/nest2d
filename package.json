@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@deepnest/dxf2svg-processor": "file:./libs/deepnest_dxf2svg-processor",
+    "@deepnest/dxf2svg-processor": "^0.1.3",
     "@nuxtjs/tailwindcss": "^6.12.2",
     "bcrypt": "^5.1.1",
     "mongodb": "6.8",

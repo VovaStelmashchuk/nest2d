@@ -4,7 +4,6 @@
   </a>
 </template>
 <script setup>
-const { data, pending, error } = await useFetch("/api/user", {
-  credentials: "include",
-});
+const useAuthState = useAuth();
+const data = await useAuthState.fetchUser();
 </script>

@@ -3,7 +3,7 @@ import { connectDB } from "~~/server/db/mongo";
 import { getDxfArray } from "~~/server/utils/multipart";
 import { generateSvg } from "../core/svg/generator";
 import { generateRandomString } from "~~/server/utils/strings";
-import { dxf2Json } from "~~/libs/deepnest_dxf2svg-processor";
+import { dxf2json } from "@deepnest/dxf2svg-processor";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
     });
 
     const dxfRecords = dxfArray.map(function (dxf) {
-      const dxfAsObjectStr = dxf2Json({
+      const dxfAsObjectStr = dxf2json({
         stringData: dxf.data,
       });
       const dxfAsObject = JSON.parse(dxfAsObjectStr);

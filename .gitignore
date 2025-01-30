@@ -18,7 +18,4 @@ logs
 .fleet
 .idea
 
-# Secret file from Dexus
-libs/deepnest_dxf2svg-processor
-
 .secret.json

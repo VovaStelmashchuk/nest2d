@@ -3,7 +3,7 @@ import { db } from "~/server/db/mongo";
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
   if (!userId) {
-    setResponseStatusCode(401);
+    setResponseStatus(401);
     return;
   }
 

@@ -1,4 +1,4 @@
-import { json2Dxf } from "@deepnest/dxf2svg-processor";
+import { json2dxf } from "@deepnest/dxf2svg-processor";
 import { parseAndCombine } from "~~/server/core/dxf/parser";
 import { transformEntity } from "~~/server/core/dxf/transform";
 import { connectDB } from "~~/server/db/mongo";
@@ -89,7 +89,7 @@ export async function nest(jobId) {
     .collection("nest_request")
     .updateOne({ _id: jobId }, { $set: { svg: svg } });
 
-  const dxfAsString = json2Dxf({ jsonData: JSON.stringify(originDxfObject) });
+  const dxfAsString = json2dxf({ jsonData: JSON.stringify(originDxfObject) });
 
   await db
     .collection("nest_request")
