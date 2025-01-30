@@ -89,8 +89,6 @@ function createSVGFromPolygons(closedPolygons) {
 
   let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${viewBoxWidth}" height="${viewBoxHeight}" viewBox="${minX} ${minY} ${viewBoxWidth} ${viewBoxHeight}">\n`;
 
-  svgContent += `<rect x="${minX}" y="${minY}" width="${viewBoxWidth}" height="${viewBoxHeight}" stroke="#000000" fill="none" stroke-width="1" />\n`;
-
   closedPolygons.forEach(({ polygon }, index) => {
     if (polygon.length < 3) {
       console.warn(

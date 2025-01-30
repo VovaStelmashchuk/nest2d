@@ -3,7 +3,9 @@
     :class="['p-2 border rounded-md', textColor]"
     :style="{ backgroundColor: bgColor }"
   >
-    <h3 class="text-lg font-medium">{{ specName }}</h3>
+    <div class="flex flex-row">
+      <p class="font-medium">{{ specName }}</p>
+    </div>
     <p class="text-sm">{{ specValue }}</p>
   </div>
 </template>

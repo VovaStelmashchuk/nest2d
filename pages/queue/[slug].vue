@@ -79,7 +79,7 @@
             target="_blank"
             class="block text-center w-full bg-black text-white py-2 px-4 rounded-lg shadow-md border border-black hover:bg-white hover:text-black transition duration-300 ease-in-out transform focus:ring focus:ring-gray-400"
           >
-            Adjust nesting settings
+            Try another parameters
           </a>
         </div>
       </div>
