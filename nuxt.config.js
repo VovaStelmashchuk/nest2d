@@ -5,13 +5,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       secretFile: ".secret.json",
-    },
-  },
-  nitro: {
-    hooks: {
-      "server:setup": async () => {
-        console.log("Server setup hook");
-      },
+      gitCommitSha: "",
     },
   },
 });
