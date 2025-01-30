@@ -24,7 +24,8 @@
           <p class="m-4 text-gray-600 text-center">
             Nesting is in progress. This process may take some time. You can
             safely leave this page and check the status in the
-            <a href="/queue/all" class="text-blue-500 underline">Queue</a> page.
+            <a href="/queue/all" class="text-blue-500 underline">History</a>
+            page.
           </p>
         </div>
         <div v-if="data.status == 'failed'" class="flex flex-col items-center">

@@ -11,7 +11,9 @@
 
         <nav class="lg:flex items-center space-x-6">
           <a href="/home" class="text-lg hover:text-gray-500">Projects</a>
-          <a href="/queue/all" class="text-lg hover:text-gray-500">Queue</a>
+          <a href="/queue/all" class="text-lg hover:text-gray-500"
+            >History</a
+          >
         </nav>
 
         <Avatar

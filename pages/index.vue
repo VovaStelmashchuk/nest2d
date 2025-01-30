@@ -4,7 +4,7 @@
       <div class="container mx-auto">
         <h2 class="text-4xl font-bold">Smart Nesting for Laser Cutting</h2>
         <p class="text-lg mt-4 text-gray-700">
-          Upload your DXF files, input material dimensions, and let OptimizeCut
+          Upload your DXF files, input material dimensions, and let Nest2d
           maximize your material usage. Fully open-source and built for
           efficiency.
         </p>
@@ -112,7 +112,7 @@
         </h3>
         <div class="mt-8">
           <details class="mb-4">
-            <summary class="text-lg font-bold">Is OptimizeCut free?</summary>
+            <summary class="text-lg font-bold">Is Nest2d free?</summary>
             <p class="mt-2 text-gray-600">
               Yes, it's free and open source for everyone.
             </p>
