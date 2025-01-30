@@ -1,12 +1,15 @@
-name: Deploy to GitHub Container Registry
+name: Deploy docker image and update production
 
 on:
   push:
     branches:
-      - "new-version"
+      - "main"
 
 env:
   REGISTRY: ghcr.io
+  DOCKER_STACKE_NAME: stack-nest2d
+  DEPLOY_USER: deploy
+  HOST: 167.235.52.168
 
 jobs:
   build-and-push-image:
@@ -32,10 +35,6 @@ jobs:
         id: repo_name
         run: echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
-      - name: Get short SHA
-        id: sha
-        run: echo "sha=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_ENV
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -43,4 +42,28 @@ jobs:
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.REPO_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}:${{ env.sha }}
+            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}:${{ github.sha }}
+          build-args: |
+            GIT_COMMIT_SHA=${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-push-image
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create env file
+        run: |
+          echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
+
+      - name: Docker Stack Deploy
+        uses: cssnr/stack-deploy-action@v1
+        with:
+          name: ${{ env.DOCKER_STACKE_NAME }}
+          file: docker-stack.yaml
+          host: ${{ env.HOST }}
+          user: ${{ env.DEPLOY_USER }}
+          ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          env_file: ./envfile

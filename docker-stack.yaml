@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  kickstart:
+    image: ghcr.io/vovastelmashchuk/nest2d:${GIT_COMMIT_SHA:-latest}
+    ports:
+      - "7100:3000"
+    environment:
+      - NUXT_PUBLIC_SECRET_FILE=/run/secrets/nest2d-secret
+    secrets:
+      - nest2d-secret
+    deploy:
+      update_config:
+        order: start-first
+
+secrets:
+  nest2d-secret:
+    external: true
