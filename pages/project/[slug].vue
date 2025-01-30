@@ -47,30 +47,30 @@
         <div class="flex flex-col space-y-4 p-4">
           <InputField
             id="width"
-            label="Width"
+            label="Width (mm)"
             v-model="widthPlate"
-            placeholder="Enter width"
+            placeholder="Enter width (mm)"
           />
 
           <InputField
             id="height"
-            label="Height"
+            label="Height (mm)"
             v-model="heightPlate"
-            placeholder="Enter height"
+            placeholder="Enter height (mm)"
           />
 
           <InputField
             id="tolerance"
-            label="Tolerance"
+            label="Tolerance (mm)"
             v-model="tolerance"
-            placeholder="Enter tolerance"
+            placeholder="Enter tolerance (mm)"
           />
 
           <InputField
             id="space"
-            label="Space"
+            label="Space (mm)"
             v-model="space"
-            placeholder="Enter space"
+            placeholder="Enter space (mm)"
           />
 
           <div>
