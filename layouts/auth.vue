@@ -5,7 +5,7 @@
         The project still under development.
       </p>
       <div
-        class="container mx-auto flex justify-between items-center px-4 lg:px-8"
+        class="container mx-auto flex justify-between items-center p-2 lg:px-8"
       >
         <a class="text-2xl lg:text-3xl font-bold" href="/home"> Nest2d </a>
 
