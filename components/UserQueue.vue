@@ -11,7 +11,7 @@
         >
           <div class="flex flex-row justify-between items-center">
             <p class="text-lg font-bold">
-              Processing placment for {{ item.projectName }}
+              Placment for project: {{ item.projectName }}
             </p>
             <img
               class="w-8 h-8"
