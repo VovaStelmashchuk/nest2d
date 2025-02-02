@@ -1,9 +1,38 @@
-<script setup>
-import BlogEntry from "~/components/BlogEntry.vue";
-</script>
-
 <template>
   <div class="space-y-8 text-gray-800">
+    <BlogEntry
+      title="Big update, #10, New page in project history"
+      datetime="2024-05-08"
+      date="Aug 09, 2024"
+      author="nest2d"
+      :sections="[
+        {
+          title: 'Feature',
+          content: [
+            'Implement auth by Google and Github',
+            'New design done my tailwindcss',
+            'Nested history page',
+            'All request for nesting saved in queue with persistance storage in MongoDB',
+            'More DXF tags support',
+          ],
+        },
+        {
+          title: 'Tech task',
+          content: [
+            'New deploy by github actions',
+            'Remove S3 bucket for infrastructure, all content saved into MongoDB',
+          ],
+        },
+        {
+          title: 'Next stages',
+          content: ['DXF parsing polygones'],
+        },
+        {
+          title: 'Thanks',
+          content: 'Thanks to Dexus for the great project of parsing DXF',
+        },
+      ]"
+    />
     <BlogEntry
       title="Big update, #9, My summer vacation (2)"
       datetime="2024-05-08"
@@ -290,3 +319,9 @@ import BlogEntry from "~/components/BlogEntry.vue";
     />
   </div>
 </template>
+
+<script setup>
+definePageMeta({
+  layout: "doc",
+});
+</script>

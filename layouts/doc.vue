@@ -30,6 +30,9 @@
               >Terms and Conditions</a
             >
           </li>
+          <li class="mr-4 mb-2 lg:mb-0">
+            <a href="/blog" class="hover:underline">Blog</a>
+          </li>
         </ul>
         <p class="text-sm text-gray-400 mt-4 lg:mt-0 text-center lg:text-end">
           © 2025 Vova Stelmashchuk. All rights reserved. Built with ♥ and open

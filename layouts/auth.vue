@@ -11,9 +11,8 @@
 
         <nav class="lg:flex items-center space-x-6">
           <a href="/home" class="text-lg hover:text-gray-500">Projects</a>
-          <a href="/queue/all" class="text-lg hover:text-gray-500"
-            >History</a
-          >
+          <a href="/queue/all" class="text-lg hover:text-gray-500">History</a>
+          <a href="/blog" class="text-lg hover:text-gray-500">Blog</a>
         </nav>
 
         <Avatar
@@ -44,6 +43,9 @@
             <a href="/terms-and-conditions" class="hover:underline"
               >Terms and Conditions</a
             >
+          </li>
+          <li class="mr-4 mb-2 lg:mb-0">
+            <a href="/blog" class="hover:underline">Blog</a>
           </li>
         </ul>
         <p class="text-sm text-gray-400 mt-4 lg:mt-0 text-center lg:text-end">
