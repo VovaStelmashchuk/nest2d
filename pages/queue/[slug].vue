@@ -1,9 +1,12 @@
 <template>
   <div class="container mx-auto p-4" v-if="data">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+    <NuxtLink
+      :to="`/project/${data.projectSlug}`"
+      class="font-bold text-black mb-6 text-2xl underline"
+      prefetch-on="interaction"
+    >
       Project: {{ data.projectName }}
-    </h2>
-    <h2 class="text-2xl font-semibold text-gray-800 my-2">Nest result</h2>
+    </NuxtLink>
     <div class="flex flex-row py-2">
       <div
         class="flex-1 flex items-center justify-center border border-gray-200 rounded-lg"
@@ -52,10 +55,7 @@
           </a>
 
           <SpecBlock specName="Width" :specValue="`${data.params.width} mm`" />
-          <SpecBlock
-            specName="Height"
-            :specValue="`${data.params.height} mm`"
-          />
+          <SpecBlock specName="Height" :specValue="`${data.params.height}`" />
           <SpecBlock
             specName="Tolerance"
             :specValue="`${data.params.tolerance} mm`"

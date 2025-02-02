@@ -3,14 +3,16 @@
     <div class="max-w-2xl mx-auto p-6">
       <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Queue</h2>
       <div class="grid grid-cols-1 gap-2" v-if="data?.items">
-        <a
-          :href="`/queue/${item.slug}`"
+        <NuxtLink
+          :to="`/queue/${item.slug}`"
           v-for="item in data.items"
           :key="item.id"
           class="border border-gray-200 rounded-lg p-4 flex flex-col"
         >
           <div class="flex flex-row justify-between items-center">
-            <p class="text-lg font-bold">{{ item.slug }}</p>
+            <p class="text-lg font-bold">
+              Processing placment for {{ item.projectName }}
+            </p>
             <img
               class="w-8 h-8"
               :src="getIcon(item.status)"
@@ -18,7 +20,7 @@
             />
           </div>
           <p class="ml-auto text-gray-600">{{ item.createdAt }}</p>
-        </a>
+        </NuxtLink>
       </div>
     </div>
   </div>

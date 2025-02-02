@@ -13,18 +13,37 @@ export default defineEventHandler(async (event) => {
     .collection("nest_request")
     .find({ ownerId: userId })
     .sort({ createdAt: -1 })
-    .project({ slug: 1, status: 1, createdAt: 1 })
+    .project({ slug: 1, status: 1, createdAt: 1, projectSlug: 1 })
     .toArray();
 
+  const allUniqueProjectSlugs = [
+    ...new Set(queueList.map((item) => item.projectSlug)),
+  ];
+
+  const projects = await db
+    .collection("projects")
+    .find({ slug: { $in: allUniqueProjectSlugs } })
+    .project({ slug: 1, name: 1 })
+    .toArray();
+
+  const respnoseItems = queueList.map((queueItem) => {
+    const project = projects.find(
+      (project) => project.slug == queueItem.projectSlug
+    );
+    if (project) {
+      return {
+        slug: queueItem.slug,
+        status: queueItem.status,
+        createdAt: queueItem.createdAt,
+        projectSlug: queueItem.projectSlug,
+        projectName: project.name,
+      };
+    } else {
+      return null;
+    }
+  });
+
   return {
-    items: queueList.map(mapQueueItem),
+    items: respnoseItems.filter((item) => item),
   };
 });
-
-function mapQueueItem(queueItem) {
-  return {
-    slug: queueItem.slug,
-    status: queueItem.status,
-    createdAt: queueItem.createdAt,
-  };
-}
