@@ -1,4 +1,9 @@
-import { defineEventHandler, createError, readMultipartFormData } from "h3";
+import {
+  defineEventHandler,
+  createError,
+  readMultipartFormData,
+  setResponseStatus,
+} from "h3";
 import { connectDB } from "~~/server/db/mongo";
 import { getDxfArray } from "~~/server/utils/multipart";
 import { generateSvg } from "../core/svg/generator";
@@ -74,6 +79,10 @@ export default defineEventHandler(async (event) => {
     };
   } catch (err) {
     console.error(err);
-    throw createError({ statusCode: 500, message: err.message });
+    setResponseStatus(500);
+    return {
+      message:
+        "Something went wrong, please verify your DXF file and try again.",
+    };
   }
 });

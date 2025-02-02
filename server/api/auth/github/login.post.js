@@ -1,6 +1,5 @@
-import { db } from "~/server/db/mongo";
+import { connectDB } from "~/server/db/mongo";
 import { generateSession } from "~~/server/utils/auth";
-import { fetchImageAsBase64 } from "~~/server/utils/image";
 import { getConfig } from "~/server/utils/config";
 
 export default defineEventHandler(async (event) => {
@@ -16,20 +15,17 @@ export default defineEventHandler(async (event) => {
 
   const { id, avatar_url, email, name } = data;
 
-  console.log("id", id, "avatar_url", avatar_url, "email", email, "name", name);
-
-  const avatarBase64 = await fetchImageAsBase64(avatar_url);
-
-  if (!id || !email || !avatarBase64) {
+  if (!id || !email || !avatar_url) {
     setResponseStatus(event, 401);
     return {
       error: "Invalid access token",
       isId: !!id,
       isEmail: !!email,
-      isAvatar: !!avatarBase64,
+      isAvatar: !!avatar_url,
     };
   }
   const session = generateSession();
+  const db = await connectDB();
 
   await db.collection("users").updateOne(
     { id: `github:${id}` },
@@ -37,8 +33,8 @@ export default defineEventHandler(async (event) => {
       $set: {
         email: email,
         name: name,
-        avatar: avatarBase64,
-        provider: "github",
+        avatarUrl: avatar_url,
+        avatarSource: "origin",
         github: {
           id: id,
         },

@@ -10,13 +10,11 @@ export function useAuth() {
         credentials: "include",
       });
       if (error.value || !data.value) {
-        console.error("Failed to fetch user:", error.value);
         user.value = null;
         return null;
       }
       user.value = data.value;
     } catch (err) {
-      console.error("Failed to fetch user:", err);
       user.value = null;
       return null;
     }

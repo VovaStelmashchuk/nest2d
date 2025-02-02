@@ -8,5 +8,11 @@ export default defineEventHandler(async (event) => {
   setCookie(event, "sessionId", "", {
     expires: new Date(0),
   });
+
+  setHeader(
+    event,
+    "Clear-Site-Data",
+    '"cache", "cookies", "storage", "executionContexts"'
+  );
   return {};
 });
