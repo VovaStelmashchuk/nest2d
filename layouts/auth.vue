@@ -7,18 +7,24 @@
       <div
         class="container mx-auto flex justify-between items-center p-2 lg:px-8"
       >
-        <a class="text-2xl lg:text-3xl font-bold" href="/home"> Nest2d </a>
+        <a class="text-2xl lg:text-3xl font-bold" href="/home">Nest2d</a>
 
-        <nav class="lg:flex items-center space-x-6">
+        <nav class="flex items-center space-x-6">
           <a href="/home" class="text-lg hover:text-gray-500">Projects</a>
           <a href="/queue/all" class="text-lg hover:text-gray-500">History</a>
           <a href="/blog" class="text-lg hover:text-gray-500">Blog</a>
         </nav>
 
-        <Avatar
-          class="inline-block bg-black text-white rounded-lg text-lg shadow-md"
-        >
-        </Avatar>
+        <div class="flex items-center space-x-2">
+          <a
+            href="https://github.com/VovaStelmashchuk/nest2d/issues/new"
+            target="_blank"
+            class="block text-center bg-black text-white py-2 px-4 rounded-lg shadow-md border border-black hover:bg-white hover:text-black transition duration-300 ease-in-out transform focus:ring focus:ring-gray-400"
+          >
+            Report an issue
+          </a>
+          <Avatar class="rounded-lg text-lg shadow-md"></Avatar>
+        </div>
       </div>
     </header>
 

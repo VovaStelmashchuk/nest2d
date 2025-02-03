@@ -27,29 +27,6 @@ export function generateSvg(dxfObject) {
  * @returns {string} - The generated SVG string.
  */
 function createSVGFromPolygons(closedPolygons) {
-  const colors = [
-    "#FF6633",
-    "#FFB399",
-    "#FF33FF",
-    "#FFFF99",
-    "#00B3E6",
-    "#E6B333",
-    "#3366E6",
-    "#999966",
-    "#99FF99",
-    "#B34D4D",
-    "#80B300",
-    "#809900",
-    "#E6B3B3",
-    "#6680B3",
-    "#66991A",
-    "#FF99E6",
-    "#CCFF1A",
-    "#FF1A66",
-    "#E6331A",
-    "#33FFCC",
-  ];
-
   if (!Array.isArray(closedPolygons)) {
     throw new Error("closedPolygons must be an array");
   }
@@ -106,10 +83,7 @@ function createSVGFromPolygons(closedPolygons) {
       .map((pt) => `${pt.x},${pt.y}`)
       .join(" ");
 
-    const color = colors[index % colors.length];
-
-    // Add mirrored polygon
-    svgContent += `<polygon points="${mirroredPointsStr}" stroke="#000000" fill="${color}" stroke-width="1"/>\n`;
+    svgContent += `<polygon points="${mirroredPointsStr}" stroke="#000000" fill="none" stroke-width="1"/>\n`;
   });
 
   closedPolygons.forEach(({ innerPolygons }, _) => {
