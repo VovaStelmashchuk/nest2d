@@ -8,6 +8,7 @@ services:
       - "7100:3000"
     environment:
       - NUXT_PUBLIC_SECRET_FILE=/run/secrets/nest2d-secret
+      - NUXT_PUBLIC_BASE_URL=https://nest2d.stelmashchuk.dev
     secrets:
       - nest2d-secret
     deploy:

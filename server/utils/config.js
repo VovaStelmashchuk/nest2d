@@ -6,6 +6,10 @@ export function getConfig() {
   return JSON.parse(asText);
 }
 
+export function getBaseUrl() {
+  return runtimeConfig.baseUrl;
+}
+
 export function getCommitSha() {
   return runtimeConfig.gitCommitSha || "unknown";
 }

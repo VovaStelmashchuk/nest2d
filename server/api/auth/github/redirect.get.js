@@ -1,4 +1,4 @@
-import { getConfig } from "~/server/utils/config";
+import { getConfig, getBaseUrl } from "~/server/utils/config";
 
 export default defineEventHandler(async (_) => {
   return {
@@ -8,7 +8,7 @@ export default defineEventHandler(async (_) => {
 
 async function buildGithubAuthLink() {
   const config = await getConfig();
-  const baseUrl = config.baseUrl;
+  const baseUrl = getBaseUrl();
   const githubConfig = config.github;
   const url = new URL("https://github.com/login/oauth/authorize");
   url.searchParams.append("client_id", githubConfig.clientId);

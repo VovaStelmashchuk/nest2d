@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       secretFile: ".secret.json",
+      baseUrl: "http://localhost:3000",
       gitCommitSha: "",
     },
   },

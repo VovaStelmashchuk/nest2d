@@ -1,4 +1,4 @@
-import { getConfig } from "~/server/utils/config";
+import { getConfig, getBaseUrl } from "~/server/utils/config";
 
 export default defineEventHandler(async (_) => {
   return {
@@ -8,7 +8,7 @@ export default defineEventHandler(async (_) => {
 
 async function buildGoogleAuthLink() {
   const config = await getConfig();
-  const baseUrl = config.baseUrl;
+  const baseUrl = getBaseUrl();
   const googleConfig = config.google;
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.append("client_id", googleConfig.clientId);
