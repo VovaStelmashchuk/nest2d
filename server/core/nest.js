@@ -164,7 +164,7 @@ async function performJaguarRequest(
     .collection("nest_request")
     .updateOne({ _id: insertedId }, { $set: { jaguarRequest: jaguarRequest } });
 
-  const data = await $fetch("https://jaguar.stelmashch.uk/nest", {
+  const data = await $fetch("https://jaguar.stelmashchuk.dev/nest", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
