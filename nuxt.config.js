@@ -9,4 +9,17 @@ export default defineNuxtConfig({
       gitCommitSha: "",
     },
   },
+  vite: {
+    css: {
+        preprocessorOptions: {
+            scss: {
+                additionalData: `
+                    @import "./assets/scss/variables.scss";
+                    @import "./assets/scss/mixins.scss";
+                    @import "./assets/scss/fonts.scss";
+                `
+            }
+        }
+    }
+},
 });
