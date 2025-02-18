@@ -1,0 +1,10 @@
+@mixin addFont($fontName, $fontType: 'Regular', $fontWeight: 400, $fontStyle: 'normal') {
+    @font-face {
+        font-family: $fontName;
+        src: url($fonts_path + $fontName + '/' + $fontName + '-' + $fontType + '.woff2') format('woff2'),
+            url($fonts_path + $fontName + '/' + $fontName + '-' + $fontType + '.woff') format('woff');
+        font-weight: $fontWeight;
+        font-style: $fontStyle;
+        font-display: swap;
+    }
+}
