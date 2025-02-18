@@ -43,6 +43,7 @@ export function generateSession() {
   return {
     sessionId: sessionId,
     expiresAt: expiresAt,
+    createdAt: new Date(),
   };
 }
 

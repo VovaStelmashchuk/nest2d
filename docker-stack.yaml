@@ -1,9 +1,12 @@
 version: "3.8"
 
 services:
-  kickstart:
+  app:
     image: ghcr.io/vovastelmashchuk/nest2d:${GIT_COMMIT_SHA:-latest}
     network_mode: "host"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     ports:
       - "7100:3000"
     environment:

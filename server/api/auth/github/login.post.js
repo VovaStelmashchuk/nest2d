@@ -39,6 +39,9 @@ export default defineEventHandler(async (event) => {
           id: id,
         },
       },
+      $setOnInsert: {
+        createdAt: new Date(), // This field will only be set on document insertion
+      },
       $push: {
         sessions: session,
       },
