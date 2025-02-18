@@ -1,9 +1,7 @@
 <template>
   <div class="flex flex-col min-h-screen">
     <header class="border-b border-gray-300">
-      <p class="text-center text-black bg-gray-200">
-        The project still under development.
-      </p>
+      <RunningLine textValue="The project still under development" />
       <div
         class="container mx-auto flex justify-between items-center p-2 lg:px-8"
       >
