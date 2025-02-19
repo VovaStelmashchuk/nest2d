@@ -45,6 +45,7 @@
 
 <style lang="scss" scoped>
 .footer {
+    font-family: $sf_mono;
     padding-top: 16px;
     padding-bottom: 16px;
     background-color: #000;
@@ -58,7 +59,6 @@
         display: block;
         font-size: 12px;
         line-height: 1.2;
-        font-family: $sf_mono;
         font-weight: 6900;
     }
 }
@@ -79,7 +79,6 @@
         display: block;
         font-size: 12px;
         line-height: 1.2;
-        font-family: $sf_mono;
         font-weight: 600;
         transition: color 0.3s;
 
