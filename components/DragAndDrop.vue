@@ -9,7 +9,7 @@
             v-if="error"
             class="drag-and-drop__error"
         >
-            All files will be save secure and available only for you
+            {{ error }}
         </div>
     </div>
 </template>

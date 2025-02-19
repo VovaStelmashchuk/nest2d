@@ -1,5 +1,8 @@
 <template>
-    <div class="prodject">
+    <div 
+        :class="prodjectClasses"
+        class="prodject"
+    >
         <NuxtLink 
             :to="`/project/${project.slug}`"
             class="prodject__label"
@@ -27,6 +30,7 @@
 </template>
 
 <script>
+import { computed, toRefs } from 'vue';
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
@@ -39,16 +43,20 @@ export default {
             required: true,
         },
     },
-    setup() {
+    setup(props) {
+        const { project } = toRefs(props)
+        
+        const prodjectClasses = computed(() => ({
+            'prodject--active': unref(project).slug === 'happy-curie-gVLvmv'
+        }))
+
         return {
             iconType,
             sizeType,
-            themeType
+            themeType,
+            prodjectClasses
         }
     }
-};
-const navigateToProject = () => {
-    console.log("Navigating to project");
 };
 </script>
 
@@ -103,6 +111,23 @@ const navigateToProject = () => {
             }
             #{$self}__btn {
                 opacity: 1;
+            }
+        }
+    }
+
+    &--active {
+        border-width: 2px;
+        border-color: #000;
+        color: rgb(22, 26, 33, 0.8);
+
+        #{$self}__label {
+            color: #000;
+        }
+
+        @media (hover:hover) {
+            &:hover {
+                border-color: #000;
+                color: #000;
             }
         }
     }
