@@ -1,108 +1,126 @@
 <template>
-  <div class="container mx-auto relative flex flex-col">
-    <ProjectName :projectName="data.name" :slug="data.slug" />
-    <div class="flex flex-row">
-      <div v-if="data" class="flex-grow">
-        <div
-          v-if="data && data.files && data.files.length"
-          class="grid gap-2"
-          :class="gridColsClass"
-        >
-          <div
-            v-for="file in data.files"
-            :key="file.slug"
-            class="flex flex-row items-center border border-gray-200 p-4 rounded-lg"
-          >
-            <SvgDisplay class="w-32 h-32 mr-4" :svgContent="file.svg" />
-            <div class="flex flex-col flex-grow">
-              <div class="text-black font-bold text-lg mb-4 text-center">
-                {{ file.name }}
-              </div>
-              <div class="flex items-center space-x-2">
-                <button
-                  class="bg-red-500 text-white font-bold py-2 px-4 rounded"
-                  @click="decrement(file.slug)"
+    <div class="wrapper">
+        <div class="content">
+            <MainTitle class="content__title" :label="`Files: ${selectedFileCount}`" />
+            <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
+            <ul class="content__files files">
+                <li
+                    v-for="file in data.files"
+                    :key="file.slug"
+                    class="files__item file"
                 >
-                  -
-                </button>
-                <span class="text-black font-bold text-xl w-12 text-center">
-                  {{ counters[file.slug] }}
-                </span>
-                <button
-                  class="bg-green-500 text-white font-bold py-2 px-4 rounded"
-                  @click="increment(file.slug)"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          </div>
+                    <SvgDisplay class="file__display" :svgContent="file.svg" />
+                    <p class="file__name">
+                        {{ file.name }}
+                    </p>
+                    <div class="counter">
+                        <IconButton 
+                            :size="sizeType.s"
+                            :icon="iconType.minus"
+                            :isDisable="counters[file.slug] <= 1"
+                            @click="decrement(file.slug)"
+                            label="decrement"
+                            class="counter__btn"
+                        />
+                        <p class="counter__value">
+                            {{ counters[file.slug] }}
+                        </p>
+                        <IconButton 
+                            :size="sizeType.s"
+                            :icon="iconType.plus"
+                            @click="increment(file.slug)"
+                            label="increment"
+                            class="counter__btn"
+                        />
+                    </div>
+                    <div class="file__btn">
+                        <IconButton 
+                            :label="`delete ${file.name}`"
+                            :size="sizeType.s"
+                            :theme="themeType.secondary"
+                            :icon="iconType.trash"
+                            @click="console.log(`delete ${file.name}`)"
+                        />
+                    </div>
+                </li>
+            </ul>
         </div>
-      </div>
-
-      <div class="w-[20rem] h-full ml-4 border border-gray-200 rounded-lg">
-        <h2 class="text-2xl font-bold text-black my-6 text-center">
-          Nesting settings
-        </h2>
-        <div class="flex flex-col space-y-4 p-4">
-          <InputField
-            id="width"
-            label="Width"
-            v-model="widthPlate"
-            placeholder="Enter width, mm"
-          />
-
-          <InputField
-            id="height"
-            label="Height"
-            v-model="heightPlate"
-            placeholder="Enter height, mm"
-          />
-
-          <InputField
-            id="tolerance"
-            label="Tolerance"
-            v-model="tolerance"
-            placeholder="Enter tolerance, mm"
-          />
-
-          <InputField
-            id="space"
-            label="Space"
-            v-model="space"
-            placeholder="Enter space, mm"
-          />
-
-          <div>
-            <span class="text-2xl font-bold text-black my-2 text-center">
-              Files selected: {{ selectedFileCount }}
-            </span>
-          </div>
-          <div>
-            <button
-              class="w-full bg-black text-white py-2 px-4 rounded-lg shadow-md border border-black hover:bg-white hover:text-black transition duration-300 ease-in-out transform focus:ring focus:ring-gray-400"
-              @click="nest"
+        <div class="nest">
+            <MainTitle class="nest__title" label="Nesting settings" />
+            <div class="nest__settings settings">
+                <div class="settings__size size">
+                    <div class="size__line">
+                        <InputField
+                            prefix="W"
+                            suffix="mm"
+                            v-model="widthPlate"
+                            class="size__input"
+                        />
+                        <IconButton
+                            v-if="isHeightLock"
+                            @click="updateHeightLock()"
+                            label="unlock height"
+                            :icon="iconType.lock"
+                            :theme="themeType.secondary"
+                            class="size__btn"
+                        />
+                        <IconButton
+                            v-else
+                            @click="updateHeightLock()"
+                            label="lock height"
+                            :icon="iconType.unlock"
+                            class="size__btn"
+                        />
+                        <InputField
+                            :isDisable="isHeightLock"
+                            prefix="H"
+                            suffix="mm"
+                            v-model="heightPlate"
+                            class="size__input"
+                        />
+                    </div>
+                    <InputField
+                        prefix="Spacing"
+                        suffix="mm"
+                        v-model="space"
+                        class="size__input"
+                    />
+                    <InputField
+                        prefix="Tolerance"
+                        suffix="mm"
+                        v-model="tolerance"
+                        class="size__input"
+                    />
+                </div>
+            </div>
+            <MainButton 
+                :theme="themeType.primary"
+                :label="`Nest ${selectedFileCount} files`"
+                @click="nest"
+                class="nest__btn" 
+            />
+            <div
+                v-if="nestRequestError"
+                class="nest__error"
             >
-              Nest
-            </button>
-            <div v-if="nestRequestError" class="text-red-500 mt-2">
-              {{ nestRequestError }}
+                {{ nestRequestError }}
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: "auth",
+    layout: "auth",
 });
+
 import { useRoute } from "vue-router";
 import { useFetch } from "#app";
-import { watch } from "vue";
+import { computed, watch } from "vue";
 import { navigateTo } from "nuxt/app";
+import { sizeType } from "~~/constants/size.constants";
+import { iconType } from "~~/constants/icon.constants";
+import { themeType } from "~~/constants/theme.constants";
 
 const route = useRoute();
 const slug = route.params.slug;
@@ -110,6 +128,7 @@ const slug = route.params.slug;
 const query = route.query;
 
 const nestRequestError = ref(null);
+const isHeightLock = ref(false)
 
 const widthPlate = ref(query.width || 400);
 const heightPlate = ref(query.height || 560);
@@ -117,111 +136,227 @@ const tolerance = ref(query.tolerance || 0.1);
 const space = ref(query.space || 0.1);
 
 const counters = ref({});
-
-const selectedFileCount = ref(0);
+const selectedFileCount = computed(() => Object.values(unref(counters)).reduce((acc, curr) => acc + curr, 0))
 
 const { data, pending, error } = await useFetch(`/api/project/${slug}`);
 
-const gridColsClass = computed(() => {
-  return `
-    grid-cols-[repeat(auto-fit,_minmax(18rem,1fr))]
-  `;
-});
-
+const updateHeightLock = (value) => {
+    isHeightLock.value = !unref(isHeightLock)
+}
 const updateCounter = () => {
-  nestRequestError.value = null;
-  const conuts = Object.values(counters.value);
-  selectedFileCount.value = conuts.reduce((acc, curr) => acc + curr, 0);
+    nestRequestError.value = null;
+    const conuts = Object.values(counters.value);
 };
+
 const fileKeys = Object.keys(query).filter((key) => key.startsWith("file-"));
+
 if (fileKeys.length) {
-  fileKeys.forEach((key) => {
-    const slug = key.replace("file-", "");
-    counters.value[slug] = parseInt(query[key]);
-  });
-  data.value.files.forEach((file) => {
-    if (!counters.value[file.slug]) {
-      counters.value[file.slug] = 0;
-    }
-  });
+    fileKeys.forEach((key) => {
+        const slug = key.replace("file-", "");
+        counters.value[slug] = parseInt(query[key]);
+    });
+    data.value.files.forEach((file) => {
+        if (!counters.value[file.slug]) {
+            counters.value[file.slug] = 0;
+        }
+    });
 } else {
-  data.value.files.forEach((file) => {
-    counters.value[file.slug] = 1;
-  });
+    data.value.files.forEach((file) => {
+        counters.value[file.slug] = 1;
+    });
 }
 
 watch(
   () => counters.value,
-  () => {
-    updateCounter();
-  },
+    () => {
+        updateCounter();
+    },
   { deep: true, immediate: true }
 );
 
 const increment = (slug) => {
-  counters.value[slug]++;
+    counters.value[slug]++;
 };
 
 const decrement = (slug) => {
-  if (counters.value[slug] > 0) {
-    counters.value[slug]--;
-  }
+    if (counters.value[slug] > 0) {
+        counters.value[slug]--;
+    }
 };
 
 const nest = async () => {
-  nestRequestError.value = null;
+    nestRequestError.value = null;
 
-  const filesToNest = Object.entries(counters.value)
+    const filesToNest = Object.entries(counters.value)
     .filter(([_, count]) => count > 0)
     .map(([slug, count]) => {
-      return {
-        slug,
-        count,
-      };
+        return {
+            slug,
+            count,
+        };
     });
 
-  if (filesToNest.length === 0) {
-    nestRequestError.value = "Please select at least one file to nest.";
-    return;
-  }
+    if (filesToNest.length === 0) {
+        nestRequestError.value = "Please select at least one file to nest.";
+        return;
+    }
 
-  const widthValue = parseFloat(widthPlate.value);
-  const heightValue = parseFloat(heightPlate.value);
-  const toleranceValue = parseFloat(tolerance.value);
-  const spaceValue = parseFloat(space.value);
+    const widthValue = parseFloat(widthPlate.value);
+    const heightValue = parseFloat(heightPlate.value);
+    const toleranceValue = parseFloat(tolerance.value);
+    const spaceValue = parseFloat(space.value);
 
-  if (
-    isNaN(widthValue) ||
-    isNaN(heightValue) ||
-    isNaN(toleranceValue) ||
-    isNaN(spaceValue)
-  ) {
-    nestRequestError.value =
-      "Please enter valid values for width, height, tolerance and space.";
-    return;
-  }
+    if (
+        isNaN(widthValue) ||
+        isNaN(heightValue) ||
+        isNaN(toleranceValue) ||
+        isNaN(spaceValue)
+    ) {
+        nestRequestError.value = "Please enter valid values for width, height, tolerance and space.";
+        return;
+    }
 
-  const request = {
+    const request = {
     files: filesToNest,
     params: {
-      width: widthValue,
-      height: heightValue,
-      tolerance: toleranceValue,
-      space: spaceValue,
+        width: widthValue,
+        height: heightValue,
+        tolerance: toleranceValue,
+        space: spaceValue,
     },
-  };
+    };
 
-  const nestResultResponse = await fetch(`/api/project/${slug}/nest`, {
+    const nestResultResponse = await fetch(`/api/project/${slug}/nest`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+        "Content-Type": "application/json",
     },
     body: JSON.stringify(request),
-  });
-  const nestResult = await nestResultResponse.json();
+    });
+    const nestResult = await nestResultResponse.json();
 
-  navigateTo(`/queue/${nestResult.slug}`);
+    navigateTo(`/queue/${nestResult.slug}`);
 };
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.wrapper {
+    &>*:not(:last-child) {
+        margin-bottom: 40px;
+    }
+}
+.content {
+    &__title {
+        margin-bottom: 16px;
+    }
+}
+.files {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+}
+.file {
+    position: relative;
+    $self: &;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid rgb(0, 11, 33, 0.1);
+    transition: border-color 0.3s;
+
+    &__display {
+        width: 56px;
+        height: 56px;
+    }
+    &__name {
+        line-height: 1.2;
+        margin-top: 16px;
+        margin-bottom: 16px;
+        font-family: $sf_mono;
+        font-size: 12px;
+        color: rgb(22, 26, 33, 0.8);
+        transition: color 0.3s;
+    }
+    &__btn {
+        opacity: 0;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        transition: opacity 0.3s;
+    }
+
+    @media (hover:hover) {
+        &:hover {
+            border-color: rgb(0, 11, 33, 0.15);
+            #{$self}__name {
+                color: #000;
+            }
+            #{$self}__btn {
+                opacity: 1;
+            }
+        }
+    }
+}
+.counter {
+    display: flex;
+    align-items: center;
+
+    &__value {
+        line-height: 1.2;
+        font-family: $sf_mono;
+        font-size: 12px;
+        color: rgb(22, 26, 33, 0.8);
+        margin-left: 8px;
+        margin-right: 8px;
+        min-width: 24px;
+        text-align: center;
+    }
+}
+.nest {
+    font-family: $sf_mono;
+    font-size: 12px;
+    text-align: center;
+
+    &__title {
+        margin-bottom: 16px;
+    }
+
+    &__btn {
+        margin-top: 40px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+    &__error {
+        margin-top: 16px;
+        padding: 12px;
+        background-color: rgb(222, 0, 54, 0.05);
+        border: solid 1px rgb(222, 0, 54);
+        border-radius: 8px;
+    }
+
+    &__settings {
+        width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+.size {
+    &>*:not(:last-child) {
+        margin-bottom: 8px;
+    }
+
+    &__line {
+        display: flex;
+        align-items: center;
+    }
+    &__btn {
+        flex-shrink: 0;
+        margin-left: 2px;
+        margin-right: 2px;
+    }
+    &__input {
+        flex-grow: 1;
+        min-width: 80px;
+    }
+}
+</style>
