@@ -1,19 +1,18 @@
 <template>
-  <div class="pt-4">
-    <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">
-      Your Projects
-    </h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-      <div v-for="project in data.projects" :key="project.id">
-        <UserProjectItem
-          :key="project.slug"
-          :imageUrl="project.imageUrl"
-          :slug="project.slug"
-          :text="project.name"
+    <div class="prodjects">
+        <MainTitle
+            label="Projects"
+            btnLabel="New project"
+            @btnClick="console.log('new project')"
+            class="prodjects__title"
         />
-      </div>
-    </div>
-  </div>
+        <UserProjectItem
+            v-for="project in data.projects"
+            :key="project.slug"
+            :project="project"
+            class="prodjects__item"
+        />
+	</div>
 </template>
 
 <script setup>
@@ -21,3 +20,15 @@ const { data, pending, error } = await useFetch("/api/project/me", {
   credentials: "include",
 });
 </script>
+<style lang="scss" scoped>
+.prodjects {
+    &__title {
+        margin-bottom: 16px;
+    }
+    &__item {
+        &:not(:last-child) {
+            margin-bottom: 8px;
+        }
+    }
+}
+</style>
