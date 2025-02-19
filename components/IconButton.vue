@@ -60,28 +60,55 @@ export default {
     transition: background-color 0.3s, opacity 0.3s;
     width: max-content;
 
+    &__icon {
+        display: block;
+        background-size: contain;
+    }
+
     &--size-m {
         border-radius: 6px;
         padding: 12px;
+        #{$self}__icon {
+            width: 14px;
+            height: 14px;
+        }
     }
     &--size-s {
         border-radius: 5px;
         padding: 9px;
+        #{$self}__icon {
+            width: 12px;
+            height: 12px;
+        }
     }
 
-    &__icon {
-        display: block;
-        width: 12px;
-        height: 12px;
-        background-size: contain;
-    }
     &--theme-secondary {
         background-color: rgb(0, 11, 33, 0.05);
     }
-
+    
     &--icon-trash {
         #{$self}__icon {
             background-image: url('/icons/svg/trash.svg')
+        }
+    }
+    &--icon-minus {
+        #{$self}__icon {
+            background-image: url('/icons/svg/minus.svg')
+        }
+    }
+    &--icon-plus {
+        #{$self}__icon {
+            background-image: url('/icons/svg/plus.svg')
+        }
+    }
+    &--icon-unlock {
+        #{$self}__icon {
+            background-image: url('/icons/svg/unlock.svg')
+        }
+    }
+    &--icon-lock {
+        #{$self}__icon {
+            background-image: url('/icons/svg/lock.svg')
         }
     }
     
