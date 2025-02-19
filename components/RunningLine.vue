@@ -9,13 +9,13 @@
 </template>
 <script>
 export default {
-  name: "RunningLine",
-  props: {
-    textValue: {
-      type: String,
-      default: '',
+    name: "RunningLine",
+    props: {
+        textValue: {
+        type: String,
+        default: '',
+        },
     },
-  },
 };
 </script>
 <style lang="scss" scoped>
