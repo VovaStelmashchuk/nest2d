@@ -37,7 +37,6 @@
                         <IconButton 
                             :label="`delete ${file.name}`"
                             :size="sizeType.s"
-                            :theme="themeType.secondary"
                             :icon="iconType.trash"
                             @click="console.log(`delete ${file.name}`)"
                         />
@@ -92,6 +91,20 @@
                         class="size__input"
                     />
                 </div>
+                <div class="settings__anchor anchor">
+                    <p class="anchor__title">
+                        Anchor
+                    </p>
+                    <ul class="anchor__list">
+                        <li v-for="index in 9" 
+                            :label="index" 
+                            :key="index" 
+                            @click="currentAnchor = index"
+                            :class="getAnchorClasses(index)"
+                            class="anchor__item">
+                        </li>
+                    </ul>
+                </div>
             </div>
             <MainButton 
                 :theme="themeType.primary"
@@ -129,6 +142,7 @@ const query = route.query;
 
 const nestRequestError = ref(null);
 const isHeightLock = ref(false)
+const currentAnchor = ref(1)
 
 const widthPlate = ref(query.width || 400);
 const heightPlate = ref(query.height || 560);
@@ -139,6 +153,8 @@ const counters = ref({});
 const selectedFileCount = computed(() => Object.values(unref(counters)).reduce((acc, curr) => acc + curr, 0))
 
 const { data, pending, error } = await useFetch(`/api/project/${slug}`);
+
+const getAnchorClasses = (index) => ({'anchor__item--active': index === unref(currentAnchor)})
 
 const updateHeightLock = (value) => {
     isHeightLock.value = !unref(isHeightLock)
@@ -258,7 +274,7 @@ const nest = async () => {
 .file {
     position: relative;
     $self: &;
-    padding: 16px;
+    padding: 15px;
     border-radius: 8px;
     border: 1px solid rgb(0, 11, 33, 0.1);
     transition: border-color 0.3s;
@@ -339,7 +355,16 @@ const nest = async () => {
         margin-right: auto;
     }
 }
-
+.settings {
+    display: flex;
+    &__size {
+        width: 221px;
+    }
+    &__anchor {
+        width: 91px;
+        margin-left: 8px;
+    }
+}
 .size {
     &>*:not(:last-child) {
         margin-bottom: 8px;
@@ -359,4 +384,74 @@ const nest = async () => {
         min-width: 80px;
     }
 }
+.anchor {
+    padding: 4px;
+    border-radius: 6px;
+    background-color: rgb(0, 11, 33, 0.05);
+    &__title {
+        line-height: 1.2;
+        text-align: left;
+        padding-top: 8px;
+        padding-bottom: 2px;
+        padding-left: 8px;
+        font-family: $sf_mono;
+        font-size: 12px;
+        color: rgb(22, 26, 33, 0.8);
+        margin-bottom: 15px;
+    }
+    &__list {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+    &__item {
+        cursor: pointer;
+        padding-top: 100%;
+        display: block;
+        position: relative;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 4px;
+            background-color: rgb(22, 26, 33, 0.5);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        @media (hover:hover) {
+            &:hover {
+                background-color: rgb(0, 11, 33, 0.05);
+                &::after {
+                    background-color: rgb(22, 26, 33, 0.8);
+                }
+            }
+        }
+
+        &--active {
+            pointer-events: none;
+
+            &::after {
+                background-color: #000;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
+    }
+    &__input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        left: 0;
+    }
+}
+
 </style>

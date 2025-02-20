@@ -4,9 +4,7 @@
             label="Results"
             class="results__title"
         />
-        <p class="results__text">
-            Your nested results will be here
-        </p>  
+        <UserQueue />
 	</div>
 </template>
 <script>
@@ -19,11 +17,6 @@ export default {
     font-family: $sf_mono;
     &__title {
         margin-bottom: 16px;
-    }
-    &__text {
-        font-size: 12px;
-        line-height: 1.2;
-        color: rgb(22, 26, 33, 0.5);
     }
 }
 </style>

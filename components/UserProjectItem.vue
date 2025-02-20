@@ -45,16 +45,17 @@ export default {
     },
     setup(props) {
         const { project } = toRefs(props)
+        const route = useRoute()
         
         const prodjectClasses = computed(() => ({
-            'prodject--active': unref(project).slug === 'happy-curie-gVLvmv'
+            'prodject--active': unref(project).slug === route.params.slug
         }))
 
         return {
             iconType,
             sizeType,
             themeType,
-            prodjectClasses
+            prodjectClasses,
         }
     }
 };
@@ -71,8 +72,20 @@ export default {
     position: relative;
     padding: 16px;
     border-radius: 8px;
-    border: 1px solid rgb(0, 11, 33, 0.1);
-    transition: border-color 0.3s, color 0.3s;
+    transition: color 0.3s;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        pointer-events: none;
+        border: 1px solid rgb(0, 11, 33, 0.1);
+        transition: border-color 0.3s;
+        border-radius: 8px;
+    }
 
     &__label {
         display: block;
@@ -104,8 +117,10 @@ export default {
     @media (hover:hover) {
         &:hover {
             color: rgb(22, 26, 33, 0.8);
-            border-color: rgb(0, 11, 33, 0.15);
 
+            &::after {
+            border-color: rgb(0, 11, 33, 0.15);
+            }
             #{$self}__label {
                 color: #000;
             }
@@ -116,18 +131,22 @@ export default {
     }
 
     &--active {
-        border-width: 2px;
-        border-color: #000;
         color: rgb(22, 26, 33, 0.8);
-
+        &::after {
+            border-width: 2px;
+            border-color: #000;
+        }
         #{$self}__label {
             color: #000;
         }
 
         @media (hover:hover) {
             &:hover {
-                border-color: #000;
                 color: #000;
+
+                &::after {
+                    border-color: #000;
+                }
             }
         }
     }
