@@ -75,6 +75,14 @@ export default {
         font-family: $sf_mono;
         font-weight: 700;
     }
+    &--size-s {
+        border-radius: 5px;
+        padding: 9px;
+
+        #{$self}__label {
+            font-size: 10px;
+        }
+    }
     &--size-m {
         border-radius: 6px;
         padding: 12px;
