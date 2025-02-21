@@ -1,10 +1,11 @@
 import { json2dxf } from "@deepnest/dxf2svg-processor";
 import { parseAndCombine } from "~~/server/core/dxf/parser";
 import { transformEntity } from "~~/server/core/dxf/transform";
-import { connectDB } from "~~/server/db/mongo";
+import { connectDB, getSvgResultBucket } from "~~/server/db/mongo";
 import { generateSvg } from "./svg/generator";
 import { buildPolygon } from "./polygones";
 import { ERROR_NO_SOLUTION_FOUND } from "./constants";
+import { Readable } from "stream";
 
 export async function nest(jobId) {
   const db = await connectDB();
@@ -85,9 +86,22 @@ export async function nest(jobId) {
 
   const svg = generateSvg(originDxfObject);
 
+  const svgContentReadStream = new Readable();
+  svgContentReadStream.push(svg.svg);
+  svgContentReadStream.push(null);
+
+  const fileName = `${nestRequest.slug}.svg`;
+  const svgResultBucket = await getSvgResultBucket();
+  const writeString = svgResultBucket.openUploadStream(fileName);
+
+  svgContentReadStream.pipe(writeString);
+
   await db
     .collection("nest_request")
-    .updateOne({ _id: jobId }, { $set: { svg: svg } });
+    .updateOne(
+      { _id: jobId },
+      { $set: { svgError: svg.error, svgFileName: fileName } }
+    );
 
   const dxfAsString = json2dxf({ jsonData: JSON.stringify(originDxfObject) });
 

@@ -36,10 +36,10 @@
             {{ data.error.message }}
           </p>
         </div>
-        <SvgDisplay
+        <img
           v-if="data.status == 'completed'"
           class="w-full h-96"
-          :svgContent="data.resultSvg"
+          :src="data.resultSvg"
         />
       </div>
 
