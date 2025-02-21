@@ -21,7 +21,6 @@ export default defineEventHandler(async (event) => {
         placed: 1,
         requested: 1,
         usage: 1,
-        svg: 1,
         result: 1,
       },
     }
@@ -71,7 +70,7 @@ export default defineEventHandler(async (event) => {
     status: status,
     error: error,
     nestedFiles: nestedFiles,
-    resultSvg: queueItem?.svg?.svg,
+    resultSvg: "/api/result/" + queueItem.slug + "/svg",
     dxfResult: queueItem?.dxfResult,
     params: {
       width: queueItem.params.width,

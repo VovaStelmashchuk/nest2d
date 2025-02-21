@@ -9,6 +9,9 @@ let client;
  */
 export let db;
 
+/**
+ * @type {GridFSBucket}
+ */
 let avatarBucket;
 
 /**
@@ -22,6 +25,21 @@ export async function getAvatarBucket() {
     });
   }
   return avatarBucket;
+}
+
+let svgResultBucket;
+
+/**
+ * @returns {Promise<GridFSBucket>}
+ */
+export async function getSvgResultBucket() {
+  await connectDB();
+  if (!svgResultBucket) {
+    svgResultBucket = new GridFSBucket(db, {
+      bucketName: "svgResults",
+    });
+  }
+  return svgResultBucket;
 }
 
 export async function connectDB() {
