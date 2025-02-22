@@ -41,3 +41,11 @@ export function generateEntityName() {
 
   return name;
 }
+
+export async function streamToString(readable) {
+  let result = "";
+  for await (const chunk of readable) {
+    result += chunk;
+  }
+  return result;
+}
