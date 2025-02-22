@@ -16,19 +16,11 @@ export default defineEventHandler(async (event) => {
 
   const db = await connectDB();
 
-  const project = await db
-    .collection("projects")
-    .findOne({ slug: projectSlug });
-
   const userDxfBucket = await getUserDxfBucket();
 
   const objectsToNest = await Promise.all(
     files.map(async (file) => {
-      const dxfFileName = project.dxf.find(
-        (dxfFile) => dxfFile.slug === file.slug
-      ).fileName;
-
-      const readStream = userDxfBucket.openDownloadStreamByName(dxfFileName);
+      const readStream = userDxfBucket.openDownloadStreamByName(file.slug);
       const string = await streamToString(readStream);
 
       const dxfAsObjectStr = dxf2json({
