@@ -1,6 +1,7 @@
 import { defineEventHandler, readBody } from "h3";
-import { connectDB } from "~~/server/db/mongo";
-import { generateRandomString } from "~~/server/utils/strings";
+import { connectDB, getUserDxfBucket } from "~~/server/db/mongo";
+import { generateRandomString, streamToString } from "~~/server/utils/strings";
+import { dxf2json } from "@deepnest/dxf2svg-processor";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -19,14 +20,29 @@ export default defineEventHandler(async (event) => {
     .collection("projects")
     .findOne({ slug: projectSlug });
 
-  const objectsToNest = files.flatMap((file) => {
-    const dxfObject = project.dxf.find((d) => d.slug === file.slug).asObject;
+  const userDxfBucket = await getUserDxfBucket();
 
-    return {
-      dxfObject: dxfObject,
-      count: file.count,
-    };
-  });
+  const objectsToNest = await Promise.all(
+    files.map(async (file) => {
+      const dxfFileName = project.dxf.find(
+        (dxfFile) => dxfFile.slug === file.slug
+      ).fileName;
+
+      const readStream = userDxfBucket.openDownloadStreamByName(dxfFileName);
+      const string = await streamToString(readStream);
+
+      const dxfAsObjectStr = dxf2json({
+        stringData: string,
+      });
+
+      const dxfAsObject = JSON.parse(dxfAsObjectStr);
+
+      return {
+        dxfObject: dxfAsObject,
+        count: file.count,
+      };
+    })
+  );
 
   const slug = `nest-${generateRandomString(6)}`;
 
