@@ -17,7 +17,7 @@
                         <IconButton 
                             :size="sizeType.s"
                             :icon="iconType.minus"
-                            :isDisable="counters[file.slug] <= 1"
+                            :isDisable="counters[file.slug] < 1"
                             @click="decrement(file.slug)"
                             label="decrement"
                             class="counter__btn"
@@ -33,14 +33,14 @@
                             class="counter__btn"
                         />
                     </div>
-                    <div class="file__btn">
+                    <!-- <div class="file__btn">
                         <IconButton 
                             :label="`delete ${file.name}`"
                             :size="sizeType.s"
                             :icon="iconType.trash"
                             @click="console.log(`delete ${file.name}`)"
                         />
-                    </div>
+                    </div> -->
                 </li>
             </ul>
         </div>
@@ -91,7 +91,7 @@
                         class="size__input"
                     />
                 </div>
-                <div class="settings__anchor anchor">
+                <!-- <div class="settings__anchor anchor">
                     <p class="anchor__title">
                         Anchor
                     </p>
@@ -104,7 +104,7 @@
                             class="anchor__item">
                         </li>
                     </ul>
-                </div>
+                </div> -->
             </div>
             <MainButton 
                 :theme="themeType.primary"
@@ -357,6 +357,7 @@ const nest = async () => {
 }
 .settings {
     display: flex;
+    justify-content: center;
     &__size {
         width: 221px;
     }
