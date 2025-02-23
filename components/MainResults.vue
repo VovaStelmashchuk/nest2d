@@ -4,19 +4,19 @@
             label="Results"
             class="results__title"
         />
-        <UserQueue />
+        <UiScrollbar class="results__scrollbar">
+            <UserQueue />
+        </UiScrollbar>
 	</div>
 </template>
-<script>
-export default {
-    name: "MainResults",
-};
-</script>
 <style lang="scss" scoped>
 .results {
     font-family: $sf_mono;
     &__title {
         margin-bottom: 16px;
+    }
+    &__scrollbar {
+        max-height: 600px;
     }
 }
 </style>

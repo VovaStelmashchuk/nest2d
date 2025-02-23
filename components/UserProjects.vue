@@ -6,12 +6,14 @@
             @btnClick="createNewProdject"
             class="prodjects__title"
         />
-        <UserProjectItem
-            v-for="project in data.projects"
-            :key="project.slug"
-            :project="project"
-            class="prodjects__item"
-        />
+        <UiScrollbar class="prodjects__scrollbar">
+            <UserProjectItem
+                v-for="project in data.projects"
+                :key="project.slug"
+                :project="project"
+                class="prodjects__item"
+            />
+        </UiScrollbar>
 	</div>
 </template>
 
@@ -36,6 +38,9 @@ const { data } = useFetch("/api/project/me", {
         &:not(:last-child) {
             margin-bottom: 8px;
         }
+    }
+    &__scrollbar {
+        max-height: 600px;
     }
 }
 </style>
