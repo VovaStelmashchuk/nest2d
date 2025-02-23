@@ -23,12 +23,10 @@
         margin-right: auto;
         max-width: 1280px;
         width: 100%;
-        margin-bottom: 43px;
     }
     &__content {
         flex-grow: 1;
-        margin-left: auto;
-        margin-right: auto;
+        margin: 40px auto;
         max-width: 1280px;
         width: 100%;
     }
