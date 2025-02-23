@@ -1,14 +1,14 @@
 <template>
     <div
         class="upload"
-        @dragover.prevent="onDragOver"
-        @dragenter.prevent="onDragEnter"
-        @dragleave.prevent="onDragLeave"
+        @dragover.prevent="updateDragStatus()"
+        @dragenter.prevent="updateDragStatus()"
+        @dragleave.prevent="updateDragStatus(false)"
         @drop.prevent="onDrop"
     >
         <label
             class="upload__label"
-            :class="{ 'border-blue-500 bg-blue-50': isDragOver }"
+            :class="labelClasses"
         >
             <input
                 type="file"
@@ -34,59 +34,38 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { themeType } from '~~/constants/theme.constants';
 
-export default {
-    name: "DxfUpload",
-    props: {
-        extensions: {
-            type: Array,
-            default: () => [".dxf"],
-        },
+const props = defineProps({
+    extensions: {
+        type: Array,
+        default: () => [".dxf"],
     },
-    data() {
-        return {
-            dxfFiles: [],
-            isDragOver: false,
-        };
-    },
-    methods: {
-        onDXFChange(event) {
-            const addedFiles = Array.from(event.target.files);
-            this.addFiles(addedFiles);
-        },
+});
+const emit = defineEmits(["files"]);
 
-        onDragOver() {
-            this.isDragOver = true;
-        },
-        onDragEnter() {
-            this.isDragOver = true;
-        },
-        onDragLeave() {
-            this.isDragOver = false;
-        },
-        onDrop(event) {
-            this.isDragOver = false;
-            const droppedFiles = Array.from(event.dataTransfer.files);
-            this.addFiles(droppedFiles);
-        },
+const { extensions } = toRefs(props);
+const isDragOver = ref(false);
 
-        addFiles(newFiles) {
-            let combined = [...this.dxfFiles, ...newFiles];
-            combined = combined.filter((file) => {
-                return this.extensions.includes(file.name.slice(-4).toLowerCase());
-            });
-            this.dxfFiles = combined;
-            this.$emit("files", this.dxfFiles);
-        },
-    },
-    setup() {
-        return {
-            themeType
-        }
-    }
+const updateDragStatus = (newValue = true) => {
+    isDragOver.value = newValue;
 };
+const setFiles = (newFiles) => {
+    const filesList = newFiles.filter((file) => unref(extensions).includes(file.name.slice(-4).toLowerCase()));
+    emit("files", filesList);
+};
+const onDrop = (event) => {
+    updateDragStatus(false);
+    const droppedFiles = Array.from(event.dataTransfer.files);
+    setFiles(droppedFiles);
+};
+const onDXFChange = (event) => {
+    const addedFiles = Array.from(event.target.files);
+    setFiles(addedFiles);
+};
+
+const labelClasses = computed(() => ({ 'upload__label--hover': unref(isDragOver) }));
 </script>
 
 <style lang="scss" scoped>
@@ -108,6 +87,10 @@ export default {
         border: dashed 1px #000;
         border-radius: 8px;
         transition: background-color 0.3s;
+
+        &--hover {
+            background-color: rgb(0, 11, 33, 0.08);
+        }
     }
     &__btn {
         position: relative;
