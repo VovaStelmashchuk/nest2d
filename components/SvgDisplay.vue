@@ -8,26 +8,31 @@
     </div>
 </template>
 
-<script>
-export default {
-    props: {
-        svgContent: {
-            type: String,
-            required: true,
-        },
-    },
-    computed: {
-        svgDataUri() {
-            const encodedSvg = encodeURIComponent(this.svgContent)
-            .replace(/'/g, "%27")
-            .replace(/"/g, "%22");
+<script setup>
+import { computed } from 'vue';
 
-            return `data:image/svg+xml,${encodedSvg}`;
-        },
+const { svgContent, src } = defineProps({
+    svgContent: {
+        type: String,
+        default: '',
     },
-};
+    src: {
+        type: String,
+        default: '',
+    }
+});
+
+const svgDataUri = computed(() => {
+    if(Boolean(src)) {
+        return src
+    }
+    const encodedSvg = encodeURIComponent(svgContent)
+    .replace(/'/g, "%27")
+    .replace(/"/g, "%22");
+
+    return `data:image/svg+xml,${encodedSvg}`;
+})
 </script>
-
 <style lang="scss" scoped>
 .dispay {
     font-size: 0;
