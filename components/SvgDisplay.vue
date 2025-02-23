@@ -30,8 +30,7 @@ export default {
 
 <style lang="scss" scoped>
 .dispay {
-    font-family: $sf_mono;
-    font-size: 12px;
+    font-size: 0;
     display: flex;
     align-items: center;
     justify-content: center;
