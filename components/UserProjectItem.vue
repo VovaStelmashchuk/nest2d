@@ -17,7 +17,7 @@
                 lorem ipsum
             </p>
         </div>
-        <div class="prodject__btn">
+        <!-- <div class="prodject__btn">
             <IconButton 
                 :label="`delete ${project.name}`"
                 :size="sizeType.s"
@@ -25,7 +25,7 @@
                 :icon="iconType.trash"
                 @click="console.log(`delete ${project.name}`)"
             />
-        </div>
+        </div> -->
     </div>
 </template>
 

@@ -15,15 +15,16 @@
                 {{ item.projectName }}
             </p>
             <div class="item__controls controls">
-                <div class="controls__delete">
+                <!-- <div class="controls__delete">
                     <IconButton 
                         :label="`delete ${item.projectName}`"
                         :size="sizeType.s"
                         :icon="iconType.trash"
                         @click="console.log(`delete ${item.projectName}`)"
                     />
-                </div>
+                </div> -->
                 <MainButton 
+                    v-if="item.status === 'completed'"
                     :href="`/api/queue/${item.slug}/dxf`"
                     label="Download"
                     tag="a"
