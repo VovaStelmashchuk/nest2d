@@ -8,3 +8,9 @@
         font-display: swap;
     }
 }
+
+@mixin firefox {
+    @-moz-document url-prefix() {
+        @content;
+    }
+}
