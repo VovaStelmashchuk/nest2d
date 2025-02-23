@@ -2,8 +2,8 @@
     <div class="prodjects">
         <MainTitle
             label="Projects"
-            btnLabel="New project"
-            @btnClick="console.log('new project')"
+            :btnLabel="btnLabelValue"
+            @btnClick="createNewProdject"
             class="prodjects__title"
         />
         <UserProjectItem
@@ -16,10 +16,17 @@
 </template>
 
 <script setup>
-const { data, pending, error } = await useFetch("/api/project/me", {
-  credentials: "include",
+const route = useRoute();
+const router = useRouter();
+
+const createNewProdject = () => router.push({ name: 'home' })
+const btnLabelValue = computed(() => route.name === 'home' ? '' : 'New project') 
+
+const { data } = useFetch("/api/project/me", {
+    credentials: "include",
 });
 </script>
+    
 <style lang="scss" scoped>
 .prodjects {
     &__title {
