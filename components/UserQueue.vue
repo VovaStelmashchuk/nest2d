@@ -1,38 +1,40 @@
 <template>
-    <div class="queues" v-if="data?.items">
+    <div class="queues" v-if="queueList.length">
         <div
-            v-for="item in data.items"
+            v-for="item in queueList"
             :key="item.id"
             class="queues__item item"
         >
-            <SvgDisplay class="item__display" :svgContent="``" />
-            <!-- <img
-                class="w-8 h-8"
-                :src="getIcon(item.status)"
-                :alt="`Icon for ${item.status}`"
-            /> -->
-            <p class="item__name">
-                {{ item.projectName }}
-            </p>
-            <div class="item__controls controls">
-                <!-- <div class="controls__delete">
-                    <IconButton 
-                        :label="`delete ${item.projectName}`"
+            <template v-if="isItemNexting(item.status)">
+                <div class="item__loader"></div>
+                <p class="item__text">
+                    Nesting</p>
+            </template>
+            <template v-else>
+                <SvgDisplay class="item__display" :src="getSvgSrc(item.svg)" />
+                <p class="item__name">
+                    {{ item.projectName }}
+                </p>
+                <div class="item__controls controls">
+                    <!-- <div class="controls__delete">
+                        <IconButton 
+                            :label="`delete ${item.projectName}`"
+                            :size="sizeType.s"
+                            :icon="iconType.trash"
+                            @click="console.log(`delete ${item.projectName}`)"
+                        />
+                    </div> -->
+                    <MainButton 
+                        v-if="item.status === 'completed'"
+                        :href="`/api/queue/${item.slug}/dxf`"
+                        label="Download"
+                        tag="a"
                         :size="sizeType.s"
-                        :icon="iconType.trash"
-                        @click="console.log(`delete ${item.projectName}`)"
+                        :theme="themeType.primary"
+                        class="controls__download"
                     />
-                </div> -->
-                <MainButton 
-                    v-if="item.status === 'completed'"
-                    :href="`/api/queue/${item.slug}/dxf`"
-                    label="Download"
-                    tag="a"
-                    :size="sizeType.s"
-                    :theme="themeType.primary"
-                    class="controls__download"
-                />
-            </div>
+                </div>
+            </template>
         </div>
     </div>
     <p v-else class="queues__text">
@@ -41,51 +43,36 @@
 </template>
 
 <script setup>
+import { baseUrl } from "~/.secret.json";
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
+import { statusType } from "~~/constants/status.constants";
+import { globalStore } from "~~/store";
 
-const data = ref(null);
-let intervalId;
+const route = useRoute();
+const apiPath = computed(() => {
+    return route.name === 'project-slug' ? `/api${route.path}/queue` : '/api/queue/all';
+})
 
-const fetchData = async () => {
-    try {
-        const response = await $fetch(`/api/queue/all`);
-        data.value = response;
-    } catch (err) {}
-};
-
-const startPolling = () => {
-    fetchData();
-    intervalId = setInterval(fetchData, 5000);
-};
-
-const stopPolling = () => {
-    if (intervalId) clearInterval(intervalId);
-};
-
-onMounted(() => {
-    startPolling();
-});
-
-onBeforeUnmount(() => {
-    stopPolling();
-});
-
-function getIcon(status) {
-    switch (status) {
-        case "completed":
-            return "/done.svg";
-        case "in-progress":
-            return "/processing.svg";
-        case "pending":
-            return "/pending.svg";
-        case "failed":
-            return "/fail.svg";
-        default:
-            return "/unknown.svg";
-    }
+const getSvgSrc = (value) => {
+    return `${baseUrl}${value}`
 }
+const { getters, mutations } = globalStore;
+const { queueList } = toRefs(getters);
+const { setQueue } = mutations;
+
+const isItemNexting = (status) => {
+    return [statusType.unfinished, statusType.pending].includes(status)
+}
+onBeforeMount(() => {
+    setQueue(unref(apiPath));
+})
+
+watch(() => route.fullPath, () => {
+    setQueue(unref(apiPath));
+});
+
 </script>
 <style lang="scss" scoped>
 .queues {
@@ -123,16 +110,42 @@ function getIcon(status) {
     border: 1px solid rgb(0, 11, 33, 0.1);
     border-radius: 8px;
     transition: border-color 0.3s;
-    &__display {
+    &__display,
+    &__loader {
         width: 40px;
         height: 40px;
     }
-    &__name {
+    &__loader {
+        position: relative;
+        border-radius: 6px;
+        background-color: rgb(0, 11, 33, 0.05);
+
+        &::after {
+            top: 50%;
+            left: 50%;
+            width: 1px;
+            height: 1px;
+            content: '';
+            position: absolute;
+            transform: translate(-50%, -50%);
+            color: #000;
+            box-shadow: -5px -5px 0 3px, -5px -5px 0 3px, -5px -5px 0 3px, -5px -5px 0 3px;
+            animation: loader 6s infinite;
+        }
+    }
+    &__name,
+    &__text {
         font-size: 12px;
         line-height: 1.2;
         margin-top: 10px;
         color: rgb(22, 26, 33, 0.8);
         transition: color 0.3s;
+    }
+    &__text {
+        &::after {
+            content: '';
+            animation: dots 2s infinite linear;
+        }
     }
     &__controls {
         position: absolute;
@@ -153,6 +166,99 @@ function getIcon(status) {
             }
         }
     }
-
+}
+@keyframes dots {
+    0% {
+        content: '';
+    }
+    33.33% {
+        content: '.';
+    }
+    66.66% {
+        content: '..';
+    }
+    100% {
+        content: '...';
+    }
+}
+@keyframes loader {
+    0% {
+        box-shadow: -5px -5px 0 3px,
+                    -5px -5px 0 3px,
+                    -5px -5px 0 3px,
+                    -5px -5px 0 3px;
+    }
+    8.33% {
+        box-shadow: -5px -5px 0 3px,
+                    5px -5px 0 3px,
+                    5px -5px 0 3px,
+                    5px -5px 0 3px;
+    }
+    16.66% {
+        box-shadow: -5px -5px 0 3px,
+                    5px -5px 0 3px,
+                    5px 5px 0 3px,
+                    5px 5px 0 3px;
+    }
+    24.99% {
+        box-shadow: -5px -5px 0 3px,
+                    5px -5px 0 3px,
+                    5px 5px 0 3px,
+                    -5px 5px 0 3px;
+    }
+    33.32% {
+        box-shadow: -5px -5px 0 3px,
+                    5px -5px 0 3px,
+                    5px 5px 0 3px,
+                    -5px -5px 0 3px;
+    }
+    41.65% {
+        box-shadow: 5px -5px 0 3px,
+                    5px -5px 0 3px,
+                    5px 5px 0 3px,
+                    5px -5px 0 3px;
+    }
+    49.98% {
+        box-shadow: 5px 5px 0 3px,
+                    5px 5px 0 3px,
+                    5px 5px 0 3px,
+                    5px 5px 0 3px;
+    }
+    58.31% {
+        box-shadow: -5px 5px 0 3px,
+                    -5px 5px 0 3px,
+                    5px 5px 0 3px,
+                    -5px 5px 0 3px;
+    }
+    66.64% {
+        box-shadow: -5px -5px 0 3px,
+                    -5px -5px 0 3px,
+                    5px 5px 0 3px,
+                    -5px 5px 0 3px;
+    }
+    74.97% {
+        box-shadow: -5px -5px 0 3px,
+                    5px -5px 0 3px,
+                    5px 5px 0 3px,
+                    -5px 5px 0 3px;
+    }
+    83.3% {
+        box-shadow: -5px -5px 0 3px,
+                    5px 5px 0 3px,
+                    5px 5px 0 3px,
+                    -5px 5px 0 3px;
+    }
+    91.63% {
+        box-shadow: -5px -5px 0 3px,
+                    -5px 5px 0 3px,
+                    -5px 5px 0 3px,
+                    -5px 5px 0 3px;
+    }
+    100% {
+        box-shadow: -5px -5px 0 3px,
+                    -5px -5px 0 3px,
+                    -5px -5px 0 3px,
+                    -5px -5px 0 3px;
+    }
 }
 </style>

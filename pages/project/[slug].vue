@@ -108,7 +108,8 @@
             </div>
             <MainButton 
                 :theme="themeType.primary"
-                :label="`Nest ${selectedFileCount} files`"
+                :label="btnLabel"
+                :isDisable="isNesting"
                 @click="nest"
                 class="nest__btn" 
             />
@@ -126,24 +127,27 @@
 definePageMeta({
     layout: "auth",
 });
-
 import { useRoute } from "vue-router";
 import { useFetch } from "#app";
 import { computed, watch } from "vue";
-import { navigateTo } from "nuxt/app";
 import { sizeType } from "~~/constants/size.constants";
 import { iconType } from "~~/constants/icon.constants";
 import { themeType } from "~~/constants/theme.constants";
+import { globalStore } from "~~/store";
+
+const { getters, mutations } = globalStore;
+const { isNesting } = toRefs(getters);
+const { setQueue } = mutations;
 
 const route = useRoute();
+const queuePath = `/api${route.path}/queue`
+
+const btnLabel = computed(() => {
+    return unref(isNesting) ? 'Nesting...' : `Nest ${unref(selectedFileCount)} files`
+}) 
+
 const slug = route.params.slug;
-
 const query = route.query;
-
-const nestRequestError = ref(null);
-const isHeightLock = ref(false)
-const currentAnchor = ref(1)
-
 const widthPlate = ref(query.width || 400);
 const heightPlate = ref(query.height || 560);
 const tolerance = ref(query.tolerance || 0.1);
@@ -154,15 +158,15 @@ const selectedFileCount = computed(() => Object.values(unref(counters)).reduce((
 
 const { data, pending, error } = await useFetch(`/api/project/${slug}`);
 
-const getAnchorClasses = (index) => ({'anchor__item--active': index === unref(currentAnchor)})
+// const currentAnchor = ref(1)
+// const getAnchorClasses = (index) => ({'anchor__item--active': index === unref(currentAnchor)})
 
-const updateHeightLock = (value) => {
+const isHeightLock = ref(false)
+const updateHeightLock = () => {
     isHeightLock.value = !unref(isHeightLock)
 }
-const updateCounter = () => {
-    nestRequestError.value = null;
-    const conuts = Object.values(counters.value);
-};
+
+const nestRequestError = ref('');
 
 const fileKeys = Object.keys(query).filter((key) => key.startsWith("file-"));
 
@@ -182,22 +186,16 @@ if (fileKeys.length) {
     });
 }
 
-watch(
-  () => counters.value,
-    () => {
-        updateCounter();
-    },
-  { deep: true, immediate: true }
-);
-
 const increment = (slug) => {
     counters.value[slug]++;
+    nestRequestError.value = null
 };
 
 const decrement = (slug) => {
     if (counters.value[slug] > 0) {
         counters.value[slug]--;
     }
+    nestRequestError.value = null
 };
 
 const nest = async () => {
@@ -233,25 +231,25 @@ const nest = async () => {
     }
 
     const request = {
-    files: filesToNest,
-    params: {
-        width: widthValue,
-        height: heightValue,
-        tolerance: toleranceValue,
-        space: spaceValue,
-    },
+        files: filesToNest,
+        params: {
+            width: widthValue,
+            height: heightValue,
+            tolerance: toleranceValue,
+            space: spaceValue,
+        },
     };
 
     const nestResultResponse = await fetch(`/api/project/${slug}/nest`, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request),
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
     });
     const nestResult = await nestResultResponse.json();
-
-    navigateTo(`/queue/${nestResult.slug}`);
+    setQueue(queuePath)
+    // navigateTo(`/queue/${nestResult.slug}`);
 };
 </script>
 
