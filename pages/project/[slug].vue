@@ -5,7 +5,7 @@
             <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
             <ul class="content__files files">
                 <li
-                    v-for="file in data.files"
+                    v-for="(file, fileIndex) in files"
                     :key="file.slug"
                     class="files__item file"
                 >
@@ -17,18 +17,18 @@
                         <IconButton 
                             :size="sizeType.s"
                             :icon="iconType.minus"
-                            :isDisable="counters[file.slug] < 1"
-                            @click="decrement(file.slug)"
+                            :isDisable="file.count < 1"
+                            @click="decrement(fileIndex)"
                             label="decrement"
                             class="counter__btn"
                         />
                         <p class="counter__value">
-                            {{ counters[file.slug] }}
+                            {{ file.count }}
                         </p>
                         <IconButton 
                             :size="sizeType.s"
                             :icon="iconType.plus"
-                            @click="increment(file.slug)"
+                            @click="increment(fileIndex)"
                             label="increment"
                             class="counter__btn"
                         />
@@ -109,7 +109,7 @@
             <MainButton 
                 :theme="themeType.primary"
                 :label="btnLabel"
-                :isDisable="isNesting"
+                :isDisable="btnIsDisable"
                 @click="nest"
                 class="nest__btn" 
             />
@@ -119,6 +119,9 @@
             >
                 {{ nestRequestError }}
             </div>
+            <div v-if="!isNewParams && !isNesting" class="nest__text">
+                Change settings or files to generate again
+            </div>
         </div>
     </div>
 </template>
@@ -127,129 +130,105 @@
 definePageMeta({
     layout: "auth",
 });
-import { useRoute } from "vue-router";
-import { useFetch } from "#app";
-import { computed, watch } from "vue";
 import { sizeType } from "~~/constants/size.constants";
 import { iconType } from "~~/constants/icon.constants";
 import { themeType } from "~~/constants/theme.constants";
 import { globalStore } from "~~/store";
+import { computed, unref } from "vue";
 
 const { getters, mutations } = globalStore;
 const { isNesting } = toRefs(getters);
 const { setQueue } = mutations;
 
 const route = useRoute();
-const queuePath = `/api${route.path}/queue`
-
-const btnLabel = computed(() => {
-    return unref(isNesting) ? 'Nesting...' : `Nest ${unref(selectedFileCount)} files`
-}) 
 
 const slug = route.params.slug;
-const query = route.query;
-const widthPlate = ref(query.width || 400);
-const heightPlate = ref(query.height || 560);
-const tolerance = ref(query.tolerance || 0.1);
-const space = ref(query.space || 0.1);
+const queuePath = `/api${route.path}/queue`
 
-const counters = ref({});
-const selectedFileCount = computed(() => Object.values(unref(counters)).reduce((acc, curr) => acc + curr, 0))
+const { data } = await useFetch(`/api/project/${slug}`);
 
-const { data, pending, error } = await useFetch(`/api/project/${slug}`);
+const widthPlate = ref('400');
+const heightPlate = ref('560');
+const tolerance = ref('0.1');
+const space = ref('0.1');
+const lastParams = ref('')
+const files = ref(data.value.files.map(file => ({...file, count: 1})))
+const isHeightLock = ref(false)
 
+const filesToNest = computed(() => {
+    return unref(files).map((file) => (
+        {
+            slug: file.slug,
+            count: file.count
+        }
+    ))
+})
+const selectedFileCount = computed(() => {
+    return unref(files).reduce((acc, curr) => acc + curr.count, 0)
+})
+const btnIsDisable = computed(() => {
+    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams)
+})
+const btnLabel = computed(() => {
+    return unref(isNesting) ? 'Nesting...' : `Nest ${unref(selectedFileCount)} files`
+})
+const isValidParams = computed(() => {
+    return Object.values(unref(params)).find(params => !isValidNumber(params))
+})
+const params = computed(() => ({
+    width: unref(widthPlate),
+    height: unref(heightPlate),
+    tolerance: unref(tolerance),
+    space: unref(space)
+}))
+const nestRequestError = computed(() => {
+    if(unref(selectedFileCount) < 1) {
+        return 'Please select at least one file to nest.'
+    }
+    if(unref(isValidParams)) {
+        return 'Please enter valid values for width, height, tolerance and space.'
+    }
+
+    return ''
+});
+const isNewParams = computed(() => {
+    return unref(requestBody) !== unref(lastParams)
+})
+const requestBody = computed(() => {
+    return JSON.stringify({
+        files: unref(filesToNest),
+        params: {
+            width: Number(unref(params).width),
+            height: Number(unref(params).height),
+            tolerance: Number(unref(params).tolerance),
+            space: Number(unref(params).space)
+        },
+    })
+})
 // const currentAnchor = ref(1)
 // const getAnchorClasses = (index) => ({'anchor__item--active': index === unref(currentAnchor)})
-
-const isHeightLock = ref(false)
 const updateHeightLock = () => {
     isHeightLock.value = !unref(isHeightLock)
 }
-
-const nestRequestError = ref('');
-
-const fileKeys = Object.keys(query).filter((key) => key.startsWith("file-"));
-
-if (fileKeys.length) {
-    fileKeys.forEach((key) => {
-        const slug = key.replace("file-", "");
-        counters.value[slug] = parseInt(query[key]);
-    });
-    data.value.files.forEach((file) => {
-        if (!counters.value[file.slug]) {
-            counters.value[file.slug] = 0;
-        }
-    });
-} else {
-    data.value.files.forEach((file) => {
-        counters.value[file.slug] = 1;
-    });
+const isValidNumber = (value) => {
+    return /^\d+(\.\d+)?$/.test(value);
 }
-
-const increment = (slug) => {
-    counters.value[slug]++;
-    nestRequestError.value = null
+const increment = (index) => {
+    files.value[index].count++
 };
-
-const decrement = (slug) => {
-    if (counters.value[slug] > 0) {
-        counters.value[slug]--;
-    }
-    nestRequestError.value = null
+const decrement = (index) => {
+    files.value[index].count--
 };
-
 const nest = async () => {
-    nestRequestError.value = null;
-
-    const filesToNest = Object.entries(counters.value)
-    .filter(([_, count]) => count > 0)
-    .map(([slug, count]) => {
-        return {
-            slug,
-            count,
-        };
-    });
-
-    if (filesToNest.length === 0) {
-        nestRequestError.value = "Please select at least one file to nest.";
-        return;
-    }
-
-    const widthValue = parseFloat(widthPlate.value);
-    const heightValue = parseFloat(heightPlate.value);
-    const toleranceValue = parseFloat(tolerance.value);
-    const spaceValue = parseFloat(space.value);
-
-    if (
-        isNaN(widthValue) ||
-        isNaN(heightValue) ||
-        isNaN(toleranceValue) ||
-        isNaN(spaceValue)
-    ) {
-        nestRequestError.value = "Please enter valid values for width, height, tolerance and space.";
-        return;
-    }
-
-    const request = {
-        files: filesToNest,
-        params: {
-            width: widthValue,
-            height: heightValue,
-            tolerance: toleranceValue,
-            space: spaceValue,
-        },
-    };
-
-    const nestResultResponse = await fetch(`/api/project/${slug}/nest`, {
+    await fetch(`/api/project/${slug}/nest`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(request),
+        body: unref(requestBody),
     });
-    const nestResult = await nestResultResponse.json();
-    setQueue(queuePath)
-    // navigateTo(`/queue/${nestResult.slug}`);
+    await setQueue(queuePath)
+    lastParams.value = unref(requestBody)
 };
 </script>
 
@@ -351,6 +330,13 @@ const nest = async () => {
         width: 320px;
         margin-left: auto;
         margin-right: auto;
+    }
+    &__text {
+        line-height: 1.2;
+        font-family: $sf_mono;
+        font-size: 12px;
+        color: rgb(22, 26, 33, 0.8);
+        margin-top: 16px;
     }
 }
 .settings {
