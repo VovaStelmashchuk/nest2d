@@ -7,16 +7,13 @@
         </div>
     </div>
 </template>
-<script>
-export default {
-    name: "RunningLine",
-    props: {
-        textValue: {
+<script setup>
+const { size } = defineProps({
+    textValue: {
         type: String,
         default: '',
-        },
     },
-};
+}) 
 </script>
 <style lang="scss" scoped>
 @keyframes line {

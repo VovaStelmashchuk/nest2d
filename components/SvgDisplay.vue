@@ -1,5 +1,8 @@
 <template>
-    <div class="dispay">
+    <div
+        :class="dispayClasses"
+        class="dispay"
+    >
         <img
             :src="svgDataUri"
             alt="SVG Image"
@@ -9,9 +12,10 @@
 </template>
 
 <script setup>
+import { defaultSizeType } from "~~/constants/size.constants";
 import { computed } from 'vue';
 
-const { svgContent, src } = defineProps({
+const { svgContent, src, size } = defineProps({
     svgContent: {
         type: String,
         default: '',
@@ -19,7 +23,11 @@ const { svgContent, src } = defineProps({
     src: {
         type: String,
         default: '',
-    }
+    },
+    size: {
+        type: String,
+        default: defaultSizeType,
+    },
 });
 
 const svgDataUri = computed(() => {
@@ -32,6 +40,11 @@ const svgDataUri = computed(() => {
 
     return `data:image/svg+xml,${encodedSvg}`;
 })
+
+const dispayClasses = computed(() => ({
+    [`dispay--size-${unref(size)}`]: Boolean(unref(size))
+}))
+
 </script>
 <style lang="scss" scoped>
 .dispay {
@@ -39,8 +52,15 @@ const svgDataUri = computed(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4px;
-    border-radius: 6px;
+
+    &--size-m {
+        padding: 8px;
+        border-radius: 8px;
+    }
+    &--size-s {
+        padding: 4px;
+        border-radius: 6px;
+    }
     background-color: rgb(0, 11, 33, 0.05);
     &__img {
         display: block;

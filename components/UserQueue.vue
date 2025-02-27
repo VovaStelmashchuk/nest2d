@@ -15,13 +15,17 @@
                     Nesting</p>
             </template>
             <template v-else>
-                <div v-if="item.status === statusType.failed" class="item__placeholder">
+                <div 
+                    v-if="item.status === statusType.failed"
+                    class="item__placeholder"
+                >
                     Err
                 </div>
                 <SvgDisplay
                     v-else
-                    class="item__display"
+                    :size="sizeType.s"
                     :src="getSvgSrc(item.svg)"
+                    class="item__display"
                 />
                 <p class="item__name">
                     {{ item.projectName }}

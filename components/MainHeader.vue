@@ -13,14 +13,15 @@
                 tag="a"
                 class="header__btn"
             />
-            <Avatar class="header__avatar" ></Avatar>
+            <Avatar 
+                :size="sizeType.s"
+                class="header__avatar"
+            />
         </div>
     </header>
 </template>
-<script>
-export default {
-    name: "MainHeader",
-};
+<script setup>
+import { sizeType } from "~~/constants/size.constants";
 </script>
 <style lang="scss" scoped>
 .header {

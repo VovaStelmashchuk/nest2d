@@ -15,18 +15,31 @@
                 @click="closeModal"
                 class="modal-body__close"
             />
+            <div 
+                v-if="isHaveError"
+                class="modal-body__placeholder"
+            >
+                Err
+            </div>
             <SvgDisplay 
+                v-else
                 :src="queueModalData.resultSvg"
                 class="modal-body__display" 
             />
             <div class="modal-body__name">
-                {{queueModalData.slug}}.dxf
+                <template v-if="isHaveError">
+                    {{ queueModalData.error.message }}
+                </template>
+                <template v-else>
+                    {{queueModalData.slug}}.dxf
+                </template>
             </div>
-            <div class="modal-body__controls controls">
+            <div class="controls">
                 <MainButton 
                     :href="`/api/queue/${queueModalData.slug}/dxf`"
                     label="Download"
                     tag="a"
+                    :isDisable="isHaveError"
                     :size="sizeType.s"
                     :theme="themeType.primary"
                 />
@@ -67,6 +80,9 @@ const requestBody = computed(() => {
         params: {...unref(queueModalData).params},
     })
 })
+const isHaveError = computed(() => {
+    return Boolean(unref(queueModalData).error)
+})
 
 const nest = async () => {
     await fetch(`/api/project/${unref(queueModalData).projectSlug}/nest`, {
@@ -104,7 +120,7 @@ const nest = async () => {
         position: relative;
         z-index: 1;
         width: 368px;
-        height: 484px;
+        min-height: 484px;
         background-color: #f5f4f0;
         border-radius: 16px;
     }
@@ -116,9 +132,22 @@ const nest = async () => {
         top: 8.5px;
         right: 8.5px;
     }
-    &__display {
+    &__display,
+    &__placeholder {
         width: 320px;
         height: 320px;
+    }
+    &__placeholder {
+        font-family: $sf_mono;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border-radius: 8px;
+        background-color: rgb(222, 0, 54, 0.05);
+        border: solid 1px rgb(222, 0, 54, 0.3);
+        font-size: 12px;
+        line-height: 1.2;
     }
     &__name {
         display: flex;
@@ -132,8 +161,6 @@ const nest = async () => {
         font-family: $sf_mono;
         font-size: 12px;
         line-height: 1.2;
-    }
-    &__controls {
     }
 }
 .controls {

@@ -9,7 +9,11 @@
                     :key="file.slug"
                     class="files__item file"
                 >
-                    <SvgDisplay class="file__display" :svgContent="file.svg" />
+                    <SvgDisplay
+                        :size="sizeType.s"
+                        :svgContent="file.svg"
+                        class="file__display"
+                    />
                     <p class="file__name">
                         {{ file.name }}
                     </p>
