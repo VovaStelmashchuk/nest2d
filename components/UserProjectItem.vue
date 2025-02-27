@@ -51,10 +51,15 @@ const timeAgo = computed(() => {
     const past = new Date(project.uploadedAt);
     const diffMs = unref(now) - past;
     const diffMinutes = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMinutes / 60);
     const diffDays = Math.floor(diffMinutes / 1440);
 
     if (diffMinutes < 1) {
         return "just now";
+    }
+    if (diffHours >= 1  && diffHours < 24) {
+        const hoursWord = diffHours === 1 ? "hours" : "hours";
+        return `${diffHours} ${hoursWord} ago`;
     }
     if (diffDays >= 1) {
         const dayWord = diffDays === 1 ? "day" : "days";

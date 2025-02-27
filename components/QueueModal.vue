@@ -63,7 +63,7 @@ import { themeType } from '~~/constants/theme.constants';
 
 const { getters, mutations } = globalStore;
 const { isModalShow, queueModalData } = toRefs(getters);
-const { closeModal, setQueue } = mutations;
+const { closeModal, setQueue, setProjects } = mutations;
 
 const filesToNest = computed(() => {
     return unref(queueModalData).nestedFiles.map((file) => (
@@ -93,6 +93,7 @@ const nest = async () => {
         body: unref(requestBody),
     });
     await setQueue(`/api/project/${unref(queueModalData).projectSlug}/queue`)
+    await setProjects()
     closeModal()
 };
 

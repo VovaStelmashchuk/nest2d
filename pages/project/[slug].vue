@@ -143,7 +143,7 @@ import { computed, unref } from "vue";
 
 const { getters, mutations } = globalStore;
 const { isNesting } = toRefs(getters);
-const { setQueue } = mutations;
+const { setQueue, setProjects } = mutations;
 
 const route = useRoute();
 
@@ -233,6 +233,7 @@ const nest = async () => {
         body: unref(requestBody),
     });
     await setQueue(queuePath)
+    await setProjects()
     lastParams.value = unref(requestBody)
 };
 const handleSubmit = async (newFiles) => {

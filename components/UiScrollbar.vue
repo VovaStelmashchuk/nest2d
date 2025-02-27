@@ -5,6 +5,7 @@
 </template>
 <style lang="scss" scoped>
 .scrollbar {
+    padding-bottom: 4px;
     padding-right: 8px;
     margin-right: -8px;
     overflow: auto;
