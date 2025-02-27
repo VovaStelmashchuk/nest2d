@@ -1,6 +1,6 @@
 <template>
     <div class="drag-and-drop">
-        <DxfUpload @files="handleDxfChange" />
+        <DxfUpload @files="handleSubmit" />
         <p class="drag-and-drop__text">
             All files will be save secure and available only for you
         </p>
@@ -22,19 +22,18 @@ const router = useRouter();
 const { mutations } = globalStore;
 const { setProjects } = mutations;
 
-const dxfFiles = ref([])
 const error = ref('')
 
-const handleSubmit = async () => {
+const handleSubmit = async (files) => {
     error.value = "";
 
-    if (unref(dxfFiles).length === 0) {
+    if (files.length === 0) {
         error.value = "At least one DXF file is required.";
         return;
     }
 
     const formData = new FormData();
-    unref(dxfFiles).forEach((file) => formData.append("dxf", file));
+    files.forEach((file) => formData.append("dxf", file));
 
     const response = await fetch("/api/project", {
         method: "POST",
@@ -49,12 +48,6 @@ const handleSubmit = async () => {
         await setProjects()
         await router.push({ path: `/project/${data.slug}` });
     }
-}
-
-const handleDxfChange = (files) => {
-    dxfFiles.value = [...files];
-    handleSubmit()
-    console.log("from child DXF files event: ", files);
 }
 </script>
 

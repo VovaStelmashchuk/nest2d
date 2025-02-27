@@ -3,8 +3,9 @@
         <div class="content">
             <MainTitle class="content__title" :label="`Files: ${selectedFileCount}`" />
             <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
-            <ul class="content__files files">
-                <li
+            <div class="content__files files">
+                <DxfUpload @files="handleSubmit" />
+                <div
                     v-for="(file, fileIndex) in files"
                     :key="file.slug"
                     class="files__item file"
@@ -45,8 +46,8 @@
                             @click="console.log(`delete ${file.name}`)"
                         />
                     </div> -->
-                </li>
-            </ul>
+                </div>
+            </div>
         </div>
         <div class="nest">
             <MainTitle class="nest__title" label="Nesting settings" />
@@ -234,6 +235,16 @@ const nest = async () => {
     await setQueue(queuePath)
     lastParams.value = unref(requestBody)
 };
+const handleSubmit = async (newFiles) => {
+    const formData = new FormData();
+    formData.append("projectName", unref(data).name);
+    newFiles.forEach((file) => formData.append("dxf", file));
+
+    // const response = await fetch("/api/upload", {
+    //     method: "POST",
+    //     body: formData,
+    // });
+}
 </script>
 
 <style lang="scss" scoped>

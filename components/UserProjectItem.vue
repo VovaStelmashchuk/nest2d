@@ -13,8 +13,8 @@
             <p class="info__time">
                 {{ timeAgo }}
             </p>
-            <p class="info__results">
-                lorem ipsum
+            <p v-if="project.results" class="info__results">
+                {{ resultsLabel }}
             </p>
         </div>
         <!-- <div class="prodject__btn">
@@ -62,6 +62,10 @@ const timeAgo = computed(() => {
     }
 
     return `${diffMinutes} min ago`;
+})
+const resultsLabel = computed(() => {
+    const resultWord = unref(project).results === 1 ? "result" : "results";
+    return `${unref(project).results} ${resultWord}`;
 })
 
 let timer;
