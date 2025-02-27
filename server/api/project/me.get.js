@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     .collection("projects")
     .find({ ownerId: userId })
     .sort({ uploadedAt: -1 })
-    .project({ slug: 1, name: 1 })
+    .project({ slug: 1, name: 1, uploadedAt: 1 })
     .toArray();
 
   const uiProjects = userProjects.map(mapProject);
@@ -23,6 +23,6 @@ function mapProject(project) {
   return {
     slug: project.slug,
     name: project.name,
-    imageUrl: "/placeholder.svg",
+    uploadedAt: project.uploadedAt
   };
 }

@@ -111,6 +111,11 @@ export default {
             background-image: url('/icons/svg/lock.svg')
         }
     }
+    &--icon-close {
+        #{$self}__icon {
+            background-image: url('/icons/svg/close.svg')
+        }
+    }
     
     @media (hover:hover) {
         &--theme-ghost {

@@ -11,7 +11,7 @@
         </NuxtLink>
         <div class="prodject__info info">
             <p class="info__time">
-                lorem ipsum
+                {{ timeAgo }}
             </p>
             <p class="info__results">
                 lorem ipsum
@@ -29,36 +29,54 @@
     </div>
 </template>
 
-<script>
-import { computed, toRefs } from 'vue';
+<script setup>
+import { computed, onBeforeMount, onBeforeUnmount, toRefs, unref } from 'vue';
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 
-export default {
-    name: "ProjectGridItem",
-    props: {
-        project: {
-            type: Object,
-            required: true,
-        },
+const { project } = defineProps({
+    project: {
+        type: Object,
+        required: true,
     },
-    setup(props) {
-        const { project } = toRefs(props)
-        const route = useRoute()
-        
-        const prodjectClasses = computed(() => ({
-            'prodject--active': unref(project).slug === route.params.slug
-        }))
+}) 
+const route = useRoute()
+const now = ref(new Date())
 
-        return {
-            iconType,
-            sizeType,
-            themeType,
-            prodjectClasses,
-        }
+const prodjectClasses = computed(() => ({
+    'prodject--active': unref(project).slug === route.params.slug
+}))
+const timeAgo = computed(() => {
+    const past = new Date(project.uploadedAt);
+    const diffMs = unref(now) - past;
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffDays = Math.floor(diffMinutes / 1440);
+
+    if (diffMinutes < 1) {
+        return "just now";
     }
-};
+    if (diffDays >= 1) {
+        const dayWord = diffDays === 1 ? "day" : "days";
+        return `${diffDays} ${dayWord} ago`;
+    }
+
+    return `${diffMinutes} min ago`;
+})
+
+let timer;
+const updateTime = () => {
+    clearInterval(timer)
+    timer = setInterval(updateTime, 60000)
+    now.value = new Date()
+}
+
+onBeforeMount(() => {
+    updateTime();
+})
+onBeforeUnmount(() => {
+    clearInterval(timer)
+})
 </script>
 
 <style lang="scss" scoped>

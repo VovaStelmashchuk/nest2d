@@ -1,8 +1,12 @@
 <template>
-    <div class="queues" v-if="queueList.length">
+    <div 
+        v-if="queueList.length"    
+        class="queues"
+    >
         <div
             v-for="item in queueList"
             :key="item.id"
+            @click="openQueueModal(item.slug)"
             class="queues__item item"
         >
             <template v-if="isItemNexting(item.status)">
@@ -11,7 +15,14 @@
                     Nesting</p>
             </template>
             <template v-else>
-                <SvgDisplay class="item__display" :src="getSvgSrc(item.svg)" />
+                <div v-if="item.status === statusType.failed" class="item__placeholder">
+                    Err
+                </div>
+                <SvgDisplay
+                    v-else
+                    class="item__display"
+                    :src="getSvgSrc(item.svg)"
+                />
                 <p class="item__name">
                     {{ item.projectName }}
                 </p>
@@ -25,7 +36,7 @@
                         />
                     </div> -->
                     <MainButton 
-                        v-if="item.status === 'completed'"
+                        v-if="item.status === statusType.completed"
                         :href="`/api/queue/${item.slug}/dxf`"
                         label="Download"
                         tag="a"
@@ -60,7 +71,7 @@ const getSvgSrc = (value) => {
 }
 const { getters, mutations } = globalStore;
 const { queueList } = toRefs(getters);
-const { setQueue } = mutations;
+const { setQueue, openQueueModal } = mutations;
 
 const isItemNexting = (status) => {
     return [statusType.unfinished, statusType.pending].includes(status)
@@ -103,6 +114,7 @@ watch(() => route.fullPath, () => {
 }
 
 .item {
+    cursor: pointer;
     $self: &;
     position: relative;
     display: block;
@@ -111,6 +123,7 @@ watch(() => route.fullPath, () => {
     border-radius: 8px;
     transition: border-color 0.3s;
     &__display,
+    &__placeholder,
     &__loader {
         width: 40px;
         height: 40px;
@@ -132,6 +145,17 @@ watch(() => route.fullPath, () => {
             box-shadow: -5px -5px 0 3px, -5px -5px 0 3px, -5px -5px 0 3px, -5px -5px 0 3px;
             animation: loader 6s infinite;
         }
+    }
+    &__placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border-radius: 6px;
+        background-color: rgb(222, 0, 54, 0.05);
+        border: solid 1px rgb(222, 0, 54, 0.3);
+        font-size: 12px;
+        line-height: 1.2;
     }
     &__name,
     &__text {

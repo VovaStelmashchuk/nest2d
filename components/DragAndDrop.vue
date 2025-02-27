@@ -14,48 +14,48 @@
     </div>
 </template>
 
-<script>
-import { navigateTo } from "nuxt/app";
+<script setup>
+import { globalStore } from "~~/store";
 
-export default {
-    data() {
-        return {
-            dxfFiles: [],
-            error: "",
-        };
-    },
-    methods: {
-        async handleSubmit() {
-            this.error = "";
+const router = useRouter();
 
-            if (this.dxfFiles.length === 0) {
-                this.error = "At least one DXF file is required.";
-                return;
-            }
+const { mutations } = globalStore;
+const { setProjects } = mutations;
 
-            const formData = new FormData();
-            this.dxfFiles.forEach((file) => formData.append("dxf", file));
+const dxfFiles = ref([])
+const error = ref('')
 
-            const response = await fetch("/api/project", {
-                method: "POST",
-                body: formData,
-            });
+const handleSubmit = async () => {
+    error.value = "";
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                this.error = errorData.message;
-            } else {
-                const data = await response.json();
-                await navigateTo(`/project/${data.slug}`);
-            }
-        },
-        handleDxfChange(files) {
-            this.dxfFiles = files;
-            this.handleSubmit()
-            console.log("from child DXF files event: ", files);
-        },
-    },
-};
+    if (unref(dxfFiles).length === 0) {
+        error.value = "At least one DXF file is required.";
+        return;
+    }
+
+    const formData = new FormData();
+    unref(dxfFiles).forEach((file) => formData.append("dxf", file));
+
+    const response = await fetch("/api/project", {
+        method: "POST",
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        error.value = errorData.message;
+    } else {
+        const data = await response.json();
+        await setProjects()
+        await router.push({ path: `/project/${data.slug}` });
+    }
+}
+
+const handleDxfChange = (files) => {
+    dxfFiles.value = [...files];
+    handleSubmit()
+    console.log("from child DXF files event: ", files);
+}
 </script>
 
 <style lang="scss" scoped>
@@ -73,7 +73,7 @@ export default {
         margin-top: 16px;
         padding: 12px;
         background-color: rgb(222, 0, 54, 0.05);
-        border: solid 1px rgb(222, 0, 54);
+        border: solid 1px rgb(222, 0, 54, 0.3);
         border-radius: 8px;
     }
 }

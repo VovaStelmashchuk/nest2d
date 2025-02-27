@@ -3,6 +3,9 @@ import { statusType } from "~~/constants/status.constants";
 
 const state = reactive({
     queueList: [],
+    projectsList: [],
+    isModalShow: false,
+    queueModalData: {},
 })
 let queueTimer;
 
@@ -10,9 +13,6 @@ async function setQueue(path) {
     try {
         const data = await $fetch(path);
         state.queueList = [...data.items]
-        // data.items[0].status = 'in-progress'
-        // const unfinishedItemIndex = state.queueList.findIndex(item => [statusType.unfinished, statusType.pending].includes(item.status))
-        clearInterval(queueTimer)
         if(globalStore.getters.isNesting) {
             queueTimer = setTimeout(() => setQueue(path), 5000)
         }
@@ -22,12 +22,44 @@ async function setQueue(path) {
     }
 }
 
+async function setProjects() {
+    try {
+        const data = await $fetch('/api/project/me');
+        state.projectsList = [...data.projects]
+
+    } catch (error) {
+        console.error("Error fetching projects:", error);
+    }
+}
+
+function closeModal() {
+    state.isModalShow = false
+}
+
+async function openQueueModal(slug) {
+    try {
+        const data = await $fetch(`/api/queue/${slug}`);
+        console.log(data)
+        state.queueModalData = {...data}
+        state.isModalShow = true
+
+    } catch (error) {
+        console.error("Error fetching projects:", error);
+    }
+}
+
 export const globalStore = readonly({
     getters: {
         queueList: computed(() => state.queueList),
-        isNesting: computed(() => state.queueList.findIndex(item => [statusType.unfinished, statusType.pending].includes(item.status)) !== -1)
+        isNesting: computed(() => state.queueList.findIndex(item => [statusType.unfinished, statusType.pending].includes(item.status)) !== -1),
+        projectsList: computed(() => state.projectsList),
+        isModalShow: computed(() => state.isModalShow),
+        queueModalData: computed(() => state.queueModalData)
     },
     mutations: {
-        setQueue
+        setQueue,
+        closeModal,
+        setProjects,
+        openQueueModal
     }
 })

@@ -6,31 +6,50 @@
             @btnClick="createNewProdject"
             class="prodjects__title"
         />
-        <UiScrollbar class="prodjects__scrollbar">
+        <UiScrollbar 
+            v-if="projectsList.length" 
+            class="prodjects__scrollbar"
+        >
             <UserProjectItem
-                v-for="project in data.projects"
+                v-for="project in projectsList"
                 :key="project.slug"
                 :project="project"
                 class="prodjects__item"
             />
         </UiScrollbar>
+        <p v-else class="prodjects__text">
+            Your prodjects will be here
+        </p> 
 	</div>
 </template>
 
 <script setup>
+import { globalStore } from "~~/store";
+
 const route = useRoute();
 const router = useRouter();
 
-const createNewProdject = () => router.push({ name: 'home' })
-const btnLabelValue = computed(() => route.name === 'home' ? '' : 'New project') 
+const { getters, mutations } = globalStore;
+const { projectsList } = toRefs(getters);
+const { setProjects } = mutations;
 
-const { data } = useFetch("/api/project/me", {
-    credentials: "include",
-});
+const createNewProdject = () => router.push({ name: 'home' })
+const btnLabelValue = computed(() => {
+    return route.name === 'home' ? '' : 'New project'
+}) 
+onBeforeMount(() => {
+    setProjects();
+})
 </script>
     
 <style lang="scss" scoped>
 .prodjects {
+    font-family: $sf_mono;
+    &__text {
+        font-size: 12px;
+        line-height: 1.2;
+        color: rgb(22, 26, 33, 0.5);
+    }
     &__title {
         margin-bottom: 16px;
     }
