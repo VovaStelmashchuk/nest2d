@@ -39,7 +39,6 @@ function closeModal() {
 async function openQueueModal(slug) {
     try {
         const data = await $fetch(`/api/queue/${slug}`);
-        console.log(data)
         state.queueModalData = {...data}
         state.isModalShow = true
 

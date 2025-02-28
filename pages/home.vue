@@ -1,6 +1,9 @@
 <template>
-    <div class="content">
-        <MainTitle class="content__title" label="Upload your .DXF files" />
+    <div class="home">
+        <MainTitle 
+            label="Upload your .DXF files"
+            class="home__title"
+        />
         <DragAndDrop /> 
     </div>
 </template>
@@ -12,7 +15,7 @@ definePageMeta({
 </script>
 
 <style lang="scss" scoped>
-.content {
+.home {
     &__title {
         margin-bottom: 16px;
     }

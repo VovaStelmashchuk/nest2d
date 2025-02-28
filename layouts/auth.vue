@@ -1,7 +1,10 @@
 <template>
     <div class="main">
-        <RunningLine textValue="The project still under development" />
-        <MainHeader class="main__header" />
+        <RunningLine class="main__line" />
+        <MainHeader
+            :theme="themeType.primary"
+            class="main__header"
+        />
         <main class="main__content content">
             <UserProjects />   
             <slot />
@@ -11,7 +14,9 @@
     </div>
     <QueueModal />
 </template>
-<script setup></script>
+<script setup>
+import { themeType } from '~~/constants/theme.constants';
+</script>
 <style lang="scss" scoped>
 .main {
     background-color: #F5F4F0;
@@ -22,18 +27,24 @@
     &__header {
         margin-left: auto;
         margin-right: auto;
-        max-width: 1280px;
+        max-width: 1300px;
         width: 100%;
     }
     &__content {
         flex-grow: 1;
         margin: 40px auto;
-        max-width: 1280px;
+        max-width: 1300px;
         width: 100%;
+    }
+    &__line {
+        position: relative;
+        z-index: 2;
     }
 }
 
 .content {
+    padding-left: 10px;
+    padding-right: 10px;
     display: grid;
     grid-template-columns: 1fr 640px 1fr;
     gap: 40px;

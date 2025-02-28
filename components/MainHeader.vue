@@ -1,10 +1,38 @@
 <template>
     <header class="header">
-        <NuxtLink to="/home" class="header__logo logo">
+        <NuxtLink 
+            :to="logoHref"
+            class="header__logo logo"
+        >
            <span class="logo__label">
                 Nest2D
            </span> 
         </NuxtLink>
+        <nav 
+            v-if="isSecondaryTheme"
+            :class="navClasses"
+            class="header__nav nav"
+        >
+            <ul class="nav__list">
+                <li
+                    v-for="(navItem, navIndex) in nav" 
+                    :key="navIndex"
+                    class="nav__item"
+                    @click="toggleMenu"
+                >
+                    <NuxtLink
+                        :to="navItem.href"
+                        class="nav__link"
+                    >
+                        {{ navItem.label }}
+                    </NuxtLink>
+                </li>
+            </ul>
+            <div 
+                @click="toggleMenu"
+                class="nav__background"
+            />
+        </nav>
         <div class="header__wrapper">
             <MainButton 
                 href="https://github.com/VovaStelmashchuk/nest2d/issues/new"
@@ -13,30 +41,146 @@
                 tag="a"
                 class="header__btn"
             />
-            <Avatar 
+            <MainButton
+                v-if="isSecondaryTheme"
+                :theme="themeType.primary"
+                href="https://github.com/VovaStelmashchuk/nest2d/issues/new"
+                label="Login / Sign Up"
+                @click="loginDialog = true"
+                class="header__btn"
+            />
+            <Avatar
+                v-if="isPrimaryTheme"
                 :size="sizeType.s"
                 class="header__avatar"
             />
+            <IconButton 
+                v-if="isSecondaryTheme"
+                label="menu toggler"
+                :theme="themeType.secondary"
+                :icon="iconType.menu"
+                @click="toggleMenu"
+                class="header__toggler"
+            />
         </div>
+        <DialogWrapper v-model:isOpen="loginDialog">
+            <LoginView />
+        </DialogWrapper>
     </header>
 </template>
 <script setup>
-import { sizeType } from "~~/constants/size.constants";
+import { defaultThemeType, themeType } from "~~/constants/theme.constants";
+import { iconType } from '~~/constants/icon.constants';
+import { sizeType } from '~~/constants/size.constants';
+import { computed } from "vue";
+
+const { theme } = defineProps({
+    theme: {
+        type: String,
+        default: defaultThemeType,
+    },
+})
+const menuIsOpen = ref(false);
+const loginDialog = useLoginDialog();
+const nav = [
+    {
+        label: 'Features',
+        href: '#features',
+    },
+    {
+        label: 'How It Works',
+        href: '#how-it-works',
+    },
+    {
+        label: 'FAQ',
+        href: '#faq',
+    },
+    {
+        label: 'Blog',
+        href: '/blog',
+    },
+]
+
+const logoHref = computed(() => {
+    if(unref(isPrimaryTheme)) {
+        return '/home'
+    }
+    return '/'
+})
+const isPrimaryTheme = computed(() => {
+    return unref(theme) === themeType.primary
+})
+const isSecondaryTheme = computed(() => {
+    return unref(theme) === themeType.secondary
+})
+const navClasses = computed(() => ({
+    'nav--is-open': unref(menuIsOpen),
+    'header__nav--is-open': unref(menuIsOpen)
+    
+}))
+const toggleMenu = () => {
+    menuIsOpen.value = !unref(menuIsOpen)
+}
 </script>
 <style lang="scss" scoped>
 .header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding-top: 16px;
-    padding-bottom: 16px;
+    padding: 16px 10px;
+
+    @media (min-width: 568px) {
+        align-items: center;
+    }
 
     &__wrapper {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
+        flex-direction: column-reverse;
 
-        &>*:not(:last-child) {
-            margin-right: 16px;
+        &>*:not(:first-child) {
+            margin-bottom: 8px;
+
+            @media (min-width: 568px) {
+                margin-left: 16px;
+                margin-bottom: initial
+            }
+        }
+
+        @media (min-width: 568px) {
+            align-items: center;
+            flex-direction: initial
+        }
+    }
+    &__nav {
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        transform: translate3d(120%, 0, 0);
+        transition: transform 0.3s;
+
+        @media (min-width: 1199px) {
+            position: initial;
+            top: initial;
+            left: initial;
+            right: initial;
+            bottom: initial;
+            transform: initial;
+        }
+
+        &--is-open {
+            transform: translate3d(0, 0, 0);
+
+            @media (min-width: 1199px) {
+                transform: initial;
+            }
+        }
+    }
+    &__toggler {
+        @media (min-width: 1199px) {
+            display: none;
         }
     }
 }
@@ -50,4 +194,80 @@ import { sizeType } from "~~/constants/size.constants";
         color: #000;
     }
 }
+.nav {
+    padding-top: 80px;
+    @media (min-width: 1199px) {
+        padding-top: initial;
+    }
+    &__list {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        
+        @media (min-width: 1199px) {
+            position: initial;
+            z-index: initial;
+            justify-content: initial;
+            flex-direction: initial;
+        }
+    }
+    &__item {
+        width: 100%;
+
+        @media (min-width: 1199px) {
+            margin-left: 5px;
+            margin-right: 5px;
+            width: initial;
+        }
+
+        &:not(:last-child) {
+            margin-bottom: 20px;
+
+            @media (min-width: 1199px) {
+                margin-bottom: initial;
+            }
+        }
+    }
+    &__link {
+        text-align: center;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-family: $sf_mono;
+        display: block;
+        font-size: 20px;
+        line-height: 1.2;
+        color: #fff;
+        transition: color 0.3s, background-color 0.3s;
+
+        @media (min-width: 1199px) {
+            font-size: 12px;
+            color: rgb(22, 26, 33, 0.8);
+            background-color: rgb(0, 11, 33, 0.05);
+        }
+
+        @media (hover:hover) {
+            &:hover {
+                color: #000;
+                background-color: rgb(0, 11, 33, 0.08);
+            }
+        }
+    }
+
+    &__background {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgb(22, 26, 33, 0.7);
+
+        @media (min-width: 1199px) {
+            display: none;
+        }
+    }
+}
+
 </style>

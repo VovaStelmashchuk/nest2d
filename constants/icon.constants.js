@@ -4,6 +4,7 @@ export const iconType = {
     plus: 'plus',
     lock: 'lock',
     unlock: 'unlock',
+    menu: 'menu',
     close: 'close'
 }
 

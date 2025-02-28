@@ -11,56 +11,47 @@
         </span>
     </component>
 </template>
-<script>
+<script setup>
 import { computed } from 'vue';
 import { defaultSizeType } from '~~/constants/size.constants';
 import { defaultThemeType } from '~~/constants/theme.constants';
 
-export default {
-    name: "MainButton",
-    props: {
-        label: {
-            type: String,
-            default: '',
-        },
-        href: {
-            type: String,
-            default: '',
-        },
-        target: {
-            type: String,
-            default: '_self'
-        },
-        size: {
-            type: String,
-            default: defaultSizeType
-        },
-        theme: {
-            type: String,
-            default: defaultThemeType
-        },
-        tag: {
-            type: String,
-            default: 'button'
-        },
-        isDisable: {
-            type: Boolean,
-            default: false
-        }
+const { size, theme, isDisable } = defineProps({
+    label: {
+        type: String,
+        default: '',
     },
-    setup(props) {
-        const { size, theme, isDisable } = toRefs(props)
-        const buttonClasses = computed(() => ({
-            [`button--size-${unref(size)}`]: Boolean(unref(size)),
-            [`button--theme-${unref(theme)}`]: Boolean(unref(theme)),
-            'button--disabled': unref(isDisable),
-        }))
-
-        return {
-            buttonClasses
-        }
+    href: {
+        type: String,
+        default: '',
+    },
+    target: {
+        type: String,
+        default: '_self'
+    },
+    size: {
+        type: String,
+        default: defaultSizeType
+    },
+    theme: {
+        type: String,
+        default: defaultThemeType
+    },
+    tag: {
+        type: String,
+        default: 'button'
+    },
+    isDisable: {
+        type: Boolean,
+        default: false
     }
-};
+}) 
+
+const buttonClasses = computed(() => ({
+    [`button--size-${unref(size)}`]: Boolean(unref(size)),
+    [`button--theme-${unref(theme)}`]: Boolean(unref(theme)),
+    'button--disabled': unref(isDisable),
+}))
 </script>
 <style lang="scss" scoped>
 .button {

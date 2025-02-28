@@ -45,42 +45,65 @@
 
 <style lang="scss" scoped>
 .footer {
+    padding-left: 10px;
+    padding-right: 10px;
     font-family: $sf_mono;
     padding-top: 16px;
     padding-bottom: 16px;
     background-color: #000;
     &__content {
-        max-width: 1280px;
+        max-width: 1300px;
         margin-right: auto;
         margin-left: auto;
     }
     &__copyright {
+        text-align: center;
+        margin-top: 16px;
         color: rgb(255, 255, 255, 0.7);
         display: block;
         font-size: 12px;
         line-height: 1.2;
-        font-weight: 6900;
+        font-weight: 600;
+
+        @media (min-width: 1199px) {
+            margin-top: initial;
+            text-align: initial;
+        }
     }
 }
 .content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    @media (min-width: 1199px) {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 }
 .list {
-    display: flex;
+    @media (min-width: 568px) {
+        display: flex;
+    }
     &__item {
         &:not(:last-child) {
-            margin-right: 40px;
+            margin-bottom: 10px;
+
+            @media (min-width: 568px) {
+                margin-right: 40px;
+                margin-bottom: initial;
+            }
         }
     }
     &__link {
+        text-align: center;
         color: rgb(255, 255, 255, 0.7);
         display: block;
         font-size: 12px;
         line-height: 1.2;
         font-weight: 600;
         transition: color 0.3s;
+
+        @media (min-width: 568px) {
+            text-align: initial;
+        }
 
         @media (hover:hover) {
             &:hover {

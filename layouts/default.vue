@@ -1,88 +1,46 @@
 <template>
-  <div class="flex flex-col min-h-screen">
-    <header class="py-4 lg:py-6 border-b border-gray-300">
-      <div
-        class="container mx-auto flex justify-between items-center px-4 lg:px-8"
-      >
-        <a class="text-2xl lg:text-3xl font-bold" href="/"> Nest2d </a>
-        <nav class="hidden lg:flex items-center space-x-6">
-          <a href="#features" class="text-lg hover:text-gray-500">Features</a>
-          <a href="#how-it-works" class="text-lg hover:text-gray-500"
-            >How It Works</a
-          >
-          <a href="#get-started" class="text-lg hover:text-gray-500"
-            >Get Started</a
-          >
-          <a href="#faq" class="text-lg hover:text-gray-500">FAQ</a>
-          <a href="/blog" class="text-lg hover:text-gray-500">Blog</a>
-        </nav>
-        <a
-          @click="loginDialog = true"
-          class="hidden lg:inline-block bg-black text-white py-2 px-6 rounded-lg text-lg shadow-md hover:bg-gray-800"
-        >
-          Login / Sign Up
-        </a>
-        <button
-          @click="menuOpen = !menuOpen"
-          class="lg:hidden text-black focus:outline-none"
-          aria-label="Toggle Menu"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
-      </div>
-      <!-- Mobile Menu -->
-      <div
-        v-if="menuOpen"
-        class="lg:hidden bg-white shadow-md border-t border-gray-200 px-4 py-2"
-      >
-        <nav class="flex flex-col space-y-4">
-          <a href="#features" class="text-lg hover:text-gray-500">Features</a>
-          <a href="#how-it-works" class="text-lg hover:text-gray-500"
-            >How It Works</a
-          >
-          <a href="#get-started" class="text-lg hover:text-gray-500"
-            >Get Started</a
-          >
-          <a href="#faq" class="text-lg hover:text-gray-500">FAQ</a>
-          <button
-            @click="loginDialog = true"
-            class="bg-black text-white py-2 px-4 rounded-lg text-lg shadow-md hover:bg-gray-800"
-          >
-            Login / Sign Up
-          </button>
-        </nav>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="flex-1 mt-4 mb-4 lg:mt-8 lg:mb-8">
-      <slot />
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-black text-white p-4">
-      <Footer />
-    </footer>
-    <DialogWrapper v-model:isOpen="loginDialog">
-      <LoginView />
-    </DialogWrapper>
-  </div>
+    <div class="main">
+        <RunningLine class="main__line" />
+        <MainHeader
+            :theme="themeType.secondary"
+            class="main__header"
+        />
+        <main class="main__content content">
+            <slot />
+        </main>
+        <Footer />
+    </div>
 </template>
 
-<script setup lang="js">
-const loginDialog = useLoginDialog();
-const menuOpen = ref(false);
+<script setup>
+import { themeType } from '~~/constants/theme.constants';
 </script>
+<style lang="scss" scoped>
+.main {
+    background-color: #F5F4F0;
+    flex-direction: column;
+    display: flex;
+    min-height: 100vh;
+
+    &__header {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 1300px;
+        width: 100%;
+    }
+    &__content {
+        flex-grow: 1;
+        margin: 40px auto;
+        max-width: 1300px;
+        width: 100%;
+    }
+    &__line {
+        position: relative;
+        z-index: 2;
+    }
+}
+.content {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+</style>

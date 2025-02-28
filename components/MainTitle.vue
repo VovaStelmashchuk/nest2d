@@ -15,28 +15,19 @@
         />
     </header>
 </template>
-<script>
+<script setup>
 import { themeType } from '~~/constants/theme.constants';
 
-export default {
-    name: "MainTitle",
-    props: {
-        label: {
-            type: String,
-            required: true
-        },
-        btnLabel: {
-            type: String,
-            default: '',
-        }
+defineProps({
+    label: {
+        type: String,
+        required: true
     },
-
-    setup() {
-        return {
-            themeType
-        }
+    btnLabel: {
+        type: String,
+        default: '',
     }
-};
+}) 
 </script>
 <style lang="scss" scoped>
 .title {

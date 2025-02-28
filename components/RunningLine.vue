@@ -11,7 +11,7 @@
 const { size } = defineProps({
     textValue: {
         type: String,
-        default: '',
+        default: 'The project still under development',
     },
 }) 
 </script>
