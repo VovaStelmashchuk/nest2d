@@ -1,7 +1,8 @@
 <template>
-    <NuxtLink 
-        class="avatar" 
-        to="/profile"
+    <component
+        :is="avatarTag"
+        class="avatar"
+        v-bind="avatarHref"
     >
         <img 
             :class="avatarClasses"
@@ -9,11 +10,12 @@
             :alt="data.name"
             class="avatar__img"
         />
-    </NuxtLink>
+    </component>
 </template>
 <script setup>
+import { NuxtLink } from '#components';
+import { computed, unref } from 'vue';
 import { defaultSizeType } from "~~/constants/size.constants";
-
 const { size } = defineProps({
     size: {
         type: String,
@@ -21,13 +23,24 @@ const { size } = defineProps({
     },
 }) 
 
+const route = useRoute()
+
 const avatarClasses = computed(() => ({
     [`avatar__img--size-${unref(size)}`]: Boolean(unref(size))
 }))
-
+const isProfilePage = computed(() => {
+    return route.path === '/profile'
+})
+const avatarTag = computed(() => {
+    return unref(isProfilePage) ? 'div' : NuxtLink
+})
+const avatarHref = computed(() => {
+    return !unref(isProfilePage) ? { to: '/profile' } : {}
+})
 
 const useAuthState = useAuth();
 const data = await useAuthState.fetchUser();
+
 </script>
 <style lang="scss" scoped>
 .avatar {
