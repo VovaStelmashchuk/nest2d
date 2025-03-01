@@ -35,10 +35,11 @@
                 </p>
                 <div class="item__controls controls">
                     <!-- <div class="controls__delete">
-                        <IconButton 
+                        <MainButton 
                             :label="`delete ${item.projectName}`"
                             :size="sizeType.s"
                             :icon="iconType.trash"
+                            :isLabelShow=false
                             @click="console.log(`delete ${item.projectName}`)"
                         />
                     </div> -->

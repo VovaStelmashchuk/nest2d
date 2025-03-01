@@ -18,11 +18,12 @@
             </p>
         </div>
         <!-- <div class="prodject__btn">
-            <IconButton 
+            <MainButton 
                 :label="`delete ${project.name}`"
                 :size="sizeType.s"
                 :theme="themeType.secondary"
                 :icon="iconType.trash"
+                :isLabelShow=false
                 @click="console.log(`delete ${project.name}`)"
             />
         </div> -->

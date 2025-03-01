@@ -54,12 +54,13 @@
                 :size="sizeType.s"
                 class="header__avatar"
             />
-            <IconButton 
+            <MainButton 
                 v-if="isSecondaryTheme"
-                label="menu toggler"
                 :theme="themeType.secondary"
                 :icon="iconType.menu"
+                :isLabelShow=false
                 @click="toggleMenu"
+                label="menu toggler"
                 class="header__toggler"
             />
         </div>

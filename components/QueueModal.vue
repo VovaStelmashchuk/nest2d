@@ -8,8 +8,9 @@
             @click="closeModal"
         ></div>
         <div class="modal__body modal-body">
-            <IconButton 
+            <MainButton 
                 label="close modal"
+                :isLabelShow=false
                 :size="sizeType.s"
                 :icon="iconType.close"
                 @click="closeModal"

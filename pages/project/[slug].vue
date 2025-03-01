@@ -19,10 +19,11 @@
                         {{ file.name }}
                     </p>
                     <div class="counter">
-                        <IconButton 
+                        <MainButton 
                             :size="sizeType.s"
                             :icon="iconType.minus"
                             :isDisable="file.count < 1"
+                            :isLabelShow=false
                             @click="decrement(fileIndex)"
                             label="decrement"
                             class="counter__btn"
@@ -30,19 +31,21 @@
                         <p class="counter__value">
                             {{ file.count }}
                         </p>
-                        <IconButton 
+                        <MainButton 
                             :size="sizeType.s"
                             :icon="iconType.plus"
+                            :isLabelShow=false
                             @click="increment(fileIndex)"
                             label="increment"
                             class="counter__btn"
                         />
                     </div>
                     <!-- <div class="file__btn">
-                        <IconButton 
+                        <MainButton 
                             :label="`delete ${file.name}`"
                             :size="sizeType.s"
                             :icon="iconType.trash"
+                            :isLabelShow=false
                             @click="console.log(`delete ${file.name}`)"
                         />
                     </div> -->
@@ -60,19 +63,21 @@
                             v-model="widthPlate"
                             class="size__input"
                         />
-                        <IconButton
+                        <MainButton
                             v-if="isHeightLock"
                             @click="updateHeightLock()"
-                            label="unlock height"
+                            :isLabelShow=false
                             :icon="iconType.lock"
                             :theme="themeType.secondary"
+                            label="unlock height"
                             class="size__btn"
                         />
-                        <IconButton
+                        <MainButton
                             v-else
                             @click="updateHeightLock()"
-                            label="lock height"
+                            :isLabelShow=false
                             :icon="iconType.unlock"
+                            label="lock height"
                             class="size__btn"
                         />
                         <InputField
