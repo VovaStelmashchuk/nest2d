@@ -1,8 +1,8 @@
 <template>
     <component
         :is="avatarTag"
-        class="avatar"
         v-bind="avatarHref"
+        class="avatar"
     >
         <img 
             :class="avatarClasses"
@@ -16,6 +16,7 @@
 import { NuxtLink } from '#components';
 import { computed, unref } from 'vue';
 import { defaultSizeType } from "~~/constants/size.constants";
+
 const { size } = defineProps({
     size: {
         type: String,

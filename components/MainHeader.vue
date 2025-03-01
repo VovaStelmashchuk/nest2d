@@ -1,13 +1,14 @@
 <template>
     <header class="header">
-        <NuxtLink 
-            :to="logoHref"
+        <component 
+            :is="logoTag"
+            v-bind="logoHref"
             class="header__logo logo"
         >
            <span class="logo__label">
                 Nest2D
            </span> 
-        </NuxtLink>
+        </component>
         <nav 
             v-if="isSecondaryTheme"
             :class="navClasses"
@@ -70,6 +71,7 @@
     </header>
 </template>
 <script setup>
+import { NuxtLink } from '#components';
 import { defaultThemeType, themeType } from "~~/constants/theme.constants";
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
@@ -81,6 +83,9 @@ const { theme } = defineProps({
         default: defaultThemeType,
     },
 })
+
+const route = useRoute()
+
 const menuIsOpen = ref(false);
 const loginDialog = useLoginDialog();
 const nav = [
@@ -102,17 +107,22 @@ const nav = [
     },
 ]
 
-const logoHref = computed(() => {
-    if(unref(isPrimaryTheme)) {
-        return '/home'
-    }
-    return '/'
-})
 const isPrimaryTheme = computed(() => {
     return unref(theme) === themeType.primary
 })
 const isSecondaryTheme = computed(() => {
     return unref(theme) === themeType.secondary
+})
+const isHomePage = computed(() => {
+    return route.path === '/home' || route.path === '/'
+})
+const logoTag = computed(() => {
+    return unref(isHomePage) ? 'div' : NuxtLink
+})
+const logoHref = computed(() => {
+    const hrefValue = unref(isPrimaryTheme) ? '/home' : '/'
+
+    return !unref(isHomePage) ? { to: hrefValue } : {}
 })
 const navClasses = computed(() => ({
     'nav--is-open': unref(menuIsOpen),
