@@ -6,7 +6,6 @@
         <div
             v-for="item in queueList"
             :key="item.id"
-            @click="openQueueModal(item.slug)"
             class="queues__item item"
         >
             <template v-if="isItemNexting(item.status)">
@@ -54,6 +53,10 @@
                     />
                 </div>
             </template>
+            <div
+                @click="openQueueModal(item.slug)" 
+                class="item__area"
+            />
         </div>
     </div>
     <p v-else class="queues__text">
@@ -161,7 +164,15 @@ watch(() => route.fullPath, () => {
             animation: dots 2s infinite linear;
         }
     }
+    &__area {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
     &__controls {
+        z-index: 1;
         position: absolute;
         top: 8px;
         right: 8px;
