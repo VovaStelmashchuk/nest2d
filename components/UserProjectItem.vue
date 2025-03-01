@@ -93,7 +93,7 @@ onBeforeUnmount(() => {
 .prodject {
     $self: &;
 
-    color: rgb(22, 26, 33, 0.5);
+    color: var(--label-tertiary);
     line-height: 1.2;
     font-family: $sf_mono;
     font-size: 12px;
@@ -110,14 +110,14 @@ onBeforeUnmount(() => {
         bottom: 0;
         left: 0;
         pointer-events: none;
-        border: 1px solid rgb(0, 11, 33, 0.1);
+        border: 1px solid var(--separator-secondary);
         transition: border-color 0.3s;
         border-radius: 8px;
     }
 
     &__label {
         display: block;
-        color: rgb(22, 26, 33, 0.8);
+        color: var(--label-secondary);
         transition: color 0.3s;
 
         &::after {
@@ -144,13 +144,13 @@ onBeforeUnmount(() => {
 
     @media (hover:hover) {
         &:hover {
-            color: rgb(22, 26, 33, 0.8);
+            color: var(--label-secondary);
 
             &::after {
-            border-color: rgb(0, 11, 33, 0.15);
+                border-color: var(--separator-primary);
             }
             #{$self}__label {
-                color: #000;
+                color: var(--main-back);
             }
             #{$self}__btn {
                 opacity: 1;
@@ -159,21 +159,21 @@ onBeforeUnmount(() => {
     }
 
     &--active {
-        color: rgb(22, 26, 33, 0.8);
+        color: var(--label-secondary);
         &::after {
             border-width: 2px;
-            border-color: #000;
+            border-color: var(--main-back);
         }
         #{$self}__label {
-            color: #000;
+            color: var(--main-back);
         }
 
         @media (hover:hover) {
             &:hover {
-                color: #000;
+                color: var(--main-back);
 
                 &::after {
-                    border-color: #000;
+                    border-color: var(--main-back);
                 }
             }
         }

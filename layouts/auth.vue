@@ -19,7 +19,7 @@ import { themeType } from '~~/constants/theme.constants';
 </script>
 <style lang="scss" scoped>
 .main {
-    background-color: #F5F4F0;
+    background-color: var(--background-primary);
     flex-direction: column;
     display: flex;
     min-height: 100vh;

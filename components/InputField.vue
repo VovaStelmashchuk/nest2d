@@ -57,7 +57,7 @@ const inputClasses = computed(() => ({
 .input {
     $self: &;
     border-radius: 6px;
-    background-color: rgb(0, 11, 33, 0.05);
+    background-color: var(--fill-tertiary);
     padding: 10px 12px;
     font-family: $sf_mono;
     font-size: 12px;
@@ -69,7 +69,7 @@ const inputClasses = computed(() => ({
     line-height: 1.2;
     &__prefix,
     &__suffix {
-        color: rgb(22, 26, 33, 0.8);
+        color: var(--label-secondary);
         flex-shrink: 0;
     }
     &__prefix {
@@ -79,7 +79,7 @@ const inputClasses = computed(() => ({
         margin-left: 8px;
     }
     &__value {
-        color: #000;
+        color: var(--main-back);
         flex-grow: 1;
         background-color: transparent;
         outline: none;
@@ -94,12 +94,12 @@ const inputClasses = computed(() => ({
 
     @media (hover:hover) {
         &:hover {
-            background-color: rgb(0, 11, 33, 0.08);
+            background-color: var(--fill-secondary);
         }
     }
 
     &:focus-within {
-        border-color: #000;
+        border-color: var(--main-back);
     }
 
     &--disable {

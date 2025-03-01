@@ -48,7 +48,7 @@ onBeforeMount(() => {
     &__text {
         font-size: 12px;
         line-height: 1.2;
-        color: rgb(22, 26, 33, 0.5);
+        color: var(--label-tertiary);
     }
     &__title {
         margin-bottom: 16px;

@@ -274,7 +274,7 @@ const handleSubmit = async (newFiles) => {
     $self: &;
     padding: 15px;
     border-radius: 8px;
-    border: 1px solid rgb(0, 11, 33, 0.1);
+    border: 1px solid var(--separator-secondary);
     transition: border-color 0.3s;
 
     &__display {
@@ -287,7 +287,7 @@ const handleSubmit = async (newFiles) => {
         margin-bottom: 16px;
         font-family: $sf_mono;
         font-size: 12px;
-        color: rgb(22, 26, 33, 0.8);
+        color: var(--label-secondary);
         transition: color 0.3s;
     }
     &__btn {
@@ -300,9 +300,10 @@ const handleSubmit = async (newFiles) => {
 
     @media (hover:hover) {
         &:hover {
-            border-color: rgb(0, 11, 33, 0.15);
+            border-color: var(--separator-primary);
+
             #{$self}__name {
-                color: #000;
+                color: var(--main-back);
             }
             #{$self}__btn {
                 opacity: 1;
@@ -318,7 +319,7 @@ const handleSubmit = async (newFiles) => {
         line-height: 1.2;
         font-family: $sf_mono;
         font-size: 12px;
-        color: rgb(22, 26, 33, 0.8);
+        color: var(--label-secondary);
         margin-left: 8px;
         margin-right: 8px;
         min-width: 24px;
@@ -342,8 +343,8 @@ const handleSubmit = async (newFiles) => {
     &__error {
         margin-top: 16px;
         padding: 12px;
-        background-color: rgb(222, 0, 54, 0.05);
-        border: solid 1px rgb(222, 0, 54, 0.3);
+        background-color: var(--error-background);
+        border: solid 1px var(--error-border);
         border-radius: 8px;
     }
 
@@ -356,7 +357,7 @@ const handleSubmit = async (newFiles) => {
         line-height: 1.2;
         font-family: $sf_mono;
         font-size: 12px;
-        color: rgb(22, 26, 33, 0.8);
+        color: var(--label-secondary);
         margin-top: 16px;
     }
 }
@@ -393,7 +394,7 @@ const handleSubmit = async (newFiles) => {
 .anchor {
     padding: 4px;
     border-radius: 6px;
-    background-color: rgb(0, 11, 33, 0.05);
+    background-color: var(--fill-tertiary);
     &__title {
         line-height: 1.2;
         text-align: left;
@@ -402,7 +403,7 @@ const handleSubmit = async (newFiles) => {
         padding-left: 8px;
         font-family: $sf_mono;
         font-size: 12px;
-        color: rgb(22, 26, 33, 0.8);
+        color: var(--label-secondary);
         margin-bottom: 15px;
     }
     &__list {
@@ -426,15 +427,15 @@ const handleSubmit = async (newFiles) => {
             width: 4px;
             height: 4px;
             border-radius: 4px;
-            background-color: rgb(22, 26, 33, 0.5);
+            background-color: var(--label-tertiary);
             transition: background-color 0.3s, transform 0.3s;
         }
 
         @media (hover:hover) {
             &:hover {
-                background-color: rgb(0, 11, 33, 0.05);
+                background-color: var(--fill-tertiary);
                 &::after {
-                    background-color: rgb(22, 26, 33, 0.8);
+                    background-color: var(--label-secondary);
                 }
             }
         }
@@ -443,7 +444,7 @@ const handleSubmit = async (newFiles) => {
             pointer-events: none;
 
             &::after {
-                background-color: #000;
+                background-color: var(--main-back);
                 transform: translate(-50%, -50%) scale(1.5);
             }
         }

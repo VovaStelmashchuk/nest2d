@@ -202,7 +202,7 @@ const toggleMenu = () => {
         font-family: $sf_mono;
         font-size: 28px;
         font-weight: 900;
-        color: #000;
+        color: var(--main-back);
     }
 }
 .nav {
@@ -250,19 +250,19 @@ const toggleMenu = () => {
         display: block;
         font-size: 20px;
         line-height: 1.2;
-        color: #fff;
+        color: var(--main-white);
         transition: color 0.3s, background-color 0.3s;
 
         @media (min-width: 1199px) {
             font-size: 12px;
-            color: rgb(22, 26, 33, 0.8);
-            background-color: rgb(0, 11, 33, 0.05);
+            color: var(--label-secondary);
+            background-color: var(--fill-tertiary);
         }
 
         @media (hover:hover) {
             &:hover {
-                color: #000;
-                background-color: rgb(0, 11, 33, 0.08);
+                color: var(--main-back);
+                background-color: var(--fill-secondary);
             }
         }
     }
@@ -273,7 +273,7 @@ const toggleMenu = () => {
         right: 0;
         bottom: 0;
         left: 0;
-        background-color: rgb(22, 26, 33, 0.7);
+        background-color: var(--menu-background);
 
         @media (min-width: 1199px) {
             display: none;

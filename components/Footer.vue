@@ -50,7 +50,7 @@
     font-family: $sf_mono;
     padding-top: 16px;
     padding-bottom: 16px;
-    background-color: #000;
+    background-color: var(--main-back);
     &__content {
         max-width: 1300px;
         margin-right: auto;
@@ -59,11 +59,12 @@
     &__copyright {
         text-align: center;
         margin-top: 16px;
-        color: rgb(255, 255, 255, 0.7);
+        color: var(--main-white);
         display: block;
         font-size: 12px;
         line-height: 1.2;
         font-weight: 600;
+        opacity: 0.7;
 
         @media (min-width: 1199px) {
             margin-top: initial;
@@ -96,12 +97,13 @@
     }
     &__link {
         text-align: center;
-        color: rgb(255, 255, 255, 0.7);
+        color: var(--main-white);
         display: block;
         font-size: 12px;
         line-height: 1.2;
         font-weight: 600;
-        transition: color 0.3s;
+        transition: opacity 0.3s;
+        opacity: 0.7;
 
         @media (min-width: 568px) {
             text-align: initial;
@@ -109,7 +111,7 @@
 
         @media (hover:hover) {
             &:hover {
-                color: #fff
+                opacity: 1;
             }
         }
     }

@@ -115,19 +115,19 @@ const buttonClasses = computed(() => ({
     }
     &--theme-ghost {
         #{$self}__label {
-            color: #000;
+            color: var(--main-back);
         }
     }
     &--theme-secondary {
-        background-color: rgb(0, 11, 33, 0.05);
+        background-color: var(--fill-tertiary);
         #{$self}__label {
-            color: #000;
+            color: var(--main-back);
         }
     }
     &--theme-primary {
-        background-color: #000;
+        background-color: var(--main-back);
         #{$self}__label {
-            color: #F5F4F0;
+            color: var(--background-primary);
         }
     }
 
@@ -170,17 +170,17 @@ const buttonClasses = computed(() => ({
     @media (hover:hover) {
         &--theme-ghost {
             &:hover {
-                background-color: rgb(0, 11, 33, 0.05);
+                background-color: var(--fill-tertiary);
             }
         }
         &--theme-secondary {
             &:hover {
-                background-color: rgb(0, 11, 33, 0.08);
+                background-color: var(--fill-secondary);
             }
         }
         &--theme-primary {
             &:hover {
-                background-color: rgb(0, 0, 0, 0.8);
+                background-color: var(--accent-secondary);
             }
         }
     }

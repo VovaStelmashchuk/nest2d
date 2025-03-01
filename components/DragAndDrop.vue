@@ -59,14 +59,14 @@ const handleSubmit = async (files) => {
 
     &__text {
         margin-top: 16px;
-        color: rgb(22, 26, 33, 0.5);
+        color: var(--label-tertiary);
     }
 
     &__error {
         margin-top: 16px;
         padding: 12px;
-        background-color: rgb(222, 0, 54, 0.05);
-        border: solid 1px rgb(222, 0, 54, 0.3);
+        background-color: var(--error-background);
+        border: solid 1px var(--error-border);
         border-radius: 8px;
     }
 }

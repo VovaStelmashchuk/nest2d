@@ -116,7 +116,7 @@ const nest = async () => {
         right: 0;
         bottom: 0;
         left: 0;
-        background-color: rgb(22, 26, 33, 0.5);
+        background-color: var(--label-tertiary);
     }
     &__body {
         position: relative;
@@ -146,8 +146,8 @@ const nest = async () => {
         justify-content: center;
         text-align: center;
         border-radius: 8px;
-        background-color: rgb(222, 0, 54, 0.05);
-        border: solid 1px rgb(222, 0, 54, 0.3);
+        background-color: var(--error-background);
+        border: solid 1px var(--error-border);
         font-size: 12px;
         line-height: 1.2;
     }
@@ -159,7 +159,7 @@ const nest = async () => {
         margin-top: 10px;
         margin-bottom: 10px;
         min-height: 42px;
-        color: #000;
+        color: var(--main-back);
         font-family: $sf_mono;
         font-size: 12px;
         line-height: 1.2;

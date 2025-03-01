@@ -25,10 +25,11 @@ const { size } = defineProps({
     }
 }
 .line {
+
     overflow: hidden;
     padding-top: 2px;
     padding-bottom: 2px;
-    background-color: #000;
+    background-color: var(--main-back);
     &__body {
         display: flex;
     }
@@ -39,7 +40,7 @@ const { size } = defineProps({
         font-family: $sf_mono;
         font-size: 12px;
         font-weight: 600;
-        color: #fff;
+        color: var(--main-white);
         opacity: 0.7;
     }
 }

@@ -47,7 +47,7 @@ defineProps({
         font-family: $sf_mono;
         font-size: 17px;
         font-weight: 600;
-        color: #000;
+        color: var(--main-back);
     }
 }
 </style>

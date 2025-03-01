@@ -103,7 +103,7 @@ watch(() => route.fullPath, () => {
     &__text {
         font-size: 12px;
         line-height: 1.2;
-        color: rgb(22, 26, 33, 0.5);
+        color: var(--label-tertiary);
     }
     &__item {
         &:not(:last-child) {
@@ -131,7 +131,7 @@ watch(() => route.fullPath, () => {
     position: relative;
     display: block;
     padding: 15px;
-    border: 1px solid rgb(0, 11, 33, 0.1);
+    border: 1px solid var(--separator-secondary);
     border-radius: 8px;
     transition: border-color 0.3s;
     &__display,
@@ -146,8 +146,8 @@ watch(() => route.fullPath, () => {
         justify-content: center;
         text-align: center;
         border-radius: 6px;
-        background-color: rgb(222, 0, 54, 0.05);
-        border: solid 1px rgb(222, 0, 54, 0.3);
+        background-color: var(--error-background);
+        border: solid 1px var(--error-border);
         font-size: 12px;
         line-height: 1.2;
     }
@@ -156,7 +156,7 @@ watch(() => route.fullPath, () => {
         font-size: 12px;
         line-height: 1.2;
         margin-top: 10px;
-        color: rgb(22, 26, 33, 0.8);
+        color: var(--label-secondary);
         transition: color 0.3s;
     }
     &__text {
@@ -186,9 +186,9 @@ watch(() => route.fullPath, () => {
                     opacity: 1;
                 }
             }
-            border-color: rgb(0, 11, 33, 0.15);
+            border-color: var(--separator-primary);
             #{$self}__name {
-                color: #000;
+                color: var(--main-back);
             }
         }
     }

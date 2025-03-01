@@ -12,7 +12,7 @@
 
     @include firefox {
         scrollbar-width: thin;
-        scrollbar-color: rgb(22, 26, 33, 0.8) rgb(0, 11, 33, 0.05);
+        scrollbar-color: var(--label-secondary) var(--fill-tertiary);
     }
 
     &::-webkit-scrollbar {
@@ -21,12 +21,12 @@
     }
 
     &::-webkit-scrollbar-thumb {
-        background-color: rgb(22, 26, 33, 0.8);
+        background-color: var(--label-secondary);
         border-radius: 5px;
     }
 
     &::-webkit-scrollbar-track {
-        background: rgb(0, 11, 33, 0.05);
+        background: var(--fill-tertiary);
         border-radius: 3px;
     }
 }

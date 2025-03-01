@@ -36,13 +36,13 @@ const loaderClasses = computed(() => ({
         content: '';
         position: absolute;
         transform: translate(-50%, -50%);
-        color: #000;
+        color: var(--main-back);
         animation-duration: 6s;
         animation-iteration-count: infinite;
     }
 
     &--theme-secondary {
-        background-color: rgb(0, 11, 33, 0.05);
+        background-color: var(--fill-tertiary);
     }
 
     &--size-m {

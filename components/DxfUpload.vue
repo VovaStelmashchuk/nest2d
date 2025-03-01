@@ -83,13 +83,13 @@ const labelClasses = computed(() => ({ 'upload__label--hover': unref(isDragOver)
         flex-direction: column;
         align-items: center;
         min-height: 164px;
-        background-color: rgb(0, 11, 33, 0.05);
-        border: dashed 1px #000;
+        background-color: var(--fill-tertiary);
+        border: dashed 1px var(--main-back);
         border-radius: 8px;
         transition: background-color 0.3s;
 
         &--hover {
-            background-color: rgb(0, 11, 33, 0.08);
+            background-color: var(--fill-secondary);
         }
     }
     &__btn {
@@ -100,11 +100,11 @@ const labelClasses = computed(() => ({ 'upload__label--hover': unref(isDragOver)
     &__text {
         font-size: 12px;
         line-height: 1.2;
-        color: #000;
+        color: var(--main-back);
 
         &--gray {
             margin-top: 8px;
-            color: rgb(22, 26, 33, 0.8);
+            color: var(--label-secondary);
         }
     }
     &__input {
@@ -121,7 +121,7 @@ const labelClasses = computed(() => ({ 'upload__label--hover': unref(isDragOver)
     @media (hover:hover) {
         &:hover {
             #{$self}__label {
-                background-color: rgb(0, 11, 33, 0.08);
+                background-color: var(--fill-secondary);
             }
         }
     }

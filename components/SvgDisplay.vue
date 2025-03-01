@@ -61,7 +61,7 @@ const dispayClasses = computed(() => ({
         padding: 4px;
         border-radius: 6px;
     }
-    background-color: rgb(0, 11, 33, 0.05);
+    background-color: var(--fill-tertiary);
     &__img {
         display: block;
         max-height: 100%;
