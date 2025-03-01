@@ -10,7 +10,11 @@
             class="queues__item item"
         >
             <template v-if="isItemNexting(item.status)">
-                <div class="item__loader"></div>
+                <MainLoader 
+                    :size="sizeType.s"
+                    :theme="themeType.secondary"
+                    class="item__loader"
+                />
                 <p class="item__text">
                     Nesting</p>
             </template>
@@ -132,24 +136,6 @@ watch(() => route.fullPath, () => {
         width: 40px;
         height: 40px;
     }
-    &__loader {
-        position: relative;
-        border-radius: 6px;
-        background-color: rgb(0, 11, 33, 0.05);
-
-        &::after {
-            top: 50%;
-            left: 50%;
-            width: 1px;
-            height: 1px;
-            content: '';
-            position: absolute;
-            transform: translate(-50%, -50%);
-            color: #000;
-            box-shadow: -5px -5px 0 3px, -5px -5px 0 3px, -5px -5px 0 3px, -5px -5px 0 3px;
-            animation: loader 6s infinite;
-        }
-    }
     &__placeholder {
         display: flex;
         align-items: center;
@@ -209,84 +195,5 @@ watch(() => route.fullPath, () => {
         content: '...';
     }
 }
-@keyframes loader {
-    0% {
-        box-shadow: -5px -5px 0 3px,
-                    -5px -5px 0 3px,
-                    -5px -5px 0 3px,
-                    -5px -5px 0 3px;
-    }
-    8.33% {
-        box-shadow: -5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px -5px 0 3px;
-    }
-    16.66% {
-        box-shadow: -5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    5px 5px 0 3px;
-    }
-    24.99% {
-        box-shadow: -5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    33.32% {
-        box-shadow: -5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px -5px 0 3px;
-    }
-    41.65% {
-        box-shadow: 5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    5px -5px 0 3px;
-    }
-    49.98% {
-        box-shadow: 5px 5px 0 3px,
-                    5px 5px 0 3px,
-                    5px 5px 0 3px,
-                    5px 5px 0 3px;
-    }
-    58.31% {
-        box-shadow: -5px 5px 0 3px,
-                    -5px 5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    66.64% {
-        box-shadow: -5px -5px 0 3px,
-                    -5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    74.97% {
-        box-shadow: -5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    83.3% {
-        box-shadow: -5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    91.63% {
-        box-shadow: -5px -5px 0 3px,
-                    -5px 5px 0 3px,
-                    -5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    100% {
-        box-shadow: -5px -5px 0 3px,
-                    -5px -5px 0 3px,
-                    -5px -5px 0 3px,
-                    -5px -5px 0 3px;
-    }
-}
+
 </style>

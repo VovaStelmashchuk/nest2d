@@ -72,6 +72,8 @@
     }
 }
 .content {
+    padding-right: 10px;
+    padding-left: 10px;
     @media (min-width: 1199px) {
         display: flex;
         align-items: center;
