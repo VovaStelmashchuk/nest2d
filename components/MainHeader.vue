@@ -250,6 +250,7 @@ const toggleMenu = () => {
         transition: color 0.3s, background-color 0.3s;
 
         @media (min-width: 1199px) {
+            font-size: 12px;
             color: var(--label-secondary);
             background-color: var(--fill-tertiary);
         }
