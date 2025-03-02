@@ -198,8 +198,6 @@ const toggleMenu = () => {
 .logo {
     &__label {
         display: block;
-        line-height: 1.2;
-        font-family: $sf_mono;
         font-size: 28px;
         font-weight: 900;
         color: var(--main-back);
@@ -246,15 +244,12 @@ const toggleMenu = () => {
         text-align: center;
         border-radius: 6px;
         padding: 6px 12px;
-        font-family: $sf_mono;
         display: block;
         font-size: 20px;
-        line-height: 1.2;
         color: var(--main-white);
         transition: color 0.3s, background-color 0.3s;
 
         @media (min-width: 1199px) {
-            font-size: 12px;
             color: var(--label-secondary);
             background-color: var(--fill-tertiary);
         }

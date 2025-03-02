@@ -123,7 +123,7 @@ const nest = async () => {
         z-index: 1;
         width: 368px;
         min-height: 484px;
-        background-color: #f5f4f0;
+        background-color: var(--background-primary);
         border-radius: 16px;
     }
 }
@@ -140,7 +140,6 @@ const nest = async () => {
         height: 320px;
     }
     &__placeholder {
-        font-family: $sf_mono;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -148,8 +147,6 @@ const nest = async () => {
         border-radius: 8px;
         background-color: var(--error-background);
         border: solid 1px var(--error-border);
-        font-size: 12px;
-        line-height: 1.2;
     }
     &__name {
         display: flex;
@@ -160,9 +157,6 @@ const nest = async () => {
         margin-bottom: 10px;
         min-height: 42px;
         color: var(--main-back);
-        font-family: $sf_mono;
-        font-size: 12px;
-        line-height: 1.2;
     }
 }
 .controls {

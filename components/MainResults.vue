@@ -11,7 +11,6 @@
 </template>
 <style lang="scss" scoped>
 .results {
-    font-family: $sf_mono;
     &__title {
         margin-bottom: 16px;
     }

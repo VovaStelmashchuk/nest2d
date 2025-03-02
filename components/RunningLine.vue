@@ -37,8 +37,6 @@ const { size } = defineProps({
         animation: 5s line linear infinite;
         white-space: nowrap;
         padding-right: 40px;
-        font-family: $sf_mono;
-        font-size: 12px;
         font-weight: 600;
         color: var(--main-white);
         opacity: 0.7;

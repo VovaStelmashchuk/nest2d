@@ -99,10 +99,7 @@ watch(() => route.fullPath, () => {
 </script>
 <style lang="scss" scoped>
 .queues {
-    font-family: $sf_mono;
     &__text {
-        font-size: 12px;
-        line-height: 1.2;
         color: var(--label-tertiary);
     }
     &__item {
@@ -148,13 +145,9 @@ watch(() => route.fullPath, () => {
         border-radius: 6px;
         background-color: var(--error-background);
         border: solid 1px var(--error-border);
-        font-size: 12px;
-        line-height: 1.2;
     }
     &__name,
     &__text {
-        font-size: 12px;
-        line-height: 1.2;
         margin-top: 10px;
         color: var(--label-secondary);
         transition: color 0.3s;

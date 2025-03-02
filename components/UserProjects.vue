@@ -44,10 +44,7 @@ onBeforeMount(() => {
     
 <style lang="scss" scoped>
 .prodjects {
-    font-family: $sf_mono;
     &__text {
-        font-size: 12px;
-        line-height: 1.2;
         color: var(--label-tertiary);
     }
     &__title {

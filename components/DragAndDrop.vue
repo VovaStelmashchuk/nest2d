@@ -53,8 +53,6 @@ const handleSubmit = async (files) => {
 
 <style lang="scss" scoped>
 .drag-and-drop {
-    font-family: $sf_mono;
-    font-size: 12px;
     text-align: center;
 
     &__text {

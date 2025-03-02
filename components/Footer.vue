@@ -47,7 +47,6 @@
 .footer {
     padding-left: 10px;
     padding-right: 10px;
-    font-family: $sf_mono;
     padding-top: 16px;
     padding-bottom: 16px;
     background-color: var(--main-back);
@@ -61,8 +60,6 @@
         margin-top: 16px;
         color: var(--main-white);
         display: block;
-        font-size: 12px;
-        line-height: 1.2;
         font-weight: 600;
         opacity: 0.7;
 
@@ -99,8 +96,6 @@
         text-align: center;
         color: var(--main-white);
         display: block;
-        font-size: 12px;
-        line-height: 1.2;
         font-weight: 600;
         transition: opacity 0.3s;
         opacity: 0.7;

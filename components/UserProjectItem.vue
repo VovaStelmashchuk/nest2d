@@ -94,9 +94,6 @@ onBeforeUnmount(() => {
     $self: &;
 
     color: var(--label-tertiary);
-    line-height: 1.2;
-    font-family: $sf_mono;
-    font-size: 12px;
     position: relative;
     padding: 16px;
     border-radius: 8px;

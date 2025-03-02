@@ -43,8 +43,6 @@ defineProps({
     padding-bottom: 9px;
     &__label {
         display: block;
-        line-height: 1.2;
-        font-family: $sf_mono;
         font-size: 17px;
         font-weight: 600;
         color: var(--main-back);

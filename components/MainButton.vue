@@ -79,9 +79,7 @@ const buttonClasses = computed(() => ({
     width: max-content;
 
     &__label {
-        line-height: 1.2;
         display: block;
-        font-family: $sf_mono;
         font-weight: 700;
     }
     &__icon {
@@ -105,9 +103,6 @@ const buttonClasses = computed(() => ({
         border-radius: 6px;
         padding: 12px;
 
-        #{$self}__label {
-            font-size: 12px;
-        }
         #{$self}__icon {
             width: 14px;
             height: 14px;

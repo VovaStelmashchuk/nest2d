@@ -59,14 +59,11 @@ const inputClasses = computed(() => ({
     border-radius: 6px;
     background-color: var(--fill-tertiary);
     padding: 10px 12px;
-    font-family: $sf_mono;
-    font-size: 12px;
     display: flex;
     align-items: center;
     font-weight: 500;
     border: 2px solid transparent;
     transition: border-color 0.3s, background-color 0.3s;
-    line-height: 1.2;
     &__prefix,
     &__suffix {
         color: var(--label-secondary);

@@ -17,11 +17,6 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    &__text {
-        font-family: $sf_mono;
-        font-size: 12px;
-        line-height: 1.2;
-    }
     &__loader {
         margin-top: 20px;
         margin-bottom: 40px;

@@ -282,11 +282,8 @@ const handleSubmit = async (newFiles) => {
         height: 56px;
     }
     &__name {
-        line-height: 1.2;
         margin-top: 16px;
         margin-bottom: 16px;
-        font-family: $sf_mono;
-        font-size: 12px;
         color: var(--label-secondary);
         transition: color 0.3s;
     }
@@ -316,9 +313,6 @@ const handleSubmit = async (newFiles) => {
     align-items: center;
 
     &__value {
-        line-height: 1.2;
-        font-family: $sf_mono;
-        font-size: 12px;
         color: var(--label-secondary);
         margin-left: 8px;
         margin-right: 8px;
@@ -327,8 +321,6 @@ const handleSubmit = async (newFiles) => {
     }
 }
 .nest {
-    font-family: $sf_mono;
-    font-size: 12px;
     text-align: center;
 
     &__title {
@@ -354,9 +346,6 @@ const handleSubmit = async (newFiles) => {
         margin-right: auto;
     }
     &__text {
-        line-height: 1.2;
-        font-family: $sf_mono;
-        font-size: 12px;
         color: var(--label-secondary);
         margin-top: 16px;
     }
@@ -396,13 +385,10 @@ const handleSubmit = async (newFiles) => {
     border-radius: 6px;
     background-color: var(--fill-tertiary);
     &__title {
-        line-height: 1.2;
         text-align: left;
         padding-top: 8px;
         padding-bottom: 2px;
         padding-left: 8px;
-        font-family: $sf_mono;
-        font-size: 12px;
         color: var(--label-secondary);
         margin-bottom: 15px;
     }

@@ -73,7 +73,6 @@ const labelClasses = computed(() => ({ 'upload__label--hover': unref(isDragOver)
     $self: &;
     position: relative;
     text-align: center;
-    font-family: $sf_mono;
 
     &__label {
         padding: 10px;
@@ -98,8 +97,6 @@ const labelClasses = computed(() => ({ 'upload__label--hover': unref(isDragOver)
         margin-bottom: 16px;
     }
     &__text {
-        font-size: 12px;
-        line-height: 1.2;
         color: var(--main-back);
 
         &--gray {
