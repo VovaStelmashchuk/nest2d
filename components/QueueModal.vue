@@ -102,6 +102,10 @@ const nest = async () => {
     
 <style lang="scss" scoped>
 .modal {
+    font-size: 12px;
+    font-family: $sf_mono;
+    line-height: 1.2;
+    
     display: flex;
     align-items: center;
     justify-content: center;
