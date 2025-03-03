@@ -139,6 +139,7 @@
 <script setup>
 definePageMeta({
     layout: "auth",
+    middleware: "auth",
 });
 import { sizeType } from "~~/constants/size.constants";
 import { iconType } from "~~/constants/icon.constants";

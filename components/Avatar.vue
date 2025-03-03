@@ -6,13 +6,14 @@
     >
         <img 
             :class="avatarClasses"
-            :src="data.avatar"
-            :alt="data.name"
+            :src="user.avatar"
+            :alt="user.name"
             class="avatar__img"
         />
     </component>
 </template>
 <script setup>
+import { authStore } from "~~/store/auth";
 import { NuxtLink } from '#components';
 import { computed, unref } from 'vue';
 import { defaultSizeType } from "~~/constants/size.constants";
@@ -39,8 +40,8 @@ const avatarHref = computed(() => {
     return !unref(isProfilePage) ? { to: '/profile' } : {}
 })
 
-const useAuthState = useAuth();
-const data = await useAuthState.fetchUser();
+const { getters } = authStore;
+const { user } = toRefs(getters);
 
 </script>
 <style lang="scss" scoped>

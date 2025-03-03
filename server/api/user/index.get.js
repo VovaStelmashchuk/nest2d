@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
   if (!userId) {
     setResponseStatus(401);
-    return;
+    return {};
   }
 
   const db = await connectDB();

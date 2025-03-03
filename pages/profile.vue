@@ -1,7 +1,7 @@
 <template>
     <div class="profile">
         <MainTitle 
-            :label="data.name"
+            :label="user.name"
             class="profile__title"
         />
         <div class="profile__content">
@@ -16,20 +16,23 @@
     </div>
 </template>
 <script setup>
+import { authStore } from "~~/store/auth";
 import { themeType } from '~~/constants/theme.constants';
+
+const router = useRouter();
 
 definePageMeta({
     layout: "auth",
+    middleware: "auth",
 });
 
-const { logout } = useAuth();
-const { data } = await useFetch("/api/user", {
-  credentials: "include",
-});
+const { getters, mutations } = authStore;
+const { user } = toRefs(getters);
+const { logout } = mutations;
 
 const logoutHandler = async () => {
     await logout();
-    navigateTo("/");
+    router.push({ path: '/' })
 };
 </script>
 <style lang="scss" scoped>

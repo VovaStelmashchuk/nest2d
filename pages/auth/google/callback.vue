@@ -6,6 +6,9 @@
 definePageMeta({
     layout: "doc",
 });
+
+const router = useRouter()
+
 onMounted(async () => {
     const route = useRoute();
     const hash = route.hash.substring(1);
@@ -25,11 +28,11 @@ onMounted(async () => {
     await $fetch("/api/auth/google/login", {
         method: "POST",
         headers: {
-        "Content-Type": "application/json",
+            "Content-Type": "application/json",
         },
         body: JSON.stringify(request),
     });
 
-    navigateTo("/home");
+    router.push({ path: '/home' })
 });
 </script>

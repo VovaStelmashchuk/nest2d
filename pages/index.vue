@@ -150,12 +150,9 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: "auth",
+});
 import { themeType } from "~~/constants/theme.constants";
-const useAuthState = useAuth();
-const user = await useAuthState.fetchUser();
-
-if (user) {
-  navigateTo("/home");
-}
 const loginDialog = useLoginDialog();
 </script>
