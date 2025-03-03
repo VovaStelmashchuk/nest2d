@@ -53,11 +53,11 @@
                         class="controls__download"
                     />
                 </div>
+                <div
+                    @click="openQueueModal(item.slug)" 
+                    class="item__area"
+                />
             </template>
-            <div
-                @click="openQueueModal(item.slug)" 
-                class="item__area"
-            />
         </div>
     </div>
     <p v-else class="queues__text">
@@ -123,7 +123,6 @@ watch(() => route.fullPath, () => {
 }
 
 .item {
-    cursor: pointer;
     $self: &;
     position: relative;
     display: block;
@@ -164,6 +163,7 @@ watch(() => route.fullPath, () => {
         right: 0;
         bottom: 0;
         left: 0;
+        cursor: pointer;
     }
     &__controls {
         z-index: 1;

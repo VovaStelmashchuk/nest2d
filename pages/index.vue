@@ -1,20 +1,22 @@
 <template>
-  <div class="min-h-screen bg-white text-black">
+  <div class="max-w-4xl mx-auto bg-gray-50 text-gray-800 shadow-lg rounded-lg min-h-screen bg-white text-black">
     <section class="text-center p-6">
       <div class="container mx-auto">
-        <h2 class="text-4xl font-bold">Smart Nesting for Laser Cutting</h2>
+        <h2 class="text-4xl font-bold">
+          Smart Nesting for Laser Cutting
+        </h2>
         <p class="text-lg mt-4 text-gray-700">
           Upload your DXF files, input material dimensions, and let Nest2d
           maximize your material usage. Fully open-source and built for
           efficiency.
         </p>
         <div class="mt-8">
-          <button
+          <MainButton
+            :theme="themeType.primary"
+            label="Get Started for Free"
             @click="loginDialog = true"
-            class="bg-black text-white py-2 px-4 rounded-lg text-lg shadow-md hover:bg-gray-800"
-          >
-            Get Started for Free
-          </button>
+            class="mx-auto"
+          />
         </div>
       </div>
     </section>
@@ -95,12 +97,12 @@
           Sign up and start optimizing your laser cutting projects in minutes.
         </p>
         <div class="mt-8">
-          <button
+          <MainButton
+            :theme="themeType.primary"
+            label="Login / Sign Up"
             @click="loginDialog = true"
-            class="bg-black text-white py-2 px-4 rounded-lg text-lg shadow-md hover:bg-gray-800"
-          >
-            Login / Sign Up
-          </button>
+            class="mx-auto"
+          />
         </div>
       </div>
     </section>
@@ -148,8 +150,7 @@
 </template>
 
 <script setup>
-import { navigateTo } from "nuxt/app";
-
+import { themeType } from "~~/constants/theme.constants";
 const useAuthState = useAuth();
 const user = await useAuthState.fetchUser();
 

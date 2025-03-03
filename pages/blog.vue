@@ -1,5 +1,5 @@
 <template>
-    <div class="space-y-8 text-gray-800">
+    <div class="space-y-8">
         <BlogEntry
             v-for="(post, postIndex) in posts"
             :key="postIndex"

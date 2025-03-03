@@ -45,7 +45,6 @@
             <MainButton
                 v-if="isSecondaryTheme"
                 :theme="themeType.primary"
-                href="https://github.com/VovaStelmashchuk/nest2d/issues/new"
                 label="Login / Sign Up"
                 @click="loginDialog = true"
                 class="header__btn"

@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="max-w-4xl mx-auto p-6 bg-gray-50 text-gray-800 shadow-lg rounded-lg"
-  >
+  <div class="max-w-4xl mx-auto p-6 bg-gray-50 text-gray-800 shadow-lg rounded-lg">
     <h1 class="text-3xl font-bold mb-4">Terms and Conditions</h1>
     <p class="mb-4">
       Welcome to <span class="text-blue-600 font-semibold">Nest2D</span>! Thank
