@@ -4,7 +4,6 @@ import { statusType } from "~~/constants/status.constants";
 const state = reactive({
     queueList: [],
     projectsList: [],
-    isModalShow: false,
     queueModalData: {},
 })
 let queueTimer;
@@ -32,15 +31,10 @@ async function setProjects() {
     }
 }
 
-function closeModal() {
-    state.isModalShow = false
-}
-
 async function openQueueModal(slug) {
     try {
         const data = await $fetch(`/api/queue/${slug}`);
         state.queueModalData = {...data}
-        state.isModalShow = true
 
     } catch (error) {
         console.error("Error fetching projects:", error);
@@ -52,12 +46,10 @@ export const globalStore = readonly({
         queueList: computed(() => state.queueList),
         isNesting: computed(() => state.queueList.findIndex(item => [statusType.unfinished, statusType.pending].includes(item.status)) !== -1),
         projectsList: computed(() => state.projectsList),
-        isModalShow: computed(() => state.isModalShow),
         queueModalData: computed(() => state.queueModalData)
     },
     mutations: {
         setQueue,
-        closeModal,
         setProjects,
         openQueueModal
     }

@@ -1,52 +1,82 @@
 <template>
-  <teleport to="body">
-    <transition name="fade">
-      <div
-        v-if="isOpen"
-        class="fixed inset-0 z-50 flex items-center justify-center"
-      >
+    <teleport to="body">
         <div
-          class="absolute inset-0 bg-black bg-opacity-50 shadow-xl"
-          @click="onBackdropClick"
-        ></div>
-
-        <div
-          class="relative w-full max-w-lg bg-white rounded-lg shadow-xl"
-          role="dialog"
-          aria-modal="true"
+            v-if="isModalOpen"
+            class="modal"
         >
-          <slot />
+            <div 
+                class="modal__background"
+                @click="closeModal"
+            ></div>
+
+            <div class="modal__body modal-body">
+                <MainButton 
+                    label="close modal"
+                    :isLabelShow=false
+                    :size="sizeType.s"
+                    :icon="iconType.close"
+                    @click="closeModal"
+                    class="modal-body__close"
+                />
+                <slot />
+            </div>
         </div>
-      </div>
-    </transition>
-  </teleport>
+    </teleport>
 </template>
 
-<script>
-export default {
-  name: "DialogWrapper",
-  props: {
-    isOpen: {
-      type: Boolean,
-      default: false,
+<script setup>
+import { iconType } from '~~/constants/icon.constants';
+import { sizeType } from '~~/constants/size.constants';
+
+const { isModalOpen } = defineProps({
+    isModalOpen: {
+        type: Boolean,
+        default: false,
     },
-  },
-  emits: ["update:isOpen"],
-  methods: {
-    onBackdropClick() {
-      this.$emit("update:isOpen", false);
-    },
-  },
-};
+})
+
+const emit = defineEmits(["update:isModalOpen"]);
+
+const closeModal = () => {
+    emit("update:isModalOpen", false);
+}
 </script>
 
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
+<style lang="scss" scoped>
+.modal {
+    font-size: 12px;
+    font-family: $sf_mono;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+
+    &__background {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: var(--label-tertiary);
+    }
+    &__body {
+        position: relative;
+        z-index: 1;
+        background-color: var(--background-primary);
+        border-radius: 16px;
+    }
 }
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
+.modal-body {
+    &__close {
+        position: absolute;
+        top: 8.5px;
+        right: 8.5px;
+    }
 }
 </style>

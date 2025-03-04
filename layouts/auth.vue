@@ -12,7 +12,6 @@
         </main>
         <Footer />
     </div>
-    <QueueModal />
 </template>
 <script setup>
 import { themeType } from '~~/constants/theme.constants';

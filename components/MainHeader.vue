@@ -64,9 +64,7 @@
                 class="header__toggler"
             />
         </div>
-        <DialogWrapper v-model:isOpen="loginDialog">
-            <LoginView />
-        </DialogWrapper>
+        <LoginView v-model:isModalOpen="loginDialog"/>
     </header>
 </template>
 <script setup>

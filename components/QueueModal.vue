@@ -1,33 +1,18 @@
 <template>
-    <div 
-        v-if="isModalShow"
-        class="modal"
-    >
-        <div 
-            class="modal__background"
-            @click="closeModal"
-        ></div>
-        <div class="modal__body modal-body">
-            <MainButton 
-                label="close modal"
-                :isLabelShow=false
-                :size="sizeType.s"
-                :icon="iconType.close"
-                @click="closeModal"
-                class="modal-body__close"
-            />
+    <DialogWrapper>
+        <div class="modal">
             <div 
                 v-if="isHaveError"
-                class="modal-body__placeholder"
+                class="modal__placeholder"
             >
                 Err
             </div>
             <SvgDisplay 
                 v-else
                 :src="queueModalData.resultSvg"
-                class="modal-body__display" 
+                class="modal__display" 
             />
-            <div class="modal-body__name">
+            <div class="modal__name">
                 <template v-if="isHaveError">
                     {{ queueModalData.error.message }}
                 </template>
@@ -53,7 +38,7 @@
                 />
             </div>
         </div>
-    </div>
+    </DialogWrapper>
 </template>
 
 <script setup>
@@ -63,8 +48,10 @@ import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 
 const { getters, mutations } = globalStore;
-const { isModalShow, queueModalData } = toRefs(getters);
-const { closeModal, setQueue, setProjects } = mutations;
+const { queueModalData } = toRefs(getters);
+const { setQueue, setProjects } = mutations;
+
+const queueDialog = useQueueDialog();
 
 const filesToNest = computed(() => {
     return unref(queueModalData).nestedFiles.map((file) => (
@@ -95,44 +82,16 @@ const nest = async () => {
     });
     await setQueue(`/api/project/${unref(queueModalData).projectSlug}/queue`)
     await setProjects()
-    closeModal()
+    queueDialog.value = false
 };
 
 </script>
     
 <style lang="scss" scoped>
 .modal {
-    font-size: 12px;
-    font-family: $sf_mono;
-    line-height: 1.2;
-    
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    &__background {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background-color: var(--label-tertiary);
-    }
-    &__body {
-        position: relative;
-        z-index: 1;
-        width: 368px;
-        min-height: 484px;
-        background-color: var(--background-primary);
-        border-radius: 16px;
-    }
-}
-.modal-body {
     padding: 48px 24px 24px;
+    width: 368px;
+    min-height: 484px;
     &__close {
         position: absolute;
         top: 8.5px;
@@ -172,5 +131,4 @@ const nest = async () => {
         margin-right: 4px;
     }
 }
-
 </style>

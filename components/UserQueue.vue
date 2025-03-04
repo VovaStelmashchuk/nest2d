@@ -54,7 +54,7 @@
                     />
                 </div>
                 <div
-                    @click="openQueueModal(item.slug)" 
+                    @click="openModal(item.slug)" 
                     class="item__area"
                 />
             </template>
@@ -62,7 +62,8 @@
     </div>
     <p v-else class="queues__text">
         Your nested results will be here
-    </p>  
+    </p>
+    <QueueModal v-model:isModalOpen="queueDialog" />
 </template>
 
 <script setup>
@@ -72,6 +73,8 @@ import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 import { statusType } from "~~/constants/status.constants";
 import { globalStore } from "~~/store";
+
+const queueDialog = useQueueDialog();
 
 const route = useRoute();
 const apiPath = computed(() => {
@@ -85,6 +88,10 @@ const { getters, mutations } = globalStore;
 const { queueList } = toRefs(getters);
 const { setQueue, openQueueModal } = mutations;
 
+const openModal = (slug) => {
+    openQueueModal(slug)
+    queueDialog.value = true
+}
 const isItemNexting = (status) => {
     return [statusType.unfinished, statusType.pending].includes(status)
 }
