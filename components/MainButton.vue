@@ -141,16 +141,6 @@ const buttonClasses = computed(() => ({
             background-image: url('/icons/svg/plus.svg')
         }
     }
-    &--icon-unlock {
-        #{$self}__icon {
-            background-image: url('/icons/svg/unlock.svg')
-        }
-    }
-    &--icon-lock {
-        #{$self}__icon {
-            background-image: url('/icons/svg/lock.svg')
-        }
-    }
     &--icon-close {
         #{$self}__icon {
             background-image: url('/icons/svg/close.svg')

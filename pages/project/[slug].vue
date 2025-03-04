@@ -63,23 +63,6 @@
                             v-model="widthPlate"
                             class="size__input"
                         />
-                        <MainButton
-                            v-if="isHeightLock"
-                            @click="updateHeightLock()"
-                            :isLabelShow=false
-                            :icon="iconType.lock"
-                            :theme="themeType.secondary"
-                            label="unlock height"
-                            class="size__btn"
-                        />
-                        <MainButton
-                            v-else
-                            @click="updateHeightLock()"
-                            :isLabelShow=false
-                            :icon="iconType.unlock"
-                            label="lock height"
-                            class="size__btn"
-                        />
                         <InputField
                             :isDisable="isHeightLock"
                             prefix="H"
@@ -163,7 +146,6 @@ const tolerance = ref('0.1');
 const space = ref('0.1');
 const lastParams = ref('')
 const files = ref(data.value.files.map(file => ({...file, count: 1})))
-const isHeightLock = ref(false)
 
 const filesToNest = computed(() => {
     return unref(files).map((file) => (
@@ -217,9 +199,7 @@ const requestBody = computed(() => {
 })
 // const currentAnchor = ref(1)
 // const getAnchorClasses = (index) => ({'anchor__item--active': index === unref(currentAnchor)})
-const updateHeightLock = () => {
-    isHeightLock.value = !unref(isHeightLock)
-}
+
 const isValidNumber = (value) => {
     return /^\d+(\.\d+)?$/.test(value);
 }
@@ -367,13 +347,9 @@ const handleSubmit = async (newFiles) => {
     }
 
     &__line {
-        display: flex;
-        align-items: center;
-    }
-    &__btn {
-        flex-shrink: 0;
-        margin-left: 2px;
-        margin-right: 2px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
     }
     &__input {
         flex-grow: 1;
