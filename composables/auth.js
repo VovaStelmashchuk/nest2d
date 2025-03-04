@@ -32,7 +32,6 @@ async function logout() {
             method: "POST",
             credentials: "include",
         });
-        state.user = {};
         state.userIsSet = false
     } catch (err) {
         console.error("Logout failed:", err);

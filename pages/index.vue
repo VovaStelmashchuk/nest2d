@@ -150,6 +150,9 @@
 </template>
 
 <script setup>
+definePageMeta({
+    middleware: "auth",
+});
 import { themeType } from "~~/constants/theme.constants";
 const loginDialog = useLoginDialog();
 </script>

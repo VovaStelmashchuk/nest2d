@@ -1,69 +1,73 @@
 <template>
-    <div 
-        v-if="queueList.length"    
-        class="queues"
+    <MainAside 
+        label="Results"
     >
-        <div
-            v-for="item in queueList"
-            :key="item.id"
-            class="queues__item item"
+        <div 
+            v-if="queueList.length"    
+            class="queues"
         >
-            <template v-if="isItemNexting(item.status)">
-                <MainLoader 
-                    :size="sizeType.s"
-                    :theme="themeType.secondary"
-                    class="item__loader"
-                />
-                <p class="item__text">
-                    Nesting</p>
-            </template>
-            <template v-else>
-                <div 
-                    v-if="item.status === statusType.failed"
-                    class="item__placeholder"
-                >
-                    Err
-                </div>
-                <SvgDisplay
-                    v-else
-                    :size="sizeType.s"
-                    :src="getSvgSrc(item.svg)"
-                    class="item__display"
-                />
-                <p class="item__name">
-                    {{ item.projectName }}
-                </p>
-                <div class="item__controls controls">
-                    <!-- <div class="controls__delete">
-                        <MainButton 
-                            :label="`delete ${item.projectName}`"
-                            :size="sizeType.s"
-                            :icon="iconType.trash"
-                            :isLabelShow=false
-                            @click="console.log(`delete ${item.projectName}`)"
-                        />
-                    </div> -->
-                    <MainButton 
-                        v-if="item.status === statusType.completed"
-                        :href="`/api/queue/${item.slug}/dxf`"
-                        label="Download"
-                        tag="a"
+            <div
+                v-for="item in queueList"
+                :key="item.id"
+                class="queues__item item"
+            >
+                <template v-if="isItemNexting(item.status)">
+                    <MainLoader 
                         :size="sizeType.s"
-                        :theme="themeType.primary"
-                        class="controls__download"
+                        :theme="themeType.secondary"
+                        class="item__loader"
                     />
-                </div>
-                <div
-                    @click="openModal(item.slug)" 
-                    class="item__area"
-                />
-            </template>
+                    <p class="item__text">
+                        Nesting</p>
+                </template>
+                <template v-else>
+                    <div 
+                        v-if="item.status === statusType.failed"
+                        class="item__placeholder"
+                    >
+                        Err
+                    </div>
+                    <SvgDisplay
+                        v-else
+                        :size="sizeType.s"
+                        :src="getSvgSrc(item.svg)"
+                        class="item__display"
+                    />
+                    <p class="item__name">
+                        {{ item.projectName }}
+                    </p>
+                    <div class="item__controls controls">
+                        <!-- <div class="controls__delete">
+                            <MainButton 
+                                :label="`delete ${item.projectName}`"
+                                :size="sizeType.s"
+                                :icon="iconType.trash"
+                                :isLabelShow=false
+                                @click="console.log(`delete ${item.projectName}`)"
+                            />
+                        </div> -->
+                        <MainButton 
+                            v-if="item.status === statusType.completed"
+                            :href="`/api/queue/${item.slug}/dxf`"
+                            label="Download"
+                            tag="a"
+                            :size="sizeType.s"
+                            :theme="themeType.primary"
+                            class="controls__download"
+                        />
+                    </div>
+                    <div
+                        @click="openModal(item.slug)" 
+                        class="item__area"
+                    />
+                </template>
+            </div>
         </div>
-    </div>
-    <p v-else class="queues__text">
-        Your nested results will be here
-    </p>
-    <QueueModal v-model:isModalOpen="queueDialog" />
+        <p v-else class="queues__text">
+            Your nested results will be here
+        </p>
+        <QueueModal v-model:isModalOpen="queueDialog" />
+    </MainAside>
 </template>
 
 <script setup>

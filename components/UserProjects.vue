@@ -1,14 +1,12 @@
 <template>
-    <div class="prodjects">
-        <MainTitle
-            label="Projects"
-            :btnLabel="btnLabelValue"
-            @btnClick="createNewProdject"
-            class="prodjects__title"
-        />
-        <UiScrollbar 
-            v-if="projectsList.length" 
-            class="prodjects__scrollbar"
+    <MainAside 
+        label="Projects"
+        :btnLabel="btnLabelValue"
+        @btnClick="createNewProdject"
+    >
+        <div  
+            v-if="projectsList.length"
+            class="prodjects"
         >
             <UserProjectItem
                 v-for="project in projectsList"
@@ -16,25 +14,26 @@
                 :project="project"
                 class="prodjects__item"
             />
-        </UiScrollbar>
+        </div>
         <p v-else class="prodjects__text">
             Your prodjects will be here
         </p> 
-	</div>
+    </MainAside>
 </template>
 
 <script setup>
 const route = useRoute();
 const router = useRouter();
-
 const { getters, actions } = globalStore;
 const { setProjects } = actions;
 const projectsList = computed(() => getters.projectsList);
 
-const createNewProdject = () => router.push({ name: 'home' })
 const btnLabelValue = computed(() => {
     return route.name === 'home' ? '' : 'New project'
 }) 
+
+const createNewProdject = () => router.push({ name: 'home' })
+
 onBeforeMount(() => {
     setProjects();
 })
@@ -45,16 +44,10 @@ onBeforeMount(() => {
     &__text {
         color: var(--label-tertiary);
     }
-    &__title {
-        margin-bottom: 16px;
-    }
     &__item {
         &:not(:last-child) {
             margin-bottom: 8px;
         }
-    }
-    &__scrollbar {
-        max-height: 600px;
     }
 }
 </style>

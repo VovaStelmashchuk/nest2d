@@ -8,7 +8,7 @@
         <main class="main__content content">
             <UserProjects />   
             <slot />
-            <MainResults />
+            <UserQueue />
         </main>
         <Footer />
     </div>
@@ -40,7 +40,6 @@ import { themeType } from '~~/constants/theme.constants';
         z-index: 2;
     }
 }
-
 .content {
     padding-left: 10px;
     padding-right: 10px;
