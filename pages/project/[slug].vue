@@ -64,7 +64,6 @@
                             class="size__input"
                         />
                         <InputField
-                            :isDisable="isHeightLock"
                             prefix="H"
                             suffix="mm"
                             v-model="heightPlate"

@@ -151,7 +151,7 @@
 
 <script setup>
 definePageMeta({
-    middleware: "auth",
+  middleware: "auth",
 });
 import { themeType } from "~~/constants/theme.constants";
 const loginDialog = useLoginDialog();
