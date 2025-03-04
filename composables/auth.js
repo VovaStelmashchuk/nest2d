@@ -6,9 +6,14 @@ const state = reactive({
     user:  {}
 })
 
+const API_ROUTES = {
+    USER: "/api/user",
+    LOGOUT: "/api/auth/logout",
+};
+
 async function setUser() {
     try {
-        const { data } = await useFetch("/api/user", {
+        const { data } = await useFetch(API_ROUTES.USER, {
             credentials: "include",
         });
         if(Boolean(unref(data).id)) {
@@ -23,10 +28,11 @@ async function setUser() {
 
 async function logout() {
     try {
-        await fetch("/api/auth/logout", {
+        await fetch(API_ROUTES.LOGOUT, {
             method: "POST",
             credentials: "include",
         });
+        state.user = {};
         state.userIsSet = false
     } catch (err) {
         console.error("Logout failed:", err);
@@ -38,7 +44,7 @@ export const authStore = readonly({
         user: computed(() => state.user),
         userIsSet: computed(() => state.userIsSet)
     },
-    mutations: {
+    actions: {
         setUser,
         logout
     }

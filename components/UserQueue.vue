@@ -72,7 +72,6 @@ import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 import { statusType } from "~~/constants/status.constants";
-import { globalStore } from "~~/store";
 
 const queueDialog = useQueueDialog();
 
@@ -84,9 +83,10 @@ const apiPath = computed(() => {
 const getSvgSrc = (value) => {
     return `${baseUrl}${value}`
 }
-const { getters, mutations } = globalStore;
-const { queueList } = toRefs(getters);
-const { setQueue, openQueueModal } = mutations;
+
+const { getters, actions } = globalStore;
+const { setQueue, openQueueModal } = actions;
+const queueList = computed(() => getters.queueList);
 
 const openModal = (slug) => {
     openQueueModal(slug)

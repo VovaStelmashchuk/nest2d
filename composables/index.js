@@ -6,12 +6,23 @@ const state = reactive({
     projectsList: [],
     queueModalData: {},
 })
+
 let queueTimer;
+
+const API_ROUTES = {
+    PROJECTS: "/api/project/me",
+    QUEUE: (slug) => `/api/queue/${slug}`,
+};
 
 async function setQueue(path) {
     try {
         const data = await $fetch(path);
         state.queueList = [...data.items]
+
+        if (queueTimer) {
+            clearTimeout(queueTimer);
+        }
+
         if(globalStore.getters.isNesting) {
             queueTimer = setTimeout(() => setQueue(path), 5000)
         }
@@ -23,7 +34,7 @@ async function setQueue(path) {
 
 async function setProjects() {
     try {
-        const data = await $fetch('/api/project/me');
+        const data = await $fetch(API_ROUTES.PROJECTS);
         state.projectsList = [...data.projects]
 
     } catch (error) {
@@ -33,7 +44,7 @@ async function setProjects() {
 
 async function openQueueModal(slug) {
     try {
-        const data = await $fetch(`/api/queue/${slug}`);
+        const data = await $fetch(API_ROUTES.QUEUE(slug));
         state.queueModalData = {...data}
 
     } catch (error) {
@@ -48,7 +59,7 @@ export const globalStore = readonly({
         projectsList: computed(() => state.projectsList),
         queueModalData: computed(() => state.queueModalData)
     },
-    mutations: {
+    actions: {
         setQueue,
         setProjects,
         openQueueModal

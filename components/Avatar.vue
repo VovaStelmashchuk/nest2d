@@ -13,7 +13,6 @@
     </component>
 </template>
 <script setup>
-import { authStore } from "~~/store/auth";
 import { NuxtLink } from '#components';
 import { computed, unref } from 'vue';
 import { defaultSizeType } from "~~/constants/size.constants";
@@ -41,7 +40,7 @@ const avatarHref = computed(() => {
 })
 
 const { getters } = authStore;
-const { user } = toRefs(getters);
+const user = computed(() => getters.user);
 
 </script>
 <style lang="scss" scoped>

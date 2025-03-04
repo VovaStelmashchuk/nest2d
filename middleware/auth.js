@@ -1,7 +1,6 @@
-import { authStore } from "~~/store/auth";
-const { getters, mutations } = authStore;
-const { userIsSet } = toRefs(getters);
-const { setUser } = mutations;
+const { getters, actions } = authStore;
+const { setUser } = actions;
+const userIsSet = computed(() => getters.userIsSet);
 
 const names = ["home", "profile", "project-slug"]
 export default defineNuxtRouteMiddleware(async (to) => {

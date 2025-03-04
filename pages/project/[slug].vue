@@ -144,12 +144,11 @@ definePageMeta({
 import { sizeType } from "~~/constants/size.constants";
 import { iconType } from "~~/constants/icon.constants";
 import { themeType } from "~~/constants/theme.constants";
-import { globalStore } from "~~/store";
 import { computed, unref } from "vue";
 
-const { getters, mutations } = globalStore;
-const { isNesting } = toRefs(getters);
-const { setQueue, setProjects } = mutations;
+const { getters, actions } = globalStore;
+const { setQueue, setProjects } = actions;
+const isNesting = computed(() => getters.isNesting);
 
 const route = useRoute();
 

@@ -16,7 +16,6 @@
     </div>
 </template>
 <script setup>
-import { authStore } from "~~/store/auth";
 import { themeType } from '~~/constants/theme.constants';
 
 const router = useRouter();
@@ -26,9 +25,9 @@ definePageMeta({
     middleware: "auth",
 });
 
-const { getters, mutations } = authStore;
-const { user } = toRefs(getters);
-const { logout } = mutations;
+const { getters, actions } = authStore;
+const { logout } = actions;
+const user = computed(() => getters.user);
 
 const logoutHandler = async () => {
     await logout();

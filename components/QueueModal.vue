@@ -42,14 +42,13 @@
 </template>
 
 <script setup>
-import { globalStore } from "~~/store";
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 
-const { getters, mutations } = globalStore;
-const { queueModalData } = toRefs(getters);
-const { setQueue, setProjects } = mutations;
+const { getters, actions } = globalStore;
+const { setQueue, setProjects } = actions;
+const queueModalData = computed(() => getters.queueModalData);
 
 const queueDialog = useQueueDialog();
 

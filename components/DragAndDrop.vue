@@ -15,12 +15,10 @@
 </template>
 
 <script setup>
-import { globalStore } from "~~/store";
-
 const router = useRouter();
 
-const { mutations } = globalStore;
-const { setProjects } = mutations;
+const { actions } = globalStore;
+const { setProjects } = actions;
 
 const error = ref('')
 

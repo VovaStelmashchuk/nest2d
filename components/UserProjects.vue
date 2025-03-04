@@ -24,14 +24,12 @@
 </template>
 
 <script setup>
-import { globalStore } from "~~/store";
-
 const route = useRoute();
 const router = useRouter();
 
-const { getters, mutations } = globalStore;
-const { projectsList } = toRefs(getters);
-const { setProjects } = mutations;
+const { getters, actions } = globalStore;
+const { setProjects } = actions;
+const projectsList = computed(() => getters.projectsList);
 
 const createNewProdject = () => router.push({ name: 'home' })
 const btnLabelValue = computed(() => {

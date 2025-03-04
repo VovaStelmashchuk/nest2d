@@ -72,7 +72,6 @@ import { NuxtLink } from '#components';
 import { defaultThemeType, themeType } from "~~/constants/theme.constants";
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
-import { computed } from "vue";
 
 const { theme } = defineProps({
     theme: {
