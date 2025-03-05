@@ -9,20 +9,20 @@
             </div>
             <SvgDisplay 
                 v-else
-                :src="queueModalData.resultSvg"
+                :src="resultModalData.resultSvg"
                 class="modal__display" 
             />
             <div class="modal__name">
                 <template v-if="isHaveError">
-                    {{ queueModalData.error.message }}
+                    {{ resultModalData.error.message }}
                 </template>
                 <template v-else>
-                    {{queueModalData.slug}}.dxf
+                    {{resultModalData.slug}}.dxf
                 </template>
             </div>
             <div class="controls">
                 <MainButton 
-                    :href="`/api/queue/${queueModalData.slug}/dxf`"
+                    :href="`/api/queue/${resultModalData.slug}/dxf`"
                     label="Download"
                     tag="a"
                     :isDisable="isHaveError"
@@ -47,13 +47,13 @@ import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 
 const { getters, actions } = globalStore;
-const { setQueue, setProjects } = actions;
-const queueModalData = computed(() => getters.queueModalData);
+const { setResult, setProjects } = actions;
+const resultModalData = computed(() => getters.resultModalData);
 
-const queueDialog = useQueueDialog();
+const resultDialog = useResultDialog();
 
 const filesToNest = computed(() => {
-    return unref(queueModalData).nestedFiles.map((file) => (
+    return unref(resultModalData).nestedFiles.map((file) => (
         {
             slug: file.slug,
             count: file.count
@@ -64,24 +64,24 @@ const filesToNest = computed(() => {
 const requestBody = computed(() => {
     return JSON.stringify({
         files: unref(filesToNest),
-        params: {...unref(queueModalData).params},
+        params: {...unref(resultModalData).params},
     })
 })
 const isHaveError = computed(() => {
-    return Boolean(unref(queueModalData).error)
+    return Boolean(unref(resultModalData).error)
 })
 
 const nest = async () => {
-    await fetch(`/api/project/${unref(queueModalData).projectSlug}/nest`, {
+    await fetch(`/api/project/${unref(resultModalData).projectSlug}/nest`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: unref(requestBody),
     });
-    await setQueue(`/api/project/${unref(queueModalData).projectSlug}/queue`)
+    await setResult(`/api/project/${unref(resultModalData).projectSlug}/queue`)
     await setProjects()
-    queueDialog.value = false
+    resultDialog.value = false
 };
 
 </script>

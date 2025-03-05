@@ -2,33 +2,33 @@ import { computed, reactive, readonly } from "vue";
 import { statusType } from "~~/constants/status.constants";
 
 const state = reactive({
-    queueList: [],
+    resultsList: [],
     projectsList: [],
-    queueModalData: {},
+    resultModalData: {},
 })
 
-let queueTimer;
+let resulTimer;
 
 const API_ROUTES = {
     PROJECTS: "/api/project/me",
-    QUEUE: (slug) => `/api/queue/${slug}`,
+    RESULT: (slug) => `/api/queue/${slug}`,
 };
 
-async function setQueue(path) {
+async function setResult(path) {
     try {
         const data = await $fetch(path);
-        state.queueList = [...data.items]
+        state.resultsList = [...data.items]
 
-        if (queueTimer) {
-            clearTimeout(queueTimer);
+        if (resulTimer) {
+            clearTimeout(resulTimer);
         }
 
         if(globalStore.getters.isNesting) {
-            queueTimer = setTimeout(() => setQueue(path), 5000)
+            resulTimer = setTimeout(() => setResult(path), 5000)
         }
 
     } catch (error) {
-        console.error("Error fetching queue:", error);
+        console.error("Error fetching result:", error);
     }
 }
 
@@ -42,10 +42,10 @@ async function setProjects() {
     }
 }
 
-async function openQueueModal(slug) {
+async function openResultModal(slug) {
     try {
-        const data = await $fetch(API_ROUTES.QUEUE(slug));
-        state.queueModalData = {...data}
+        const data = await $fetch(API_ROUTES.RESULT(slug));
+        state.resultModalData = {...data}
 
     } catch (error) {
         console.error("Error fetching projects:", error);
@@ -54,14 +54,14 @@ async function openQueueModal(slug) {
 
 export const globalStore = readonly({
     getters: {
-        queueList: computed(() => state.queueList),
-        isNesting: computed(() => state.queueList.findIndex(item => [statusType.unfinished, statusType.pending].includes(item.status)) !== -1),
+        resultsList: computed(() => state.resultsList),
+        isNesting: computed(() => state.resultsList.findIndex(item => [statusType.unfinished, statusType.pending].includes(item.status)) !== -1),
         projectsList: computed(() => state.projectsList),
-        queueModalData: computed(() => state.queueModalData)
+        resultModalData: computed(() => state.resultModalData)
     },
     actions: {
-        setQueue,
+        setResult,
         setProjects,
-        openQueueModal
+        openResultModal
     }
 })

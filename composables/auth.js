@@ -16,13 +16,14 @@ async function setUser() {
         const { data } = await useFetch(API_ROUTES.USER, {
             credentials: "include",
         });
-        if(Boolean(unref(data).id)) {
+        const userData = unref(data);
+        if(userData && Boolean(userData.id)) {
             state.user = {...unref(data)}
             state.userIsSet = true
         }
     } catch (error) {
+        console.error("Failed to set user:", error);
         state.userIsSet = false
-        return;
     }
 }
 

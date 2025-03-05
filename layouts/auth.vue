@@ -8,7 +8,7 @@
         <main class="main__content content">
             <UserProjects />   
             <slot />
-            <UserQueue />
+            <UserResults />
         </main>
         <Footer />
     </div>

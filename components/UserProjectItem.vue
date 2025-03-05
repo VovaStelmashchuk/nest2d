@@ -13,7 +13,10 @@
             <p class="info__time">
                 {{ timeAgo }}
             </p>
-            <p v-if="project.results" class="info__results">
+            <p 
+                v-if="project.results"
+                class="info__results"
+            >
                 {{ resultsLabel }}
             </p>
         </div>
