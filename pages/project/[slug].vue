@@ -1,141 +1,55 @@
 <template>
-    <div class="wrapper">
-        <div class="content">
-            <MainTitle class="content__title" :label="`Files: ${selectedFileCount}`" />
-            <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
-            <div class="content__files files">
-                <DxfUpload @files="addFiles" />
-                <div
-                    v-for="(file, fileIndex) in projectFiles"
-                    :key="file.slug"
-                    class="files__item file"
-                >
-                    <SvgDisplay
-                        :size="sizeType.s"
-                        :svgContent="file.svg"
-                        class="file__display"
-                    />
-                    <p class="file__name">
-                        {{ file.name }}
-                    </p>
-                    <div class="counter">
-                        <MainButton 
-                            :size="sizeType.s"
-                            :icon="iconType.minus"
-                            :isDisable="file.count < 1"
-                            :isLabelShow=false
-                            @click="decrement(fileIndex)"
-                            label="decrement"
-                            class="counter__btn"
-                        />
-                        <p class="counter__value">
-                            {{ file.count }}
-                        </p>
-                        <MainButton 
-                            :size="sizeType.s"
-                            :icon="iconType.plus"
-                            :isLabelShow=false
-                            @click="increment(fileIndex)"
-                            label="increment"
-                            class="counter__btn"
-                        />
-                    </div>
-                    <!-- <div class="file__btn">
-                        <MainButton 
-                            :label="`delete ${file.name}`"
-                            :size="sizeType.s"
-                            :icon="iconType.trash"
-                            :isLabelShow=false
-                            @click="console.log(`delete ${file.name}`)"
-                        />
-                    </div> -->
-                </div>
-            </div>
+    <div class="content">
+        <MainTitle 
+            :label="`Files: ${filesCount}`"
+            class="content__title" 
+        />
+        <ProjectFiles 
+            :projectFiles="projectFiles"
+            @addFiles="addFiles"
+            @increment="increment"
+            @decrement="decrement"
+            class="content__files" 
+        />
+        <MainSettings 
+            :filesCount="filesCount"
+            :isNewParams="isNewParams"
+            :isError="Boolean(nestRequestError)"
+            v-model:widthPlate="widthPlate" 
+            v-model:heightPlate="heightPlate" 
+            v-model:tolerance="tolerance" 
+            v-model:space="space" 
+            @nest="nest"
+        />
+        <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
+        <div
+            v-if="nestRequestError"
+            class="content__error"
+        >
+            {{ nestRequestError }}
         </div>
-        <div class="nest">
-            <MainTitle class="nest__title" label="Nesting settings" />
-            <div class="nest__settings settings">
-                <div class="settings__size size">
-                    <div class="size__line">
-                        <InputField
-                            prefix="W"
-                            suffix="mm"
-                            v-model="widthPlate"
-                            class="size__input"
-                        />
-                        <InputField
-                            prefix="H"
-                            suffix="mm"
-                            v-model="heightPlate"
-                            class="size__input"
-                        />
-                    </div>
-                    <InputField
-                        prefix="Spacing"
-                        suffix="mm"
-                        v-model="space"
-                        class="size__input"
-                    />
-                    <InputField
-                        prefix="Tolerance"
-                        suffix="mm"
-                        v-model="tolerance"
-                        class="size__input"
-                    />
-                </div>
-                <!-- <div class="settings__anchor anchor">
-                    <p class="anchor__title">
-                        Anchor
-                    </p>
-                    <ul class="anchor__list">
-                        <li v-for="index in 9" 
-                            :label="index" 
-                            :key="index" 
-                            @click="currentAnchor = index"
-                            :class="getAnchorClasses(index)"
-                            class="anchor__item">
-                        </li>
-                    </ul>
-                </div> -->
-            </div>
-            <MainButton 
-                :theme="themeType.primary"
-                :label="btnLabel"
-                :isDisable="btnIsDisable"
-                @click="nest"
-                class="nest__btn" 
-            />
-            <div
-                v-if="nestRequestError"
-                class="nest__error"
-            >
-                {{ nestRequestError }}
-            </div>
-            <div v-if="!isNewParams && !isNesting" class="nest__text">
-                Change settings or files to generate again
-            </div>
+        <div 
+            v-if="!isNewParams && !isNesting"
+            class="content__text"
+        >
+            Change settings or files to generate again
         </div>
     </div>
 </template>
 
-<script setup>
+<script setup async>
 definePageMeta({
     layout: "auth",
     middleware: "auth",
 });
-import { sizeType } from "~~/constants/size.constants";
-import { iconType } from "~~/constants/icon.constants";
-import { themeType } from "~~/constants/theme.constants";
-import { computed, unref } from "vue";
 
 const { getters, actions } = globalStore;
 const { setResult, setProjects } = actions;
 const isNesting = computed(() => getters.isNesting);
 
 const route = useRoute();
-
 const slug = route.params.slug;
-const reslutPath = `/api${route.path}/queue`
+const resultPath = `/api${route.path}/queue`
 
 const { data } = await useFetch(`/api/project/${slug}`);
 
@@ -143,9 +57,17 @@ const widthPlate = ref('400');
 const heightPlate = ref('560');
 const tolerance = ref('0.1');
 const space = ref('0.1');
-const lastParams = ref('')
-const projectFiles = ref(data.value.files.map(file => ({...file, count: 1})))
 
+const params = computed(() => ({
+    width: unref(widthPlate),
+    height: unref(heightPlate),
+    tolerance: unref(tolerance),
+    space: unref(space)
+}))
+
+const lastParams = ref('')
+
+const projectFiles = ref(data.value.files.map(file => ({...file, count: 1})))
 const filesToNest = computed(() => {
     return unref(projectFiles).map((file) => (
         {
@@ -154,29 +76,16 @@ const filesToNest = computed(() => {
         }
     ))
 })
-const selectedFileCount = computed(() => {
+
+const filesCount = computed(() => {
     return unref(projectFiles).reduce((acc, curr) => acc + curr.count, 0)
 })
-const btnIsDisable = computed(() => {
-    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams)
-})
-const btnLabel = computed(() => {
-    return unref(isNesting) ? 'Nesting...' : `Nest ${unref(selectedFileCount)} files`
-})
 const isValidParams = computed(() => {
-    return Object.values(unref(params)).find(params => !isValidNumber(params))
+    return Object.values(unref(params)).some(param => !isValidNumber(param))
 })
-const currentFilesSlug = computed(() => {
-    return unref(projectFiles).map(file => file.slug)
-})
-const params = computed(() => ({
-    width: unref(widthPlate),
-    height: unref(heightPlate),
-    tolerance: unref(tolerance),
-    space: unref(space)
-}))
+
 const nestRequestError = computed(() => {
-    if(unref(selectedFileCount) < 1) {
+    if(unref(filesCount) < 1) {
         return 'Please select at least one file to nest.'
     }
     if(unref(isValidParams)) {
@@ -199,8 +108,7 @@ const requestBody = computed(() => {
         },
     })
 })
-// const currentAnchor = ref(1)
-// const getAnchorClasses = (index) => ({'anchor__item--active': index === unref(currentAnchor)})
+
 
 const isValidNumber = (value) => {
     return /^\d+(\.\d+)?$/.test(value);
@@ -219,10 +127,15 @@ const nest = async () => {
         },
         body: unref(requestBody),
     });
-    await setResult(reslutPath)
+    await setResult(resultPath)
     await setProjects()
     lastParams.value = unref(requestBody)
 };
+
+const currentFilesSlug = computed(() => {
+    return new Set(unref(projectFiles).map(file => file.slug));
+})
+
 const addFiles = async (files) => {
     const formData = new FormData();
     formData.append("projectName", unref(data).name);
@@ -248,7 +161,7 @@ const addFiles = async (files) => {
 
         const newData = await projectResponse.json();
         const newFiles = newData.files.filter(file => {
-            return !unref(currentFilesSlug).includes(file.slug) 
+            return !unref(currentFilesSlug).has(file.slug);
         })
         projectFiles.value = [
             ...unref(projectFiles), 
@@ -267,77 +180,13 @@ const addFiles = async (files) => {
     }
 }
 .content {
-    &__title {
-        margin-bottom: 16px;
-    }
-}
-.files {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-}
-.file {
-    position: relative;
-    $self: &;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid var(--separator-secondary);
-    transition: border-color 0.3s;
-
-    &__display {
-        width: 56px;
-        height: 56px;
-    }
-    &__name {
-        margin-top: 16px;
-        margin-bottom: 16px;
-        color: var(--label-secondary);
-        transition: color 0.3s;
-    }
-    &__btn {
-        opacity: 0;
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        transition: opacity 0.3s;
-    }
-
-    @media (hover:hover) {
-        &:hover {
-            border-color: var(--separator-primary);
-
-            #{$self}__name {
-                color: var(--main-back);
-            }
-            #{$self}__btn {
-                opacity: 1;
-            }
-        }
-    }
-}
-.counter {
-    display: flex;
-    align-items: center;
-
-    &__value {
-        color: var(--label-secondary);
-        margin-left: 8px;
-        margin-right: 8px;
-        min-width: 24px;
-        text-align: center;
-    }
-}
-.nest {
     text-align: center;
 
     &__title {
         margin-bottom: 16px;
     }
-
-    &__btn {
-        margin-top: 40px;
-        margin-right: auto;
-        margin-left: auto;
+    &__files {
+        margin-bottom: 40px;
     }
     &__error {
         margin-top: 16px;
@@ -346,108 +195,9 @@ const addFiles = async (files) => {
         border: solid 1px var(--error-border);
         border-radius: 8px;
     }
-
-    &__settings {
-        width: 320px;
-        margin-left: auto;
-        margin-right: auto;
-    }
     &__text {
         color: var(--label-secondary);
         margin-top: 16px;
     }
 }
-.settings {
-    display: flex;
-    justify-content: center;
-    &__size {
-        width: 221px;
-    }
-    &__anchor {
-        width: 91px;
-        margin-left: 8px;
-    }
-}
-.size {
-    &>*:not(:last-child) {
-        margin-bottom: 8px;
-    }
-
-    &__line {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-    }
-    &__input {
-        flex-grow: 1;
-        min-width: 80px;
-    }
-}
-.anchor {
-    padding: 4px;
-    border-radius: 6px;
-    background-color: var(--fill-tertiary);
-    &__title {
-        text-align: left;
-        padding-top: 8px;
-        padding-bottom: 2px;
-        padding-left: 8px;
-        color: var(--label-secondary);
-        margin-bottom: 15px;
-    }
-    &__list {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-    &__item {
-        cursor: pointer;
-        padding-top: 100%;
-        display: block;
-        position: relative;
-        border-radius: 4px;
-        transition: background-color 0.3s;
-
-        &::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 4px;
-            height: 4px;
-            border-radius: 4px;
-            background-color: var(--label-tertiary);
-            transition: background-color 0.3s, transform 0.3s;
-        }
-
-        @media (hover:hover) {
-            &:hover {
-                background-color: var(--fill-tertiary);
-                &::after {
-                    background-color: var(--label-secondary);
-                }
-            }
-        }
-
-        &--active {
-            pointer-events: none;
-
-            &::after {
-                background-color: var(--main-back);
-                transform: translate(-50%, -50%) scale(1.5);
-            }
-        }
-    }
-    &__input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-        overflow: hidden;
-        position: absolute;
-        z-index: -1;
-        top: 0;
-        left: 0;
-    }
-}
-
 </style>
