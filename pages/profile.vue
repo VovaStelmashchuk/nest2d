@@ -31,7 +31,7 @@ const user = computed(() => getters.user);
 
 const logoutHandler = async () => {
     await logout();
-    router.push({ path: '/' })
+    await router.push({ path: '/' })
 };
 </script>
 <style lang="scss" scoped>
