@@ -6,12 +6,12 @@
 definePageMeta({
     layout: "doc",
 });
+const router = useRouter()
+const route = useRoute();
+
 onMounted(async () => {
-    const route = useRoute();
     const query = route.query;
-
     const githubCode = query.code;
-
     const request = {
         githubCode: githubCode,
     };
@@ -24,6 +24,6 @@ onMounted(async () => {
         body: JSON.stringify(request),
     });
 
-    navigateTo("/home");
+    router.push({ path: '/home' })
 });
 </script>

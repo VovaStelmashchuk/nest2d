@@ -6,13 +6,11 @@
 definePageMeta({
     layout: "doc",
 });
-
 const router = useRouter()
+const route = useRoute();
 
 onMounted(async () => {
-    const route = useRoute();
     const hash = route.hash.substring(1);
-
     const params = hash.split("&").reduce((acc, item) => {
         const [key, value] = item.split("=");
         acc[key] = value;
