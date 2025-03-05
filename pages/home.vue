@@ -8,7 +8,6 @@
         <p class="home__text">
             All files will be save secure and available only for you
         </p>
-
         <div
             v-if="error"
             class="home__error"
