@@ -19,8 +19,6 @@
 	</div>
 </template>
 <script setup>
-import { onUpdated, unref } from "vue"
-
 defineProps({
     label: {
         type: String,
