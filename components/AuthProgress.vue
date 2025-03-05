@@ -17,6 +17,7 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    
     &__loader {
         margin-top: 20px;
         margin-bottom: 40px;

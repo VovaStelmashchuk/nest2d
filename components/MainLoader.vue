@@ -61,163 +61,50 @@ const loaderClasses = computed(() => ({
 }
 
 @keyframes loader-m {
-    0% {
-        box-shadow: -20px -20px 0 16px,
-                    -20px -20px 0 16px,
-                    -20px -20px 0 16px,
-                    -20px -20px 0 16px;
+    0%, 100% {
+        box-shadow: -20px -20px 0 16px, -20px -20px 0 16px, -20px -20px 0 16px, -20px -20px 0 16px;
     }
-    8.33% {
-        box-shadow: -20px -20px 0 16px,
-                    20px -20px 0 16px,
-                    20px -20px 0 16px,
-                    20px -20px 0 16px;
+    8.33%, 91.63% {
+        box-shadow: -20px -20px 0 16px, 20px -20px 0 16px, 20px -20px 0 16px, 20px -20px 0 16px;
     }
-    16.66% {
-        box-shadow: -20px -20px 0 16px,
-                    20px -20px 0 16px,
-                    20px 20px 0 16px,
-                    20px 20px 0 16px;
+    16.66%, 83.3% {
+        box-shadow: -20px -20px 0 16px, 20px -20px 0 16px, 20px 20px 0 16px, 20px 20px 0 16px;
     }
-    24.99% {
-        box-shadow: -20px -20px 0 16px,
-                    20px -20px 0 16px,
-                    20px 20px 0 16px,
-                    -20px 20px 0 16px;
+    24.99%, 74.97% {
+        box-shadow: -20px -20px 0 16px, 20px -20px 0 16px, 20px 20px 0 16px, -20px 20px 0 16px;
     }
-    33.32% {
-        box-shadow: -20px -20px 0 16px,
-                    20px -20px 0 16px,
-                    20px 20px 0 16px,
-                    -20px -20px 0 16px;
+    33.32%, 66.64% {
+        box-shadow: -20px -20px 0 16px, 20px -20px 0 16px, 20px 20px 0 16px, -20px -20px 0 16px;
     }
-    41.65% {
-        box-shadow: 20px -20px 0 16px,
-                    20px -20px 0 16px,
-                    20px 20px 0 16px,
-                    20px -20px 0 16px;
+    41.65%, 58.31% {
+        box-shadow: 20px -20px 0 16px, 20px -20px 0 16px, 20px 20px 0 16px, 20px -20px 0 16px;
     }
     49.98% {
-        box-shadow: 20px 20px 0 16px,
-                    20px 20px 0 16px,
-                    20px 20px 0 16px,
-                    20px 20px 0 16px;
-    }
-    58.31% {
-        box-shadow: -20px 20px 0 16px,
-                    -20px 20px 0 16px,
-                    20px 20px 0 16px,
-                    -20px 20px 0 16px;
-    }
-    66.64% {
-        box-shadow: -20px -20px 0 16px,
-                    -20px -20px 0 16px,
-                    20px 20px 0 16px,
-                    -20px 20px 0 16px;
-    }
-    74.97% {
-        box-shadow: -20px -20px 0 16px,
-                    20px -20px 0 16px,
-                    20px 20px 0 16px,
-                    -20px 20px 0 16px;
-    }
-    83.3% {
-        box-shadow: -20px -20px 0 16px,
-                    20px 20px 0 16px,
-                    20px 20px 0 16px,
-                    -20px 20px 0 16px;
-    }
-    91.63% {
-        box-shadow: -20px -20px 0 16px,
-                    -20px 20px 0 16px,
-                    -20px 20px 0 16px,
-                    -20px 20px 0 16px;
-    }
-    100% {
-        box-shadow: -20px -20px 0 16px,
-                    -20px -20px 0 16px,
-                    -20px -20px 0 16px,
-                    -20px -20px 0 16px;
+        box-shadow: 20px 20px 0 16px, 20px 20px 0 16px, 20px 20px 0 16px, 20px 20px 0 16px;
     }
 }
+
 @keyframes loader-s {
-    0% {
-        box-shadow: -5px -5px 0 3px,
-                    -5px -5px 0 3px,
-                    -5px -5px 0 3px,
-                    -5px -5px 0 3px;
+    0%, 100% {
+        box-shadow: -5px -5px 0 3px, -5px -5px 0 3px, -5px -5px 0 3px, -5px -5px 0 3px;
     }
-    8.33% {
-        box-shadow: -5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px -5px 0 3px;
+    8.33%, 91.63% {
+        box-shadow: -5px -5px 0 3px, 5px -5px 0 3px, 5px -5px 0 3px, 5px -5px 0 3px;
     }
-    16.66% {
-        box-shadow: -5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    5px 5px 0 3px;
+    16.66%, 83.3% {
+        box-shadow: -5px -5px 0 3px, 5px -5px 0 3px, 5px 5px 0 3px, 5px 5px 0 3px;
     }
-    24.99% {
-        box-shadow: -5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px 5px 0 3px;
+    24.99%, 74.97% {
+        box-shadow: -5px -5px 0 3px, 5px -5px 0 3px, 5px 5px 0 3px, -5px 5px 0 3px;
     }
-    33.32% {
-        box-shadow: -5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px -5px 0 3px;
+    33.32%, 66.64% {
+        box-shadow: -5px -5px 0 3px, 5px -5px 0 3px, 5px 5px 0 3px, -5px -5px 0 3px;
     }
-    41.65% {
-        box-shadow: 5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    5px -5px 0 3px;
+    41.65%, 58.31% {
+        box-shadow: 5px -5px 0 3px, 5px -5px 0 3px, 5px 5px 0 3px, 5px -5px 0 3px;
     }
     49.98% {
-        box-shadow: 5px 5px 0 3px,
-                    5px 5px 0 3px,
-                    5px 5px 0 3px,
-                    5px 5px 0 3px;
-    }
-    58.31% {
-        box-shadow: -5px 5px 0 3px,
-                    -5px 5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    66.64% {
-        box-shadow: -5px -5px 0 3px,
-                    -5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    74.97% {
-        box-shadow: -5px -5px 0 3px,
-                    5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    83.3% {
-        box-shadow: -5px -5px 0 3px,
-                    5px 5px 0 3px,
-                    5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    91.63% {
-        box-shadow: -5px -5px 0 3px,
-                    -5px 5px 0 3px,
-                    -5px 5px 0 3px,
-                    -5px 5px 0 3px;
-    }
-    100% {
-        box-shadow: -5px -5px 0 3px,
-                    -5px -5px 0 3px,
-                    -5px -5px 0 3px,
-                    -5px -5px 0 3px;
+        box-shadow: 5px 5px 0 3px, 5px 5px 0 3px, 5px 5px 0 3px, 5px 5px 0 3px;
     }
 }
 </style>

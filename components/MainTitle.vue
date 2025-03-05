@@ -9,9 +9,9 @@
             v-if="btnLabel"
             @click="$emit('btnClick')"
             :label="btnLabel"
+            :theme="themeType.secondary"
             tag="button"
             class="title__btn"
-            :theme="themeType.secondary"
         />
     </header>
 </template>

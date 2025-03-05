@@ -37,7 +37,6 @@
 
 <script setup>
 import { themeType } from "~~/constants/theme.constants";
-import {navigateTo} from 'nuxt/app';
 
 const doAuth = async (provider) => {
     const response = await $fetch(`/api/auth/${provider}/redirect`, {

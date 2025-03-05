@@ -129,13 +129,13 @@ import { themeType } from "~~/constants/theme.constants";
 import { computed, unref } from "vue";
 
 const { getters, actions } = globalStore;
-const { setQueue, setProjects } = actions;
+const { setResult, setProjects } = actions;
 const isNesting = computed(() => getters.isNesting);
 
 const route = useRoute();
 
 const slug = route.params.slug;
-const queuePath = `/api${route.path}/queue`
+const reslutPath = `/api${route.path}/queue`
 
 const { data } = await useFetch(`/api/project/${slug}`);
 
@@ -219,7 +219,7 @@ const nest = async () => {
         },
         body: unref(requestBody),
     });
-    await setQueue(queuePath)
+    await setResult(reslutPath)
     await setProjects()
     lastParams.value = unref(requestBody)
 };

@@ -18,8 +18,8 @@
                 <li
                     v-for="(navItem, navIndex) in nav" 
                     :key="navIndex"
+                    @click="toggleMenu"          
                     class="nav__item"
-                    @click="toggleMenu"
                 >
                     <NuxtLink
                         :to="navItem.href"
@@ -45,8 +45,8 @@
             <MainButton
                 v-if="isSecondaryTheme"
                 :theme="themeType.primary"
-                label="Login / Sign Up"
                 @click="loginDialog = true"
+                label="Login / Sign Up"
                 class="header__btn"
             />
             <Avatar
@@ -123,7 +123,6 @@ const logoHref = computed(() => {
 const navClasses = computed(() => ({
     'nav--is-open': unref(menuIsOpen),
     'header__nav--is-open': unref(menuIsOpen)
-    
 }))
 const toggleMenu = () => {
     menuIsOpen.value = !unref(menuIsOpen)
