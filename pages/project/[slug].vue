@@ -4,9 +4,9 @@
             <MainTitle class="content__title" :label="`Files: ${selectedFileCount}`" />
             <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
             <div class="content__files files">
-                <DxfUpload @files="handleSubmit" />
+                <DxfUpload @files="addFiles" />
                 <div
-                    v-for="(file, fileIndex) in files"
+                    v-for="(file, fileIndex) in projectFiles"
                     :key="file.slug"
                     class="files__item file"
                 >
@@ -144,10 +144,10 @@ const heightPlate = ref('560');
 const tolerance = ref('0.1');
 const space = ref('0.1');
 const lastParams = ref('')
-const files = ref(data.value.files.map(file => ({...file, count: 1})))
+const projectFiles = ref(data.value.files.map(file => ({...file, count: 1})))
 
 const filesToNest = computed(() => {
-    return unref(files).map((file) => (
+    return unref(projectFiles).map((file) => (
         {
             slug: file.slug,
             count: file.count
@@ -155,7 +155,7 @@ const filesToNest = computed(() => {
     ))
 })
 const selectedFileCount = computed(() => {
-    return unref(files).reduce((acc, curr) => acc + curr.count, 0)
+    return unref(projectFiles).reduce((acc, curr) => acc + curr.count, 0)
 })
 const btnIsDisable = computed(() => {
     return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams)
@@ -165,6 +165,9 @@ const btnLabel = computed(() => {
 })
 const isValidParams = computed(() => {
     return Object.values(unref(params)).find(params => !isValidNumber(params))
+})
+const currentFilesSlug = computed(() => {
+    return unref(projectFiles).map(file => file.slug)
 })
 const params = computed(() => ({
     width: unref(widthPlate),
@@ -203,10 +206,10 @@ const isValidNumber = (value) => {
     return /^\d+(\.\d+)?$/.test(value);
 }
 const increment = (index) => {
-    files.value[index].count++
+    projectFiles.value[index].count++
 };
 const decrement = (index) => {
-    files.value[index].count--
+    projectFiles.value[index].count--
 };
 const nest = async () => {
     await fetch(`/api/project/${slug}/nest`, {
@@ -220,15 +223,40 @@ const nest = async () => {
     await setProjects()
     lastParams.value = unref(requestBody)
 };
-const handleSubmit = async (newFiles) => {
+const addFiles = async (files) => {
     const formData = new FormData();
     formData.append("projectName", unref(data).name);
-    newFiles.forEach((file) => formData.append("dxf", file));
+    files.forEach((file) => formData.append("dxf", file));
 
-    // const response = await fetch("/api/upload", {
-    //     method: "POST",
-    //     body: formData,
-    // });
+    try {
+        const response = await fetch(`/api/project/${slug}/addfiles`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            console.error("Error while uploading files:", response.statusText);
+            return;
+        }
+
+        const projectResponse = await fetch(`/api/project/${slug}`);
+
+        if (!projectResponse.ok) {
+            console.error("Error while retrieving updated data:", projectResponse.statusText);
+            return;
+        }
+
+        const newData = await projectResponse.json();
+        const newFiles = newData.files.filter(file => {
+            return !unref(currentFilesSlug).includes(file.slug) 
+        })
+        projectFiles.value = [
+            ...unref(projectFiles), 
+            ...newFiles.map(file => ({...file, count: 1}))
+        ]
+    } catch (error) {
+        console.error("Error while uploading files:", error);
+    }
 }
 </script>
 
