@@ -7,8 +7,8 @@ export default defineEventHandler(async (event) => {
   const userProjects = await db
     .collection("projects")
     .find({ ownerId: userId })
-    .sort({ uploadedAt: -1 })
-    .project({ slug: 1, name: 1, uploadedAt: 1 })
+    .sort({ createdAt: -1 })
+    .project({ slug: 1, name: 1, createdAt: 1 })
     .toArray();
 
   const queueList = await db
@@ -35,7 +35,7 @@ const mapProject = (projects, queueList) => {
     return {
       slug: project.slug,
       name: project.name,
-      uploadedAt: project.uploadedAt,
+      createdAt: project.createdAt,
       results: resultsLength
     }
   })

@@ -49,7 +49,7 @@ const prodjectClasses = computed(() => ({
     'prodject--active': unref(project).slug === route.params.slug
 }))
 const timeAgo = computed(() => {
-    const past = new Date(project.uploadedAt);
+    const past = new Date(project.createdAt);
     const diffMs = unref(now) - past;
     const diffMinutes = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMinutes / 60);

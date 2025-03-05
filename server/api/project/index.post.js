@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   await db.collection("projects").insertOne({
     slug: projectSlug,
     name: projectName,
-    uploadedAt: new Date(),
+    createdAt: new Date(),
     ownerId: userId,
   });
 
