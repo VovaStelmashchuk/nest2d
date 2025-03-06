@@ -118,7 +118,7 @@ const nest = async () => {
         margin-top: 10px;
         margin-bottom: 10px;
         min-height: 42px;
-        color: var(--main-back);
+        color: var(--accent-primary);
     }
 }
 .controls {

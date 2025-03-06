@@ -83,7 +83,7 @@ const labelClasses = computed(() => ({ 'upload__label--hover': unref(isDragOver)
         align-items: center;
         min-height: 164px;
         background-color: var(--fill-tertiary);
-        border: dashed 1px var(--main-back);
+        border: dashed 1px var(--accent-primary);
         border-radius: 8px;
         transition: background-color 0.3s;
 
@@ -97,7 +97,7 @@ const labelClasses = computed(() => ({ 'upload__label--hover': unref(isDragOver)
         margin-bottom: 16px;
     }
     &__text {
-        color: var(--main-back);
+        color: var(--accent-primary);
 
         &--gray {
             margin-top: 8px;

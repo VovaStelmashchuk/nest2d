@@ -226,7 +226,7 @@ const localSpace = computed({
             pointer-events: none;
 
             &::after {
-                background-color: var(--main-back);
+                background-color: var(--accent-primary);
                 transform: translate(-50%, -50%) scale(1.5);
             }
         }

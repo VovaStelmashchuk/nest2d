@@ -49,7 +49,7 @@
     padding-right: 10px;
     padding-top: 16px;
     padding-bottom: 16px;
-    background-color: var(--main-back);
+    background-color: var(--accent-primary);
     &__content {
         max-width: 1300px;
         margin-right: auto;

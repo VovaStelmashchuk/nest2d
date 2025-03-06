@@ -36,7 +36,7 @@ const loaderClasses = computed(() => ({
         content: '';
         position: absolute;
         transform: translate(-50%, -50%);
-        color: var(--main-back);
+        color: var(--accent-primary);
         animation-duration: 6s;
         animation-iteration-count: infinite;
     }

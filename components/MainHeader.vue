@@ -195,7 +195,7 @@ const toggleMenu = () => {
         display: block;
         font-size: 28px;
         font-weight: 900;
-        color: var(--main-back);
+        color: var(--accent-primary);
     }
 }
 .nav {
@@ -252,7 +252,7 @@ const toggleMenu = () => {
 
         @media (hover:hover) {
             &:hover {
-                color: var(--main-back);
+                color: var(--accent-primary);
                 background-color: var(--fill-secondary);
             }
         }

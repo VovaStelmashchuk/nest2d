@@ -76,7 +76,7 @@ const inputClasses = computed(() => ({
         margin-left: 8px;
     }
     &__value {
-        color: var(--main-back);
+        color: var(--accent-primary);
         flex-grow: 1;
         background-color: transparent;
         outline: none;
@@ -96,7 +96,7 @@ const inputClasses = computed(() => ({
     }
 
     &:focus-within {
-        border-color: var(--main-back);
+        border-color: var(--accent-primary);
     }
 
     &--disable {

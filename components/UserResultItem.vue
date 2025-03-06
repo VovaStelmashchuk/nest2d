@@ -144,7 +144,7 @@ const openModal = (slug) => {
             }
             border-color: var(--separator-primary);
             #{$self}__name {
-                color: var(--main-back);
+                color: var(--accent-primary);
             }
         }
     }
