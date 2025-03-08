@@ -1,16 +1,24 @@
 const { getters, actions } = authStore;
 const { setUser } = actions;
-const userIsSet = computed(() => getters.userIsSet);
 
-const names = ["home", "profile", "project-slug"]
 export default defineNuxtRouteMiddleware(async (to) => {
-    if (!unref(userIsSet)) {
-        await setUser();
-    }
-    if (unref(userIsSet) && to.name === "index") {
-        return navigateTo("/home");
-    }
-    if (!unref(userIsSet) && names.includes(to.name)) {
-        return navigateTo("/");
+    try {
+        const { data } = await useFetch("/api/user")
+        const userData = unref(data);
+        console.log(userData && Boolean(userData.id))
+        if (userData && Boolean(userData.id)) {
+            setUser(userData)
+
+            if (userData && to.name === "index") {
+                return navigateTo("/home");
+            }
+        }
+        if ((!userData || !Boolean(userData.id)) && to.name !== "index") {
+            return navigateTo("/");
+        }
+       
+
+    }   catch (error) {
+        console.error("Failed to set user:", error);
     }
 });
