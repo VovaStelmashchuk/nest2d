@@ -1,23 +1,53 @@
 <template>
-  <div class="pt-4">
-    <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">
-      Your Projects
-    </h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-      <div v-for="project in data.projects" :key="project.id">
-        <UserProjectItem
-          :key="project.slug"
-          :imageUrl="project.imageUrl"
-          :slug="project.slug"
-          :text="project.name"
-        />
-      </div>
-    </div>
-  </div>
+    <MainAside 
+        label="Projects"
+        :btnLabel="btnLabelValue"
+        @btnClick="createNewProdject"
+    >
+        <div  
+            v-if="projectsList.length"
+            class="prodjects"
+        >
+            <UserProjectItem
+                v-for="project in projectsList"
+                :key="project.slug"
+                :project="project"
+                class="prodjects__item"
+            />
+        </div>
+        <p v-else class="prodjects__text">
+            Your prodjects will be here
+        </p> 
+    </MainAside>
 </template>
 
 <script setup>
-const { data, pending, error } = await useFetch("/api/project/me", {
-  credentials: "include",
-});
+const route = useRoute();
+const router = useRouter();
+const { getters, actions } = globalStore;
+const { setProjects } = actions;
+const projectsList = computed(() => getters.projectsList);
+
+const btnLabelValue = computed(() => {
+    return route.name === 'home' ? '' : 'New project'
+}) 
+
+const createNewProdject = () => router.push({ name: 'home' })
+
+onBeforeMount(() => {
+    setProjects();
+})
 </script>
+    
+<style lang="scss" scoped>
+.prodjects {
+    &__text {
+        color: var(--label-tertiary);
+    }
+    &__item {
+        &:not(:last-child) {
+            margin-bottom: 8px;
+        }
+    }
+}
+</style>

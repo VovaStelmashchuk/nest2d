@@ -35,6 +35,7 @@ export default defineEventHandler(async (event) => {
         slug: queueItem.slug,
         status: queueItem.status,
         createdAt: queueItem.createdAt,
+        svg: "/api/result/" + queueItem.slug + "/svg",
         projectSlug: queueItem.projectSlug,
         projectName: project.name,
       };

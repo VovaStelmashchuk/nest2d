@@ -1,0 +1,22 @@
+* {
+    --main-white: #fff;
+    --accent-primary: #000;
+    
+    --accent-secondary: rgb(0, 0, 0, 0.8);
+
+    --label-secondary: rgb(22, 26, 33, 0.8);
+    --label-tertiary: rgb(22, 26, 33, 0.5);
+
+    --separator-secondary: rgb(0, 11, 33, 0.1);
+    --separator-primary: rgb(0, 11, 33, 0.15);
+
+    --fill-secondary: rgb(0, 11, 33, 0.08);
+    --fill-tertiary: rgb(0, 11, 33, 0.05);
+
+    --background-primary: rgb(245, 244, 240);
+
+    --error-background: rgb(222, 0, 54, 0.05);
+    --error-border: rgb(222, 0, 54, 0.3);
+
+    --menu-background: rgb(22, 26, 33, 0.7);
+}

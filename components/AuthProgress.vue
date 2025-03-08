@@ -1,17 +1,28 @@
 <template>
-  <div class="flex flex-col items-center justify-center h-screen bg-gray-100">
-    <div class="text-center">
-      <div
-        class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"
-      ></div>
-      <h1 class="mt-6 text-xl font-semibold text-gray-700">
-        Authenticating...
-      </h1>
-      <p class="text-gray-500">
-        Please wait a moment while we process your authentication.
-      </p>
+    <div class="authenticating">
+        <MainTitle 
+            label="Authenticating..."
+            class="authenticating__title"
+        />
+        <MainLoader class="authenticating__loader" />
+        <p class="authenticating__text">
+            Please wait a moment while we process your authentication.
+        </p>
     </div>
-  </div>
 </template>
-
-<script setup></script>
+<style lang="scss" scoped>
+.authenticating {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    
+    &__loader {
+        margin-top: 20px;
+        margin-bottom: 40px;
+        width: 120px;
+        height: 120px;
+    }
+}
+</style>

@@ -24,6 +24,8 @@
   },
   "devDependencies": {
     "patch-package": "^8.0.0",
-    "postinstall-postinstall": "^2.1.0"
+    "postinstall-postinstall": "^2.1.0",
+    "sass": "1.77.6",
+    "sass-loader": "^16.0.2"
   }
 }

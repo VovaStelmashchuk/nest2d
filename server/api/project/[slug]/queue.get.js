@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     .collection("projects")
     .findOne(
       { slug: projectSlug, ownerId: userId },
-      { projection: { ownerId: 1 } }
+      { projection: { ownerId: 1, name: 1 } }
     );
 
   if (!project) {
@@ -40,6 +40,8 @@ export default defineEventHandler(async (event) => {
       status: queueItem.status,
       createdAt: queueItem.createdAt,
       svg: "/api/result/" + queueItem.slug + "/svg",
+      projectSlug: queueItem.projectSlug,
+      projectName: project.name,
     };
   });
 

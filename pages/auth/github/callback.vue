@@ -1,31 +1,29 @@
 <template>
-  <AuthProgress />
+    <AuthProgress />
 </template>
 
 <script setup>
 definePageMeta({
-  layout: "doc",
+    layout: "doc",
 });
-import { navigateTo } from "nuxt/app";
+const router = useRouter()
+const route = useRoute();
 
 onMounted(async () => {
-  const route = useRoute();
-  const query = route.query;
+    const query = route.query;
+    const githubCode = query.code;
+    const request = {
+        githubCode: githubCode,
+    };
 
-  const githubCode = query.code;
+    await $fetch("/api/auth/github/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
+    });
 
-  const request = {
-    githubCode: githubCode,
-  };
-
-  await $fetch("/api/auth/github/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request),
-  });
-
-  navigateTo("/home");
+    router.push({ path: '/home' })
 });
 </script>

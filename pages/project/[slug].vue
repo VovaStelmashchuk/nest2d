@@ -1,227 +1,203 @@
 <template>
-  <div class="container mx-auto relative flex flex-col">
-    <ProjectName :projectName="data.name" :slug="data.slug" />
-    <div class="flex flex-row">
-      <div v-if="data" class="flex-grow">
+    <div class="content">
+        <MainTitle 
+            :label="`Files: ${filesCount}`"
+            class="content__title" 
+        />
+        <ProjectFiles 
+            :projectFiles="projectFiles"
+            @addFiles="addFiles"
+            @increment="increment"
+            @decrement="decrement"
+            class="content__files" 
+        />
+        <MainSettings 
+            :filesCount="filesCount"
+            :isNewParams="isNewParams"
+            :isError="Boolean(nestRequestError)"
+            v-model:widthPlate="widthPlate" 
+            v-model:heightPlate="heightPlate" 
+            v-model:tolerance="tolerance" 
+            v-model:space="space" 
+            @nest="nest"
+        />
+        <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
         <div
-          v-if="data && data.files && data.files.length"
-          class="grid gap-2"
-          :class="gridColsClass"
+            v-if="nestRequestError"
+            class="content__error"
         >
-          <div
-            v-for="file in data.files"
-            :key="file.slug"
-            class="flex flex-row items-center border border-gray-200 p-4 rounded-lg"
-          >
-            <SvgDisplay class="w-32 h-32 mr-4" :svgContent="file.svg" />
-            <div class="flex flex-col flex-grow">
-              <div class="text-black font-bold text-lg mb-4 text-center">
-                {{ file.name }}
-              </div>
-              <div class="flex items-center space-x-2">
-                <button
-                  class="bg-red-500 text-white font-bold py-2 px-4 rounded"
-                  @click="decrement(file.slug)"
-                >
-                  -
-                </button>
-                <span class="text-black font-bold text-xl w-12 text-center">
-                  {{ counters[file.slug] }}
-                </span>
-                <button
-                  class="bg-green-500 text-white font-bold py-2 px-4 rounded"
-                  @click="increment(file.slug)"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          </div>
+            {{ nestRequestError }}
         </div>
-      </div>
-
-      <div class="w-[20rem] h-full ml-4 border border-gray-200 rounded-lg">
-        <h2 class="text-2xl font-bold text-black my-6 text-center">
-          Nesting settings
-        </h2>
-        <div class="flex flex-col space-y-4 p-4">
-          <InputField
-            id="width"
-            label="Width"
-            v-model="widthPlate"
-            placeholder="Enter width, mm"
-          />
-
-          <InputField
-            id="height"
-            label="Height"
-            v-model="heightPlate"
-            placeholder="Enter height, mm"
-          />
-
-          <InputField
-            id="tolerance"
-            label="Tolerance"
-            v-model="tolerance"
-            placeholder="Enter tolerance, mm"
-          />
-
-          <InputField
-            id="space"
-            label="Space"
-            v-model="space"
-            placeholder="Enter space, mm"
-          />
-
-          <div>
-            <span class="text-2xl font-bold text-black my-2 text-center">
-              Files selected: {{ selectedFileCount }}
-            </span>
-          </div>
-          <div>
-            <button
-              class="w-full bg-black text-white py-2 px-4 rounded-lg shadow-md border border-black hover:bg-white hover:text-black transition duration-300 ease-in-out transform focus:ring focus:ring-gray-400"
-              @click="nest"
-            >
-              Nest
-            </button>
-            <div v-if="nestRequestError" class="text-red-500 mt-2">
-              {{ nestRequestError }}
-            </div>
-          </div>
+        <div 
+            v-if="!isNewParams && !isNesting"
+            class="content__text"
+        >
+            Change settings or files to generate again
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
-<script setup>
+<script setup async>
 definePageMeta({
-  layout: "auth",
+    layout: "auth",
+    middleware: "auth",
 });
-import { useRoute } from "vue-router";
-import { useFetch } from "#app";
-import { watch } from "vue";
-import { navigateTo } from "nuxt/app";
+
+const { getters, actions } = globalStore;
+const { setResult, setProjects } = actions;
+const isNesting = computed(() => getters.isNesting);
 
 const route = useRoute();
 const slug = route.params.slug;
+const resultPath = `/api${route.path}/queue`
 
-const query = route.query;
+const { data } = await useFetch(`/api/project/${slug}`);
 
-const nestRequestError = ref(null);
+const widthPlate = ref('400');
+const heightPlate = ref('560');
+const tolerance = ref('0.1');
+const space = ref('0.1');
 
-const widthPlate = ref(query.width || 400);
-const heightPlate = ref(query.height || 560);
-const tolerance = ref(query.tolerance || 0.1);
-const space = ref(query.space || 0.1);
+const params = computed(() => ({
+    width: unref(widthPlate),
+    height: unref(heightPlate),
+    tolerance: unref(tolerance),
+    space: unref(space)
+}))
 
-const counters = ref({});
+const lastParams = ref('')
 
-const selectedFileCount = ref(0);
+const projectFiles = ref(data.value.files.map(file => ({...file, count: 1})))
+const filesToNest = computed(() => {
+    return unref(projectFiles).map((file) => (
+        {
+            slug: file.slug,
+            count: file.count
+        }
+    ))
+})
 
-const { data, pending, error } = await useFetch(`/api/project/${slug}`);
+const filesCount = computed(() => {
+    return unref(projectFiles).reduce((acc, curr) => acc + curr.count, 0)
+})
+const isValidParams = computed(() => {
+    return Object.values(unref(params)).some(param => !isValidNumber(param))
+})
 
-const gridColsClass = computed(() => {
-  return `
-    grid-cols-[repeat(auto-fit,_minmax(18rem,1fr))]
-  `;
-});
-
-const updateCounter = () => {
-  nestRequestError.value = null;
-  const conuts = Object.values(counters.value);
-  selectedFileCount.value = conuts.reduce((acc, curr) => acc + curr, 0);
-};
-const fileKeys = Object.keys(query).filter((key) => key.startsWith("file-"));
-if (fileKeys.length) {
-  fileKeys.forEach((key) => {
-    const slug = key.replace("file-", "");
-    counters.value[slug] = parseInt(query[key]);
-  });
-  data.value.files.forEach((file) => {
-    if (!counters.value[file.slug]) {
-      counters.value[file.slug] = 0;
+const nestRequestError = computed(() => {
+    if(unref(filesCount) < 1) {
+        return 'Please select at least one file to nest.'
     }
-  });
-} else {
-  data.value.files.forEach((file) => {
-    counters.value[file.slug] = 1;
-  });
+    if(unref(isValidParams)) {
+        return 'Please enter valid values for width, height, tolerance and space.'
+    }
+
+    return ''
+});
+const isNewParams = computed(() => {
+    return unref(requestBody) !== unref(lastParams)
+})
+const requestBody = computed(() => {
+    return JSON.stringify({
+        files: unref(filesToNest),
+        params: {
+            width: Number(unref(params).width),
+            height: Number(unref(params).height),
+            tolerance: Number(unref(params).tolerance),
+            space: Number(unref(params).space)
+        },
+    })
+})
+
+
+const isValidNumber = (value) => {
+    return /^\d+(\.\d+)?$/.test(value);
 }
-
-watch(
-  () => counters.value,
-  () => {
-    updateCounter();
-  },
-  { deep: true, immediate: true }
-);
-
-const increment = (slug) => {
-  counters.value[slug]++;
+const increment = (index) => {
+    projectFiles.value[index].count++
 };
-
-const decrement = (slug) => {
-  if (counters.value[slug] > 0) {
-    counters.value[slug]--;
-  }
+const decrement = (index) => {
+    projectFiles.value[index].count--
 };
-
 const nest = async () => {
-  nestRequestError.value = null;
-
-  const filesToNest = Object.entries(counters.value)
-    .filter(([_, count]) => count > 0)
-    .map(([slug, count]) => {
-      return {
-        slug,
-        count,
-      };
+    await fetch(`/api/project/${slug}/nest`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: unref(requestBody),
     });
-
-  if (filesToNest.length === 0) {
-    nestRequestError.value = "Please select at least one file to nest.";
-    return;
-  }
-
-  const widthValue = parseFloat(widthPlate.value);
-  const heightValue = parseFloat(heightPlate.value);
-  const toleranceValue = parseFloat(tolerance.value);
-  const spaceValue = parseFloat(space.value);
-
-  if (
-    isNaN(widthValue) ||
-    isNaN(heightValue) ||
-    isNaN(toleranceValue) ||
-    isNaN(spaceValue)
-  ) {
-    nestRequestError.value =
-      "Please enter valid values for width, height, tolerance and space.";
-    return;
-  }
-
-  const request = {
-    files: filesToNest,
-    params: {
-      width: widthValue,
-      height: heightValue,
-      tolerance: toleranceValue,
-      space: spaceValue,
-    },
-  };
-
-  const nestResultResponse = await fetch(`/api/project/${slug}/nest`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request),
-  });
-  const nestResult = await nestResultResponse.json();
-
-  navigateTo(`/queue/${nestResult.slug}`);
+    await setResult(resultPath)
+    await setProjects()
+    lastParams.value = unref(requestBody)
 };
+
+const currentFilesSlug = computed(() => {
+    return new Set(unref(projectFiles).map(file => file.slug));
+})
+
+const addFiles = async (files) => {
+    const formData = new FormData();
+    formData.append("projectName", unref(data).name);
+    files.forEach((file) => formData.append("dxf", file));
+
+    try {
+        const response = await fetch(`/api/project/${slug}/addfiles`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            console.error("Error while uploading files:", response.statusText);
+            return;
+        }
+
+        const projectResponse = await fetch(`/api/project/${slug}`);
+
+        if (!projectResponse.ok) {
+            console.error("Error while retrieving updated data:", projectResponse.statusText);
+            return;
+        }
+
+        const newData = await projectResponse.json();
+        const newFiles = newData.files.filter(file => {
+            return !unref(currentFilesSlug).has(file.slug);
+        })
+        projectFiles.value = [
+            ...unref(projectFiles), 
+            ...newFiles.map(file => ({...file, count: 1}))
+        ]
+    } catch (error) {
+        console.error("Error while uploading files:", error);
+    }
+}
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.wrapper {
+    &>*:not(:last-child) {
+        margin-bottom: 40px;
+    }
+}
+.content {
+    text-align: center;
+
+    &__title {
+        margin-bottom: 16px;
+    }
+    &__files {
+        margin-bottom: 40px;
+    }
+    &__error {
+        margin-top: 16px;
+        padding: 12px;
+        background-color: var(--error-background);
+        border: solid 1px var(--error-border);
+        border-radius: 8px;
+    }
+    &__text {
+        color: var(--label-secondary);
+        margin-top: 16px;
+    }
+}
+</style>

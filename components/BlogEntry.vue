@@ -1,31 +1,73 @@
 <template>
-  <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6 space-y-4">
-    <h2 class="text-4xl font-bold text-gray-900">{{ title }}</h2>
-    <p class="text-sm text-gray-500">
-      Published on
-      <time :datetime="datetime">{{ date }}</time>
-      by {{ author }}
-    </p>
-    <div v-for="(section, index) in sections" :key="index" class="space-y-2">
-      <h2 class="text-2xl font-semibold text-gray-900">{{ section.title }}</h2>
-      <ul v-if="Array.isArray(section.content)" class="list-disc pl-6">
-        <li v-for="(item, idx) in section.content" :key="idx">{{ item }}</li>
-      </ul>
-      <p v-else>{{ section.content }}</p>
-    </div>
-  </div>
+    <article class="max-w-4xl mx-auto p-6 bg-gray-50 text-gray-800 shadow-lg rounded-lg">
+        <h2 class="text-4xl font-bold text-gray-900">
+            {{ post.title }}
+        </h2>
+        <p class="text-sm text-gray-500">
+            Published on
+            <time :datetime="post.datetime">
+                {{ date }}
+            </time>
+            by 
+            {{ author }}
+        </p>
+        <div 
+            v-for="(section, sectionIndex) in post.sections" 
+            :key="sectionIndex" 
+            class="space-y-2"
+        >
+            <h3 
+                v-if="section.title"
+                class="text-2xl font-semibold text-gray-900"
+            >
+                {{ section.title }}
+            </h3>
+            <ul
+                v-if="Array.isArray(section.content)"
+                class="list-disc pl-6"
+            >
+                <li 
+                    v-for="(item, itemIndex) in section.content"
+                    :key="itemIndex"
+                >
+                    {{ item }}
+                </li>
+            </ul>
+            <p v-else>
+                {{ section.content }}
+            </p>
+        </div>
+    </article>
 </template>
 
 <script setup>
-defineProps({
-  title: { type: String, required: true },
-  datetime: { type: String, required: true },
-  date: { type: String, required: true },
-  author: { type: String, required: true },
-  sections: {
-    type: Array,
-    default: () => [],
-    validator: (value) => value.every((item) => item.title && item.content),
-  },
+const { post } = defineProps({
+    post: {
+        type: Object,
+        required: true
+    },
 });
+
+const author = computed(() => {
+    return unref(post)?.author ? unref(post)?.author : 'nest2d'
+})
+const date = computed(() => {
+    const datetime = unref(post)?.datetime;
+
+    if (!datetime) {
+        return 'Invalid Date';
+    }
+
+    const newValue = new Date(datetime);
+
+    if (!(newValue instanceof Date) || isNaN(newValue)) {
+        return 'Invalid Date';
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric'
+    }).format(newValue);
+})
 </script>

@@ -1,50 +1,72 @@
 <template>
-  <div class="container p-4 pb-6">
-    <h1 class="text-2xl font-bold text-center text-black pb-4">
-      Login to your account
-    </h1>
-    <button
-      @click="doAuth('github')"
-      class="flex items-center justify-center w-full rounded-lg border hover:shadow"
-    >
-      <div class="py-2 flex gap-2 text-slate-700 transition duration-150">
-        <img
-          class="w-6 h-6"
-          src="/github-logo.svg"
-          loading="lazy"
-          alt="github logo"
-        />
-        <span>Login with Github</span>
-      </div>
-    </button>
-    <button
-      @click="doAuth('google')"
-      class="mt-4 flex items-center justify-center w-full rounded-lg border hover:shadow"
-    >
-      <div class="py-2 flex gap-2 text-slate-700 transition duration-150">
-        <img
-          class="w-6 h-6"
-          src="/google-logo.svg"
-          loading="lazy"
-          alt="google logo"
-        />
-        <span>Login with Google</span>
-      </div>
-    </button>
-  </div>
+    <DialogWrapper>
+        <div class="modal">
+            <MainTitle 
+                label="Login to your account"
+                class="modal__title"
+            />
+            <div class="modal__item item">
+                <img
+                    src="/github-logo.svg"
+                    loading="lazy"
+                    alt="github logo"
+                    class="item__img"
+                />
+                <MainButton 
+                    :theme="themeType.secondary"
+                    @click="doAuth('github')"
+                    label="Login with Github"
+                />
+            </div>
+            <div class="modal__item item">
+                <img
+                    src="/google-logo.svg"
+                    loading="lazy"
+                    alt="google logo"
+                    class="item__img"
+                />
+                <MainButton 
+                    :theme="themeType.secondary"
+                    @click="doAuth('google')"
+                    label="Login with Google"
+                />
+            </div>
+        </div>
+    </DialogWrapper>
 </template>
 
-<script setup lang="js">
-import {navigateTo} from 'nuxt/app';
+<script setup>
+import { themeType } from "~~/constants/theme.constants";
 
 const doAuth = async (provider) => {
-  const response = await $fetch(`/api/auth/${provider}/redirect`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+    const response = await $fetch(`/api/auth/${provider}/redirect`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
 
-  navigateTo(response.url, { external: true });
+    navigateTo(response.url, { external: true });
 }
 </script>
+<style lang="scss" scoped>
+.modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px;
+    &__item {
+        margin-top: 14px;
+    }
+}
+.item {
+    display: flex;
+    align-items: center;
+    &__img {
+        margin-right: 10px;
+        width: 24px;
+        height: auto;
+    }
+}
+
+</style>

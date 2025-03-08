@@ -1,25 +1,27 @@
 <template>
-  <div class="min-h-screen bg-white text-black">
-    <section class="text-center py-16">
+  <div class="max-w-4xl mx-auto bg-gray-50 text-gray-800 shadow-lg rounded-lg min-h-screen bg-white text-black">
+    <section class="text-center p-6">
       <div class="container mx-auto">
-        <h2 class="text-4xl font-bold">Smart Nesting for Laser Cutting</h2>
+        <h2 class="text-4xl font-bold">
+          Smart Nesting for Laser Cutting
+        </h2>
         <p class="text-lg mt-4 text-gray-700">
           Upload your DXF files, input material dimensions, and let Nest2d
           maximize your material usage. Fully open-source and built for
           efficiency.
         </p>
         <div class="mt-8">
-          <button
+          <MainButton
+            :theme="themeType.primary"
+            label="Get Started for Free"
             @click="loginDialog = true"
-            class="bg-black text-white py-2 px-4 rounded-lg text-lg shadow-md hover:bg-gray-800"
-          >
-            Get Started for Free
-          </button>
+            class="mx-auto"
+          />
         </div>
       </div>
     </section>
 
-    <section id="features" class="py-16 bg-gray-50">
+    <section id="features" class="p-6 bg-gray-50">
       <div class="container mx-auto">
         <h3 class="text-3xl font-bold text-center">Features</h3>
         <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -45,7 +47,7 @@
       </div>
     </section>
 
-    <section id="how-it-works" class="py-16">
+    <section id="how-it-works" class="p-6">
       <div class="container mx-auto">
         <h3 class="text-3xl font-bold text-center">How It Works</h3>
         <div
@@ -88,24 +90,24 @@
       </div>
     </section>
 
-    <section id="get-started" class="py-16 text-center bg-gray-50">
+    <section id="get-started" class="p-6 text-center bg-gray-50">
       <div class="container mx-auto">
         <h3 class="text-3xl font-bold">Get Started Today</h3>
         <p class="mt-4 text-lg text-gray-700">
           Sign up and start optimizing your laser cutting projects in minutes.
         </p>
         <div class="mt-8">
-          <button
+          <MainButton
+            :theme="themeType.primary"
+            label="Login / Sign Up"
             @click="loginDialog = true"
-            class="bg-black text-white py-2 px-4 rounded-lg text-lg shadow-md hover:bg-gray-800"
-          >
-            Login / Sign Up
-          </button>
+            class="mx-auto"
+          />
         </div>
       </div>
     </section>
 
-    <section id="faq" class="py-16">
+    <section id="faq" class="p-6">
       <div class="container mx-auto">
         <h3 class="text-3xl font-bold text-center">
           Frequently Asked Questions
@@ -148,13 +150,9 @@
 </template>
 
 <script setup>
-import { navigateTo } from "nuxt/app";
-
-const useAuthState = useAuth();
-const user = await useAuthState.fetchUser();
-
-if (user) {
-  navigateTo("/home");
-}
+definePageMeta({
+  middleware: "auth",
+});
+import { themeType } from "~~/constants/theme.constants";
 const loginDialog = useLoginDialog();
 </script>
