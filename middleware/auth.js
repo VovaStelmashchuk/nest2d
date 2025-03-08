@@ -5,7 +5,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
     try {
         const { data } = await useFetch("/api/user")
         const userData = unref(data);
-        console.log(userData && Boolean(userData.id))
         if (userData && Boolean(userData.id)) {
             setUser(userData)
 
