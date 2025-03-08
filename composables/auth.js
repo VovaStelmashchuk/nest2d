@@ -7,24 +7,12 @@ const state = reactive({
 })
 
 const API_ROUTES = {
-    USER: "/api/user",
     LOGOUT: "/api/auth/logout",
 };
 
-async function setUser() {
-    try {
-        const { data } = await useFetch(API_ROUTES.USER, {
-            credentials: "include",
-        });
-        const userData = unref(data);
-        if(userData && Boolean(userData.id)) {
-            state.user = {...unref(data)}
-            state.userIsSet = true
-        }
-    } catch (error) {
-        console.error("Failed to set user:", error);
-        state.userIsSet = false
-    }
+function setUser(data) {
+    state.user = {...data}
+    state.userIsSet = true
 }
 
 async function logout() {
