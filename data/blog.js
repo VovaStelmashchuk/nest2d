@@ -1,4 +1,29 @@
 export const posts = [
+        {
+        title: 'Big update, #11, New design',
+        datetime: '2025-03-08',
+        sections: [
+            {
+                title: 'Feature',
+                content: [
+                    'New design with better user experience',
+                ],
+            },
+            {
+                title: 'Next stages',
+                content: [
+                    'Fix DXF parsing'
+                ],
+            },
+            {
+                title: 'Thanks',
+                content: [
+                  'Thanks to Max Lozianko for new design',
+                  'Thanks to Mykola Holovashchenko for new frontend',
+                ],
+            },
+        ]
+    },
     {
         title: 'Big update, #10, New page in project history',
         datetime: '2024-08-30',

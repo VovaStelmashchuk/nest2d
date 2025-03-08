@@ -53,7 +53,6 @@
     </div>
 </template>
 <script setup>
-import { baseUrl } from "~/.secret.json";
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
@@ -69,7 +68,7 @@ const { result } = defineProps({
 const emit = defineEmits(["openModal"]);
 
 const svgSrc = computed(() => {
-    return `${baseUrl}${unref(result).svg}`
+    return `${unref(result).svg}`
 })
 const isResultNexting = computed(() => {
     return [statusType.unfinished, statusType.pending].includes(unref(result).status)
