@@ -54,15 +54,16 @@
                 :size="sizeType.s"
                 class="header__avatar"
             />
-            <MainButton 
-                v-if="isSecondaryTheme"
-                :theme="themeType.secondary"
-                :icon="iconType.menu"
-                :isLabelShow=false
-                @click="toggleMenu"
-                label="menu toggler"
-                class="header__toggler"
-            />
+            <div class="header__toggler">
+                <MainButton 
+                    v-if="isSecondaryTheme"
+                    :theme="themeType.secondary"
+                    :icon="iconType.menu"
+                    :isLabelShow=false
+                    @click="toggleMenu"
+                    label="menu toggler"
+                />
+            </div>
         </div>
         <LoginView v-model:isModalOpen="loginDialog"/>
     </header>

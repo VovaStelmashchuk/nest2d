@@ -87,7 +87,7 @@
       For questions or clarifications, please contact the project maintainers
       via email at
       <a
-        href="mailto:vovochkastelmaschuk@gmail.com"
+        href="mailto:vovochkastelmashchuk@gmail.com"
         class="text-blue-500 underline"
         >vovochkastelmashchuk@gmail.com</a
       >
