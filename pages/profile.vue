@@ -21,7 +21,7 @@ import { themeType } from '~~/constants/theme.constants';
 const router = useRouter();
 
 definePageMeta({
-    layout: "auth",
+    layout: "profile",
     middleware: "auth",
 });
 
