@@ -24,6 +24,13 @@ export default defineEventHandler(async (event) => {
 
   saveFilesToProject(event, projectSlug);
 
+  await db
+    .collection("projects")
+    .updateOne(
+      { slug: projectSlug },
+      { $set: { svgGeneratorStatus: "pending" } }
+    );
+
   return {
     slug: projectSlug,
   };

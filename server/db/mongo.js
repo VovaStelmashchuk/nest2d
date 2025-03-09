@@ -60,6 +60,24 @@ export async function getUserDxfBucket() {
   return userDxfBucket;
 }
 
+/**
+ * @type {GridFSBucket}
+ */
+let userSvgBucket;
+
+/**
+ * @returns {Promise<GridFSBucket>}
+ */
+export async function getUserSvgBucket() {
+  await connectDB();
+  if (!userSvgBucket) {
+    userSvgBucket = new GridFSBucket(db, {
+      bucketName: "userSvg",
+    });
+  }
+  return userSvgBucket;
+}
+
 export async function connectDB() {
   if (!client) {
     try {

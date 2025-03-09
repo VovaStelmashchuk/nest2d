@@ -8,7 +8,7 @@
         >
             <SvgDisplay
                 :size="sizeType.s"
-                :svgContent="file.svg"
+                :src="file.svgUrl"
                 class="file__display"
             />
             <p class="file__name">
