@@ -12,16 +12,19 @@
             class="content__files" 
         />
         <MainSettings 
-            :filesCount="filesCount"
-            :isNewParams="isNewParams"
-            :isError="Boolean(nestRequestError)"
             v-model:widthPlate="widthPlate" 
             v-model:heightPlate="heightPlate" 
             v-model:tolerance="tolerance" 
-            v-model:space="space" 
-            @nest="nest"
+            v-model:space="space"
         />
         <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
+        <MainButton 
+            :theme="themeType.primary"
+            :label="btnLabel"
+            :isDisable="btnIsDisable"
+            @click="nest"
+            class="content__btn" 
+        />
         <div
             v-if="nestRequestError"
             class="content__error"
@@ -38,6 +41,8 @@
 </template>
 
 <script setup async>
+import { themeType } from "~~/constants/theme.constants";
+
 definePageMeta({
     layout: "auth",
     middleware: "auth",
@@ -136,6 +141,13 @@ const currentFilesSlug = computed(() => {
     return new Set(unref(projectFiles).map(file => file.slug));
 })
 
+const btnLabel = computed(() => {
+    return unref(isNesting) ? 'Nesting...' : `Nest ${unref(filesCount)} files`
+})
+const btnIsDisable = computed(() => {
+    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams)
+})
+
 const addFiles = async (files) => {
     const formData = new FormData();
     formData.append("projectName", unref(data).name);
@@ -198,6 +210,11 @@ const addFiles = async (files) => {
     &__text {
         color: var(--label-secondary);
         margin-top: 16px;
+    }
+    &__btn {
+        margin-top: 40px;
+        margin-right: auto;
+        margin-left: auto;
     }
 }
 </style>
