@@ -73,6 +73,7 @@ const params = computed(() => ({
 const lastParams = ref('')
 
 const projectFiles = ref(data.value.files.map(file => ({...file, count: 1})))
+const isSvgLoaded = computed(() => unref(projectFiles).every(file => Boolean(file.svgUrl)))
 const filesToNest = computed(() => {
     return unref(projectFiles).map((file) => (
         {
@@ -145,7 +146,7 @@ const btnLabel = computed(() => {
     return unref(isNesting) ? 'Nesting...' : `Nest ${unref(filesCount)} files`
 })
 const btnIsDisable = computed(() => {
-    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams)
+    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams) || !unref(isSvgLoaded)
 })
 
 const addFiles = async (files) => {
