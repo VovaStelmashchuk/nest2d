@@ -37,10 +37,17 @@
         >
             Change settings or files to generate again
         </div>
+        <div 
+            v-if="!isSvgLoaded"
+            class="content__text"
+        >
+            Loading in progress...
+        </div>
     </div>
 </template>
 
 <script setup async>
+import { onBeforeMount } from "vue";
 import { themeType } from "~~/constants/theme.constants";
 
 definePageMeta({
@@ -149,6 +156,32 @@ const btnIsDisable = computed(() => {
     return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams) || !unref(isSvgLoaded)
 })
 
+let updateTimer;
+
+const updateData = async () => {
+    if(!unref(isSvgLoaded)) {
+        try {
+            const response = await fetch(`/api/project/${slug}`);
+
+            if (!response.ok) {
+                console.error("Error while update data:", response.statusText);
+                return;
+            }
+
+            if (updateTimer) {
+                clearTimeout(updateTimer);
+            }
+
+            const newData = await response.json();
+            projectFiles.value = newData.files.map((file, filesIndex) => ({...unref(projectFiles)[filesIndex], ...file}))
+
+            updateTimer = setTimeout(() => updateData(), 5000)
+        } catch (error) { 
+            console.error("Error update data:", error);
+        }
+    }
+}
+
 const addFiles = async (files) => {
     const formData = new FormData();
     formData.append("projectName", unref(data).name);
@@ -180,10 +213,15 @@ const addFiles = async (files) => {
             ...unref(projectFiles), 
             ...newFiles.map(file => ({...file, count: 1}))
         ]
+        updateData()
     } catch (error) {
         console.error("Error while uploading files:", error);
     }
 }
+
+onBeforeMount(() => {
+    updateData()
+})
 </script>
 
 <style lang="scss" scoped>
