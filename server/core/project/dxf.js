@@ -5,6 +5,7 @@ import { generateSvg } from "~~/server/core/svg/generator";
 import { generateRandomString } from "~~/server/utils/strings";
 
 import { dxf2json } from "@deepnest/dxf2svg-processor";
+import standardSlugify from "standard-slugify";
 
 export async function saveFilesToProject(event, projectSlug) {
   const fields = await readMultipartFormData(event);
@@ -24,8 +25,9 @@ export async function saveFilesToProject(event, projectSlug) {
   dxfFileFields.forEach((dxfFile) => {
     const fileBuffer = dxfFile.data;
     const userFileName = dxfFile.filename;
-    const suffix = generateRandomString(6);
-    const fileName = `${projectSlug}-${userFileName}-${suffix}`;
+    const fileName = `${projectSlug}-${standardSlugify(userFileName, {
+      keepCase: false,
+    })}-${generateRandomString(6)}`;
 
     const uploadSream = dxfUser.openUploadStream(fileName);
     uploadSream.write(fileBuffer);
@@ -54,4 +56,11 @@ export async function saveFilesToProject(event, projectSlug) {
   await db
     .collection("projects")
     .updateOne({ slug: projectSlug }, { $push: { dxf: { $each: dxfs } } });
+
+  await db
+    .collection("projects")
+    .updateOne(
+      { slug: projectSlug },
+      { $set: { svgGeneratorStatus: "pending" } }
+    );
 }

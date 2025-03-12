@@ -6,6 +6,7 @@ import {
   generateRandomString,
   generateEntityName,
 } from "~~/server/utils/strings";
+import standardSlugify from "standard-slugify";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -14,7 +15,9 @@ export default defineEventHandler(async (event) => {
   }
   const db = await connectDB();
   const projectName = generateEntityName();
-  const projectSlug = `${projectName}-${generateRandomString(6)}`;
+  const projectSlug = `${standardSlugify(projectName, {
+    keepCase: false,
+  })}-${generateRandomString(6)}`;
 
   await db.collection("projects").insertOne({
     slug: projectSlug,
@@ -24,13 +27,6 @@ export default defineEventHandler(async (event) => {
   });
 
   saveFilesToProject(event, projectSlug);
-
-  await db
-    .collection("projects")
-    .updateOne(
-      { slug: projectSlug },
-      { $set: { svgGeneratorStatus: "pending" } }
-    );
 
   return {
     slug: projectSlug,
