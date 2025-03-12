@@ -48,38 +48,14 @@
                 </ul>
             </div> -->
         </div>
-        <MainButton 
-            :theme="themeType.primary"
-            :label="btnLabel"
-            :isDisable="btnIsDisable"
-            @click="emit('nest')"
-            class="settings__btn" 
-        />
-
     </div>
 </template>
 
 <script setup>
-import { themeType } from "~~/constants/theme.constants";
 
-const { getters } = globalStore;
-const isNesting = computed(() => getters.isNesting);
-
-const emit = defineEmits(["update:widthPlate", "update:heightPlate", "update:tolerance", "update:space", "nest"]);
+const emit = defineEmits(["update:widthPlate", "update:heightPlate", "update:tolerance", "update:space"]);
 
 const props = defineProps({
-    filesCount: {
-        type: Number,
-        default: 0,
-    },
-    isError: {
-        type: Boolean,
-        default: false,
-    },
-    isNewParams: {
-        type: Boolean,
-        default: false,
-    },
     widthPlate: {
         type: String,
         required: true,
@@ -97,14 +73,6 @@ const props = defineProps({
         required: true,
     },
 })
-
-const btnLabel = computed(() => {
-    return unref(isNesting) ? 'Nesting...' : `Nest ${props.filesCount} files`
-})
-const btnIsDisable = computed(() => {
-    return unref(isNesting) || props.isError || !props.isNewParams
-})
-
 const localWidth = computed({
   get: () => props.widthPlate,
   set: value => emit("update:widthPlate", value),
@@ -142,11 +110,7 @@ const localSpace = computed({
         margin-left: auto;
         margin-right: auto;
     }
-    &__btn {
-        margin-top: 40px;
-        margin-right: auto;
-        margin-left: auto;
-    }
+
 }
 .content {
     display: flex;

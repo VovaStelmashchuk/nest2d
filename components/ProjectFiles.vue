@@ -7,8 +7,14 @@
             class="files__item file"
         >
             <SvgDisplay
+                v-if="Boolean(file.svgUrl)"
                 :size="sizeType.s"
                 :src="file.svgUrl"
+                class="file__display"
+            />
+            <MainLoader 
+                v-else
+                :theme="themeType.secondary"
                 class="file__display"
             />
             <p class="file__name">
@@ -49,6 +55,7 @@
     </div>
 </template>
 <script setup>
+import { themeType } from '~~/constants/theme.constants';
 import { sizeType } from "~~/constants/size.constants";
 import { iconType } from "~~/constants/icon.constants";
 

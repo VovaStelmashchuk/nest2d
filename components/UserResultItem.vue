@@ -4,7 +4,7 @@
             <MainLoader 
                 :size="sizeType.s"
                 :theme="themeType.secondary"
-                class="result__loader"
+                class="result__display"
             />
             <p class="result__text">
                 Nesting</p>
@@ -93,8 +93,7 @@ const openModal = (slug) => {
     border-radius: 8px;
     transition: border-color 0.3s;
     &__display,
-    &__placeholder,
-    &__loader {
+    &__placeholder {
         width: 40px;
         height: 40px;
     }

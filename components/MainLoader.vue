@@ -45,9 +45,16 @@ const loaderClasses = computed(() => ({
         background-color: var(--fill-tertiary);
     }
 
-    &--size-m {
+    &--size-l {
         &::after {
             box-shadow: -20px -20px 0 16px, -20px -20px 0 16px, -20px -20px 0 16px, -20px -20px 0 16px;
+            animation-name: loader-l;
+        }
+    }
+    &--size-m {
+        border-radius: 6px;
+        &::after {
+            box-shadow: -10px -10px 0 7px, -10px -10px 0 7px, -10px -10px 0 7px, -10px -10px 0 7px;
             animation-name: loader-m;
         }
     }
@@ -60,7 +67,7 @@ const loaderClasses = computed(() => ({
     }
 }
 
-@keyframes loader-m {
+@keyframes loader-l {
     0%, 100% {
         box-shadow: -20px -20px 0 16px, -20px -20px 0 16px, -20px -20px 0 16px, -20px -20px 0 16px;
     }
@@ -81,6 +88,30 @@ const loaderClasses = computed(() => ({
     }
     49.98% {
         box-shadow: 20px 20px 0 16px, 20px 20px 0 16px, 20px 20px 0 16px, 20px 20px 0 16px;
+    }
+}
+
+@keyframes loader-m {
+    0%, 100% {
+        box-shadow: -8px -8px 0 6px, -8px -8px 0 6px, -8px -8px 0 6px, -8px -8px 0 6px;
+    }
+    8.33%, 91.63% {
+        box-shadow: -8px -8px 0 6px, 8px -8px 0 6px, 8px -8px 0 6px, 8px -8px 0 6px;
+    }
+    16.66%, 83.3% {
+        box-shadow: -8px -8px 0 6px, 8px -8px 0 6px, 8px 8px 0 6px, 8px 8px 0 6px;
+    }
+    24.99%, 74.97% {
+        box-shadow: -8px -8px 0 6px, 8px -8px 0 6px, 8px 8px 0 6px, -8px 8px 0 6px;
+    }
+    33.32%, 66.64% {
+        box-shadow: -8px -8px 0 6px, 8px -8px 0 6px, 8px 8px 0 6px, -8px -8px 0 6px;
+    }
+    41.65%, 58.31% {
+        box-shadow: 8px -8px 0 6px, 8px -8px 0 6px, 8px 8px 0 6px, 8px -8px 0 6px;
+    }
+    49.98% {
+        box-shadow: 8px 8px 0 6px, 8px 8px 0 6px, 8px 8px 0 6px, 8px 8px 0 6px;
     }
 }
 

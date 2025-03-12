@@ -1,4 +1,5 @@
 export const sizeType = {
+    l: 'l',
     m: 'm',
     s: 's'
 }

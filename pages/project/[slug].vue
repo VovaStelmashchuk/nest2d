@@ -12,16 +12,19 @@
             class="content__files" 
         />
         <MainSettings 
-            :filesCount="filesCount"
-            :isNewParams="isNewParams"
-            :isError="Boolean(nestRequestError)"
             v-model:widthPlate="widthPlate" 
             v-model:heightPlate="heightPlate" 
             v-model:tolerance="tolerance" 
-            v-model:space="space" 
-            @nest="nest"
+            v-model:space="space"
         />
         <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
+        <MainButton 
+            :theme="themeType.primary"
+            :label="btnLabel"
+            :isDisable="btnIsDisable"
+            @click="nest"
+            class="content__btn" 
+        />
         <div
             v-if="nestRequestError"
             class="content__error"
@@ -34,10 +37,19 @@
         >
             Change settings or files to generate again
         </div>
+        <div 
+            v-if="!isSvgLoaded"
+            class="content__text"
+        >
+            Loading in progress...
+        </div>
     </div>
 </template>
 
 <script setup async>
+import { onBeforeMount } from "vue";
+import { themeType } from "~~/constants/theme.constants";
+
 definePageMeta({
     layout: "auth",
     middleware: "auth",
@@ -68,6 +80,7 @@ const params = computed(() => ({
 const lastParams = ref('')
 
 const projectFiles = ref(data.value.files.map(file => ({...file, count: 1})))
+const isSvgLoaded = computed(() => unref(projectFiles).every(file => Boolean(file.svgUrl)))
 const filesToNest = computed(() => {
     return unref(projectFiles).map((file) => (
         {
@@ -136,6 +149,39 @@ const currentFilesSlug = computed(() => {
     return new Set(unref(projectFiles).map(file => file.slug));
 })
 
+const btnLabel = computed(() => {
+    return unref(isNesting) ? 'Nesting...' : `Nest ${unref(filesCount)} files`
+})
+const btnIsDisable = computed(() => {
+    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams) || !unref(isSvgLoaded)
+})
+
+let updateTimer;
+
+const updateData = async () => {
+    if(!unref(isSvgLoaded)) {
+        try {
+            const response = await fetch(`/api/project/${slug}`);
+
+            if (!response.ok) {
+                console.error("Error while update data:", response.statusText);
+                return;
+            }
+
+            if (updateTimer) {
+                clearTimeout(updateTimer);
+            }
+
+            const newData = await response.json();
+            projectFiles.value = newData.files.map((file, filesIndex) => ({...unref(projectFiles)[filesIndex], ...file}))
+
+            updateTimer = setTimeout(() => updateData(), 5000)
+        } catch (error) { 
+            console.error("Error update data:", error);
+        }
+    }
+}
+
 const addFiles = async (files) => {
     const formData = new FormData();
     formData.append("projectName", unref(data).name);
@@ -167,10 +213,15 @@ const addFiles = async (files) => {
             ...unref(projectFiles), 
             ...newFiles.map(file => ({...file, count: 1}))
         ]
+        updateData()
     } catch (error) {
         console.error("Error while uploading files:", error);
     }
 }
+
+onBeforeMount(() => {
+    updateData()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -198,6 +249,11 @@ const addFiles = async (files) => {
     &__text {
         color: var(--label-secondary);
         margin-top: 16px;
+    }
+    &__btn {
+        margin-top: 40px;
+        margin-right: auto;
+        margin-left: auto;
     }
 }
 </style>
