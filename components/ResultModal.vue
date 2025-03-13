@@ -109,6 +109,7 @@ const nest = async () => {
         border-radius: 8px;
         background-color: var(--error-background);
         border: solid 1px var(--error-border);
+        color: var(--label-primary);
     }
     &__name {
         display: flex;
@@ -118,7 +119,7 @@ const nest = async () => {
         margin-top: 10px;
         margin-bottom: 10px;
         min-height: 42px;
-        color: var(--accent-primary);
+        color: var(--label-primary);
     }
 }
 .controls {

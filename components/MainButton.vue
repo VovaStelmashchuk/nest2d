@@ -110,13 +110,13 @@ const buttonClasses = computed(() => ({
     }
     &--theme-ghost {
         #{$self}__label {
-            color: var(--accent-primary);
+            color: var(--label-primary);
         }
     }
     &--theme-secondary {
         background-color: var(--fill-tertiary);
         #{$self}__label {
-            color: var(--accent-primary);
+            color: var(--label-primary);
         }
     }
     &--theme-primary {

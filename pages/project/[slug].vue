@@ -130,7 +130,9 @@ const increment = (index) => {
     projectFiles.value[index].count++
 };
 const decrement = (index) => {
-    projectFiles.value[index].count--
+    if(projectFiles.value[index].count > 0) {
+        projectFiles.value[index].count--
+    }
 };
 const nest = async () => {
     await fetch(`/api/project/${slug}/nest`, {

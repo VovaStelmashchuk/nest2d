@@ -111,7 +111,7 @@ const decrement = (index) => emit("decrement", index)
             border-color: var(--separator-primary);
 
             #{$self}__name {
-                color: var(--accent-primary);
+                color: var(--label-primary);
             }
             #{$self}__btn {
                 opacity: 1;
