@@ -14,7 +14,7 @@
             />
             <div class="modal__name">
                 <template v-if="isHaveError">
-                    Unable to calculate based on the given parameters, change the parameters
+                    No solution found try to increase plate size
                 </template>
                 <template v-else>
                     {{resultModalData.slug}}.dxf
