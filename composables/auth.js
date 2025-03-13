@@ -1,18 +1,32 @@
-import { computed, reactive, readonly } from "vue";
-import { useFetch } from "nuxt/app";
+import { computed, reactive, readonly, unref } from "vue";
+import { useFetch, useState } from "nuxt/app";
 
 const state = reactive({
     userIsSet: false,
-    user:  {}
+    user: {},
 })
 
 const API_ROUTES = {
     LOGOUT: "/api/auth/logout",
+    USER: "/api/user",
 };
 
-function setUser(data) {
-    state.user = {...data}
-    state.userIsSet = true
+async function setUser() {
+    try {
+        const { data } = await useFetch(API_ROUTES.USER);
+        const userData = unref(data);
+        if (userData && Boolean(userData.id)) {
+            state.user = userData;
+            state.userIsSet = true;
+        } else {
+            state.user = {};
+            state.userIsSet = false;
+        }
+    } catch (error) {
+        console.error("Failed to set user:", error);
+        state.user = {};
+        state.userIsSet = false;
+    }
 }
 
 async function logout() {
@@ -21,6 +35,7 @@ async function logout() {
             method: "POST",
             credentials: "include",
         });
+        state.user = {};
         state.userIsSet = false
     } catch (err) {
         console.error("Logout failed:", err);

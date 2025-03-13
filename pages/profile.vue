@@ -1,6 +1,7 @@
 <template>
     <div class="profile">
         <MainTitle 
+            v-if="user.name"
             :label="user.name"
             class="profile__title"
         />
@@ -31,7 +32,7 @@ const user = computed(() => getters.user);
 
 const logoutHandler = async () => {
     await logout();
-    await router.push({ path: '/' })
+    router.push({ path: '/' })
 };
 </script>
 <style lang="scss" scoped>
