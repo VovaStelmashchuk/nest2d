@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
         google: {
           sub: sub,
         },
+        updatedAt: new Date(),
       },
       $setOnInsert: {
         createdAt: new Date(), // This field will only be set on document insertion
