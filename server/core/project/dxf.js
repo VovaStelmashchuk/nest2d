@@ -1,10 +1,8 @@
 import { createError, readMultipartFormData } from "h3";
 
 import { connectDB, getUserDxfBucket } from "~~/server/db/mongo";
-import { generateSvg } from "~~/server/core/svg/generator";
 import { generateRandomString } from "~~/server/utils/strings";
 
-import { dxf2json } from "@deepnest/dxf2svg-processor";
 import standardSlugify from "standard-slugify";
 
 export async function saveFilesToProject(event, projectSlug) {
@@ -18,35 +16,24 @@ export async function saveFilesToProject(event, projectSlug) {
     });
   }
 
-  const dxfUser = await getUserDxfBucket();
+  const dxfUserBucket = await getUserDxfBucket();
 
   const dxfs = [];
 
   dxfFileFields.forEach((dxfFile) => {
     const fileBuffer = dxfFile.data;
     const userFileName = dxfFile.filename;
-    const fileName = `${projectSlug}-${standardSlugify(userFileName, {
+    const fileSlug = `${projectSlug}-${standardSlugify(userFileName, {
       keepCase: false,
     })}-${generateRandomString(6)}`;
 
-    const uploadSream = dxfUser.openUploadStream(fileName);
+    const uploadSream = dxfUserBucket.openUploadStream(fileSlug);
     uploadSream.write(fileBuffer);
     uploadSream.end();
 
-    const dxfAsObjectStr = dxf2json({
-      stringData: fileBuffer.toString(),
-    });
-
-    const dxfAsObject = JSON.parse(dxfAsObjectStr);
-
-    const svgResult = generateSvg(dxfAsObject);
-
     const dxfRecord = {
-      slug: fileName,
+      slug: fileSlug,
       name: userFileName,
-      fileName: fileName,
-      svg: svgResult.svg,
-      svgError: svgResult.error,
     };
 
     dxfs.push(dxfRecord);
