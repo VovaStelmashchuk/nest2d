@@ -9,12 +9,12 @@
             </div>
             <SvgDisplay 
                 v-else
-                :src="resultModalData.resultSvg"
+                :src="resultModalData.svg"
                 class="modal__display" 
             />
             <div class="modal__name">
                 <template v-if="isHaveError">
-                    {{ resultModalData.error.message }}
+                    No solution found try to increase plate size
                 </template>
                 <template v-else>
                     {{resultModalData.slug}}.dxf
@@ -34,7 +34,7 @@
                     label="Try again"
                     :size="sizeType.s"
                     :theme="themeType.secondary"
-                    @click="nest"
+                    @click="resultDialog = false"
                 />
             </div>
         </div>
@@ -42,48 +42,18 @@
 </template>
 
 <script setup>
-import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
+import { statusType } from "~~/constants/status.constants";
 
-const { getters, actions } = globalStore;
-const { setResult, setProjects } = actions;
+const { getters } = globalStore;
 const resultModalData = computed(() => getters.resultModalData);
 
 const resultDialog = useResultDialog();
 
-const filesToNest = computed(() => {
-    return unref(resultModalData).nestedFiles.map((file) => (
-        {
-            slug: file.slug,
-            count: file.count
-        }
-    ))
-})
-
-const requestBody = computed(() => {
-    return JSON.stringify({
-        files: unref(filesToNest),
-        params: {...unref(resultModalData).params},
-    })
-})
 const isHaveError = computed(() => {
-    return Boolean(unref(resultModalData).error)
+    return unref(resultModalData).status === statusType.failed
 })
-
-const nest = async () => {
-    await fetch(`/api/project/${unref(resultModalData).projectSlug}/nest`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: unref(requestBody),
-    });
-    await setResult(`/api/project/${unref(resultModalData).projectSlug}/queue`)
-    await setProjects()
-    resultDialog.value = false
-};
-
 </script>
     
 <style lang="scss" scoped>

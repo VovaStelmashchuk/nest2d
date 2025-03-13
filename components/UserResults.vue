@@ -10,7 +10,7 @@
                 v-for="result in resultsList"
                 :key="result.id"
                 :result="result"
-                @openModal="openModal"
+                @openModal="openModal(result)"
                 class="results__item"
             />
         </div>
@@ -34,8 +34,8 @@ const resultsList = computed(() => getters.resultsList);
 onBeforeMount(() => {
     setResult(unref(apiPath));
 })
-const openModal = (resultSlug) => {
-    openResultModal(resultSlug)
+const openModal = (result) => {
+    openResultModal(result)
     resultDialog.value = true
 }
 watch(() => route.fullPath, () => {
