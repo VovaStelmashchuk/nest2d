@@ -34,6 +34,7 @@ export async function saveFilesToProject(event, projectSlug) {
     const dxfRecord = {
       slug: fileSlug,
       name: userFileName,
+      processingStatus: "in-progress",
     };
 
     dxfs.push(dxfRecord);
