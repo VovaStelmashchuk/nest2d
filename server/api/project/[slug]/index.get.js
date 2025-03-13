@@ -37,11 +37,15 @@ export default defineEventHandler(async (event) => {
 });
 
 const mapFileToUi = (projectSlug, file) => {
+  const svgUrl =
+    file.processingStatus === "done"
+      ? `/api/project/${projectSlug}/${file.slug}/svg`
+      : null;
   return {
     slug: file.slug,
     name: file.name,
     svg: file.svg,
-    svgUrl: `/api/project/${projectSlug}/${file.slug}/svg`,
+    svgUrl: svgUrl,
     processingStatus: file.processingStatus,
   };
 };
