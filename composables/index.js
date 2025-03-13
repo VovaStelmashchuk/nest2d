@@ -42,14 +42,8 @@ async function setProjects() {
     }
 }
 
-async function openResultModal(slug) {
-    try {
-        const data = await $fetch(API_ROUTES.RESULT(slug));
-        state.resultModalData = {...data}
-
-    } catch (error) {
-        console.error("Error fetching projects:", error);
-    }
+async function openResultModal(result) {
+    state.resultModalData = {...result}
 }
 
 export const globalStore = readonly({
