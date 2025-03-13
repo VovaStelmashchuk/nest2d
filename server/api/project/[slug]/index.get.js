@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
         "dxf.slug": 1,
         "dxf.name": 1,
         "dxf.svgExists": 1,
+        "dxf.processingStatus": 1,
         svgGeneratorStatus: 1,
       },
     }
@@ -39,14 +40,11 @@ export default defineEventHandler(async (event) => {
 });
 
 const mapFileToUi = (projectSlug, file) => {
-  const svgUrl = file.svgExists
-    ? `/api/project/${projectSlug}/${file.slug}/svg`
-    : null;
-
   return {
     slug: file.slug,
     name: file.name,
     svg: file.svg,
-    svgUrl: svgUrl,
+    svgUrl: `/api/project/${projectSlug}/${file.slug}/svg`,
+    processingStatus: file.processingStatus,
   };
 };
