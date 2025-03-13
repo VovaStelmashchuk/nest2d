@@ -18,9 +18,7 @@ export default defineEventHandler(async (event) => {
         slug: 1,
         "dxf.slug": 1,
         "dxf.name": 1,
-        "dxf.svgExists": 1,
         "dxf.processingStatus": 1,
-        svgGeneratorStatus: 1,
       },
     }
   );
@@ -35,7 +33,6 @@ export default defineEventHandler(async (event) => {
     name: project.name,
     slug: project.slug,
     files: files.map((file) => mapFileToUi(project.slug, file)),
-    hasError: project.svgGeneratorStatus === "error",
   };
 });
 
