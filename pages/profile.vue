@@ -32,7 +32,7 @@ const user = computed(() => getters.user);
 
 const logoutHandler = async () => {
     await logout();
-    await router.push({ path: '/' })
+    router.push({ path: '/' })
 };
 </script>
 <style lang="scss" scoped>
