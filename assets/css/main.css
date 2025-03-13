@@ -2,6 +2,7 @@
 *::before,
 *::after {
     --main-white: #fff;
+    --main-black: #000;
 
     --fill-secondary: rgb(0, 11, 33, 0.08);
     --fill-tertiary: rgb(0, 11, 33, 0.05);
@@ -22,3 +23,22 @@
     --error-border: rgb(222, 0, 54, 0.3);
     --menu-background: rgb(22, 26, 33, 0.7);
 }
+/* dark */
+/* *,
+*::before,
+*::after {
+    --fill-secondary: rgb(245, 243, 240, 0.08);
+    --fill-tertiary: rgb(245, 243, 240, 0.05);
+
+    --label-primary: rgb(245, 243, 240, 0.9);
+    --label-secondary: rgb(245, 243, 240, 0.6);
+    --label-tertiary: rgb(245, 243, 240, 0.3);
+
+    --accent-primary: rgb(245, 243, 240, 0.9);
+    --accent-secondary: rgb(245, 243, 240, 0.8);
+
+    --background-primary: rgb(36, 35, 34);
+
+    --separator-primary: rgb(245, 243, 240, 0.13);
+    --separator-secondary: rgb(245, 243, 240, 0.08);
+} */

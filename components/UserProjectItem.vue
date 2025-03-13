@@ -150,7 +150,7 @@ onBeforeUnmount(() => {
                 border-color: var(--separator-primary);
             }
             #{$self}__label {
-                color: var(--accent-primary);
+                color: var(--label-primary);
             }
             #{$self}__btn {
                 opacity: 1;
@@ -159,23 +159,14 @@ onBeforeUnmount(() => {
     }
 
     &--active {
+        pointer-events: none;
         color: var(--label-secondary);
         &::after {
             border-width: 2px;
             border-color: var(--accent-primary);
         }
         #{$self}__label {
-            color: var(--accent-primary);
-        }
-
-        @media (hover:hover) {
-            &:hover {
-                color: var(--accent-primary);
-
-                &::after {
-                    border-color: var(--accent-primary);
-                }
-            }
+            color: var(--label-primary);
         }
     }
 }

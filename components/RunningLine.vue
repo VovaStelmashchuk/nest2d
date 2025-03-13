@@ -29,7 +29,7 @@ const { size } = defineProps({
     overflow: hidden;
     padding-top: 2px;
     padding-bottom: 2px;
-    background-color: var(--accent-primary);
+    background-color: var(--main-black);
     &__body {
         display: flex;
     }

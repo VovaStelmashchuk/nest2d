@@ -97,7 +97,7 @@ const labelClasses = computed(() => ({ 'upload__label--hover': unref(isDragOver)
         margin-bottom: 16px;
     }
     &__text {
-        color: var(--accent-primary);
+        color: var(--label-primary);
 
         &--gray {
             margin-top: 8px;

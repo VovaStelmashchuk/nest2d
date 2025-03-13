@@ -105,6 +105,7 @@ const openModal = (slug) => {
         border-radius: 6px;
         background-color: var(--error-background);
         border: solid 1px var(--error-border);
+        color: var(--label-primary);
     }
     &__name,
     &__text {
@@ -142,7 +143,7 @@ const openModal = (slug) => {
             }
             border-color: var(--separator-primary);
             #{$self}__name {
-                color: var(--accent-primary);
+                color: var(--label-primary);
             }
         }
     }

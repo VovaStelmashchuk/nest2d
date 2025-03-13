@@ -45,7 +45,7 @@ defineProps({
         display: block;
         font-size: 17px;
         font-weight: 600;
-        color: var(--accent-primary);
+        color: var(--label-primary);
     }
 }
 </style>
