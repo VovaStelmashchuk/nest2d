@@ -15,6 +15,8 @@ export default defineEventHandler(async (event) => {
     console.error(e);
   }
 
+  const user = await db.collection("users").findOne({ id: userId });
+
   let commitSha = "init unknown";
 
   try {
@@ -26,6 +28,8 @@ export default defineEventHandler(async (event) => {
 
   return {
     userId: userId,
+    provider: user?.provider || "unknown",
+    isAdmin: user?.isAdmin || false,
     isDbConnected: isDbConnected,
     commitSha: commitSha,
   };

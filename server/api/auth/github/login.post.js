@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
         github: {
           id: id,
         },
+        updatedAt: new Date(),
       },
       $setOnInsert: {
         createdAt: new Date(), // This field will only be set on document insertion
