@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     ownerId: userId,
   });
 
-  saveFilesToProject(event, projectSlug);
+  await saveFilesToProject(event, projectSlug);
 
   return {
     slug: projectSlug,

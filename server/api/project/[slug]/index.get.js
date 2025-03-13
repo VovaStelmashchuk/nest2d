@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
         "dxf.slug": 1,
         "dxf.name": 1,
         "dxf.svgExists": 1,
+        svgGeneratorStatus: 1,
       },
     }
   );
@@ -27,10 +28,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: "Project not found" });
   }
 
+  const files = project.dxf || [];
+
   return {
     name: project.name,
     slug: project.slug,
-    files: project.dxf.map((file) => mapFileToUi(project.slug, file)),
+    files: files.map((file) => mapFileToUi(project.slug, file)),
+    hasError: project.svgGeneratorStatus === "error",
   };
 });
 
