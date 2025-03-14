@@ -1,63 +1,34 @@
 <template>
     <div class="files">
         <DxfUpload @files="addFiles" />
-        <div
+        <template
             v-for="(file, fileIndex) in projectFiles"
             :key="file.slug"
-            class="files__item file"
         >
-            <SvgDisplay
-                v-if="Boolean(file.svgUrl)"
-                :size="sizeType.s"
-                :src="file.svgUrl"
-                class="file__display"
+            <FileDone
+                :file="file"
+                :fileIndex="fileIndex"
+                @increment="increment"
+                @decrement="decrement"
+                v-if="fileIsDone(file.processingStatus)"
+                class="files__item file"
             />
-            <MainLoader 
-                v-else
-                :theme="themeType.secondary"
-                class="file__display"
+            <FileInProgress
+                :file="file"
+                v-if="fileIsProcessing(file.processingStatus)"
+                class="files__item file"
             />
-            <p class="file__name">
-                {{ file.name }}
-            </p>
-            <div class="counter">
-                <MainButton 
-                    :size="sizeType.s"
-                    :icon="iconType.minus"
-                    :isDisable="file.count < 1"
-                    :isLabelShow=false
-                    @click="decrement(fileIndex)"
-                    label="decrement"
-                    class="counter__btn"
-                />
-                <p class="counter__value">
-                    {{ file.count }}
-                </p>
-                <MainButton 
-                    :size="sizeType.s"
-                    :icon="iconType.plus"
-                    :isLabelShow=false
-                    @click="increment(fileIndex)"
-                    label="increment"
-                    class="counter__btn"
-                />
-            </div>
-            <!-- <div class="file__btn">
-                <MainButton 
-                    :label="`delete ${file.name}`"
-                    :size="sizeType.s"
-                    :icon="iconType.trash"
-                    :isLabelShow=false
-                    @click="console.log(`delete ${file.name}`)"
-                />
-            </div> -->
-        </div>
+            <FileError
+                :file="file"
+                v-if="fileIsError(file.processingStatus)"
+                class="files__item file"
+            />
+        </template>
     </div>
 </template>
 <script setup>
-import { themeType } from '~~/constants/theme.constants';
-import { sizeType } from "~~/constants/size.constants";
-import { iconType } from "~~/constants/icon.constants";
+import { processingType } from "~~/constants/files.constants";
+import FileError from "./FileError.vue";
 
 defineProps({
     projectFiles: {
@@ -71,6 +42,10 @@ const emit = defineEmits(["addFiles", "increment", "decrement"])
 const addFiles = (files) => emit("addFiles", files)
 const increment = (index) => emit("increment", index)
 const decrement = (index) => emit("decrement", index)
+
+const fileIsDone = (status) => status === processingType.done
+const fileIsProcessing = (status) => status === processingType.inProgress
+const fileIsError = (status) => status === processingType.error
 
 </script>
 

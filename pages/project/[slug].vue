@@ -37,18 +37,13 @@
         >
             Change settings or files to generate again
         </div>
-        <div 
-            v-if="!isSvgLoaded"
-            class="content__text"
-        >
-            Loading in progress...
-        </div>
     </div>
 </template>
 
 <script setup async>
 import { onBeforeMount } from "vue";
 import { themeType } from "~~/constants/theme.constants";
+import { processingType } from "~~/constants/files.constants";
 
 definePageMeta({
     layout: "auth",
@@ -80,12 +75,16 @@ const params = computed(() => ({
 const lastParams = ref('')
 
 const projectFiles = ref(data.value.files.map(file => ({...file, count: 1})))
-const isSvgLoaded = computed(() => unref(projectFiles).every(file => Boolean(file.svgUrl)))
+const isSvgLoaded = computed(() => unref(projectFiles).every(file => file.processingStatus !== processingType.inProgress))
 const filesToNest = computed(() => {
-    return unref(projectFiles).map((file) => (
+    return unref(projectFiles)
+    .filter((file) => {
+        return file.processingStatus === processingType.done
+    })
+    .map(file => (
         {
             slug: file.slug,
-            count: file.count
+            count: file.count,
         }
     ))
 })
@@ -155,7 +154,7 @@ const btnLabel = computed(() => {
     return unref(isNesting) ? 'Nesting...' : `Nest ${unref(filesCount)} files`
 })
 const btnIsDisable = computed(() => {
-    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams) || !unref(isSvgLoaded)
+    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams)
 })
 
 let updateTimer;
