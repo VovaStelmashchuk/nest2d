@@ -1,7 +1,9 @@
 <template>
-    <div class="profile">
+    <div 
+        v-if="user.name"
+        class="profile"
+    >
         <MainTitle 
-            v-if="user.name"
             :label="user.name"
             class="profile__title"
         />
