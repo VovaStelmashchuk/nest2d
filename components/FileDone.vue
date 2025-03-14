@@ -81,6 +81,9 @@ const decrement = (index) => emit("decrement", index)
         margin-bottom: 16px;
         color: var(--label-secondary);
         transition: color 0.3s;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     &__btn {
         opacity: 0;

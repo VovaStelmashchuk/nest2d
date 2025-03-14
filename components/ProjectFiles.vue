@@ -52,7 +52,7 @@ const fileIsError = (status) => status === processingType.error
 <style lang="scss" scoped>
 .files {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, calc(100% / 3 - 8px));
     gap: 8px;
 }
 .file {
