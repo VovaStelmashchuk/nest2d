@@ -90,7 +90,9 @@ const filesToNest = computed(() => {
 })
 
 const filesCount = computed(() => {
-    return unref(projectFiles).reduce((acc, curr) => acc + curr.count, 0)
+    return  unref(projectFiles)
+            .filter(file => file.processingStatus === processingType.done)
+            .reduce((acc, curr) => acc + curr.count, 0)
 })
 const isValidParams = computed(() => {
     return Object.values(unref(params)).some(param => !isValidNumber(param))
