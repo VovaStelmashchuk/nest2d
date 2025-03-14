@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
         slug: 1,
         "dxf.slug": 1,
         "dxf.name": 1,
-        "dxf.svgExists": 1,
+        "dxf.processingStatus": 1,
       },
     }
   );
@@ -27,22 +27,25 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: "Project not found" });
   }
 
+  const files = project.dxf || [];
+
   return {
     name: project.name,
     slug: project.slug,
-    files: project.dxf.map((file) => mapFileToUi(project.slug, file)),
+    files: files.map((file) => mapFileToUi(project.slug, file)),
   };
 });
 
 const mapFileToUi = (projectSlug, file) => {
-  const svgUrl = file.svgExists
-    ? `/api/project/${projectSlug}/${file.slug}/svg`
-    : null;
-
+  const svgUrl =
+    file.processingStatus === "done"
+      ? `/api/project/${projectSlug}/${file.slug}/svg`
+      : null;
   return {
     slug: file.slug,
     name: file.name,
     svg: file.svg,
     svgUrl: svgUrl,
+    processingStatus: file.processingStatus,
   };
 };
