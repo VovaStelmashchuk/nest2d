@@ -23,7 +23,7 @@
                 class="result__display"
             />
             <p class="result__name">
-                {{ result.projectName }}
+                {{ result.slug }}.dxf
             </p>
             <div class="result__controls controls">
                 <!-- <div class="controls__delete">
