@@ -35,6 +35,21 @@
             />
         </nav>
         <div class="header__wrapper">
+            <div class="header__theme">
+                <MainButton 
+                    :theme="themeType.primary"
+                    :icon="iconType.light"
+                    :isLabelShow=false
+                    @click="toggleTheme(defaultThemeType)"
+                    label="theme light"
+                />
+                <MainButton 
+                    :icon="iconType.dark"
+                    :isLabelShow=false
+                    @click="toggleTheme(themeType.primary)"
+                    label="theme dark"
+                />
+            </div>
             <MainButton 
                 href="https://github.com/VovaStelmashchuk/nest2d/issues/new"
                 target="_blank"
@@ -128,6 +143,13 @@ const navClasses = computed(() => ({
 const toggleMenu = () => {
     menuIsOpen.value = !unref(menuIsOpen)
 }
+
+const { actions } = themeStore;
+const { updateTheme } = actions;
+
+const toggleTheme = (theme) => {
+    updateTheme(theme)
+}
 </script>
 <style lang="scss" scoped>
 .header {
@@ -156,6 +178,13 @@ const toggleMenu = () => {
         @media (min-width: 568px) {
             align-items: center;
             flex-direction: initial
+        }
+    }
+    &__theme {
+        display: flex;
+
+        &>*:not(:first-child) {
+            margin-left: 2px;
         }
     }
     &__nav {

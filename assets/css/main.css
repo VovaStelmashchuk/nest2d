@@ -23,10 +23,9 @@
     --error-border: rgb(222, 0, 54, 0.3);
     --menu-background: rgb(22, 26, 33, 0.7);
 }
-/* dark */
-/* *,
-*::before,
-*::after {
+[data-theme="primary"] *,
+[data-theme="primary"] *::before,
+[data-theme="primary"] *::after {
     --fill-secondary: rgb(245, 243, 240, 0.08);
     --fill-tertiary: rgb(245, 243, 240, 0.05);
 
@@ -41,4 +40,4 @@
 
     --separator-primary: rgb(245, 243, 240, 0.13);
     --separator-secondary: rgb(245, 243, 240, 0.08);
-} */
+}

@@ -30,5 +30,8 @@
         width: 120px;
         height: 120px;
     }
+    &__text {
+        color: var(--label-primary);
+    }
 }
 </style>

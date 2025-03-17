@@ -5,7 +5,9 @@ export const iconType = {
     lock: 'lock',
     unlock: 'unlock',
     menu: 'menu',
-    close: 'close'
+    close: 'close',
+    dark: 'dark',
+    light: 'light',
 }
 
 export const defaultIconType = iconType.trash
