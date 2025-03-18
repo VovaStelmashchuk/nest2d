@@ -24,19 +24,25 @@
 <script setup>
 const route = useRoute();
 const router = useRouter();
-const { getters, actions } = globalStore;
-const { setProjects } = actions;
-const projectsList = computed(() => getters.projectsList);
+
+const { getters } = globalStore;
+const headers = useRequestHeaders(['cookie']);
+
+const data = await $fetch('/api/project/me', { headers });
+
+const projectsList = computed(() => {
+    if(getters.projectsList.length) {
+        return getters.projectsList
+    } else {
+        return data.projects
+    }
+});
 
 const btnLabelValue = computed(() => {
     return route.name === 'home' ? '' : 'New project'
 }) 
 
 const createNewProdject = () => router.push({ name: 'home' })
-
-onBeforeMount(() => {
-    setProjects();
-})
 </script>
     
 <style lang="scss" scoped>
