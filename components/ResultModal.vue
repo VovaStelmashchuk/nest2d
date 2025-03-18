@@ -61,6 +61,7 @@ import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 import { statusType } from "~~/constants/status.constants";
+import { onMounted } from 'vue';
 
 const { getters } = globalStore;
 const resultModalData = computed(() => getters.resultModalData);
@@ -70,10 +71,14 @@ const resultDialog = useResultDialog();
 const isHaveError = computed(() => {
     return unref(resultModalData).status === statusType.failed
 })
-const isFullScreen = ref(false);
+const isFullScreen = useFullScreen();
 const updateFullScreen = () => {
     isFullScreen.value = !unref(isFullScreen);
+    localStorage.setItem('isFullScreen', unref(isFullScreen));
 }
+onMounted(() => {
+    isFullScreen.value = localStorage.getItem('isFullScreen') === 'true';
+})
 const displayClasses = computed(() => ({
     'modal__display--is-fullscreen': unref(isFullScreen) && !unref(isHaveError)
 }))

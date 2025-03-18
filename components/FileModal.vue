@@ -35,10 +35,14 @@ import { themeType } from '~~/constants/theme.constants';
 const { getters } = globalStore;
 const fileModalData = computed(() => getters.fileModalData);
 
-const isFullScreen = ref(false);
+const isFullScreen = useFullScreen();
 const updateFullScreen = () => {
     isFullScreen.value = !unref(isFullScreen);
+    localStorage.setItem('isFullScreen', unref(isFullScreen));
 }
+onMounted(() => {
+    isFullScreen.value = localStorage.getItem('isFullScreen') === 'true';
+})
 const displayClasses = computed(() => ({
     'modal__display--is-fullscreen': unref(isFullScreen)
 }))

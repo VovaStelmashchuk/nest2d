@@ -7,3 +7,6 @@ export const useResultDialog = () => {
 export const useFileDialog = () => {
     return useState("fileDialog", () => false);
 };
+export const useFullScreen = () => {
+    return useState("isFullScreen", () => false);
+}
