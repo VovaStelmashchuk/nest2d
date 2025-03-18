@@ -18,12 +18,12 @@ const API_ROUTES = {
 async function getResults(path) {
     try {
         const data = await $fetch(path);
-        setResults(data.items)
+        setResults(data.items, path)
     } catch (error) {
         console.error("Error fetching result:", error);
     }
 }
-function setResults(results) {
+function setResults(results, path) {
     state.resultsList = [...results]
 
     if (resulTimer) {
