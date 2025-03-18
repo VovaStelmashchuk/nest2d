@@ -40,13 +40,13 @@
                     :theme="themeType.primary"
                     :icon="iconType.light"
                     :isLabelShow=false
-                    @click="toggleTheme(defaultThemeType)"
+                    @click="updateTheme"
                     label="theme light"
                 />
                 <MainButton 
                     :icon="iconType.dark"
                     :isLabelShow=false
-                    @click="toggleTheme(themeType.primary)"
+                    @click="updateTheme"
                     label="theme dark"
                 />
             </div>
@@ -147,9 +147,6 @@ const toggleMenu = () => {
 const { actions } = themeStore;
 const { updateTheme } = actions;
 
-const toggleTheme = (theme) => {
-    updateTheme(theme)
-}
 </script>
 <style lang="scss" scoped>
 .header {
