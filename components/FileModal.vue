@@ -7,6 +7,7 @@
                 <SvgDisplay 
                     :src="fileModalData.svgUrl"
                     :class="displayClasses"
+                    @click="updateFullScreen"
                     class="modal__display" 
                 />
                 <MainButton 
@@ -56,6 +57,7 @@ const displayClasses = computed(() => ({
         right: 8px;
     }
     &__display {
+        cursor: pointer;
         max-width: 100%;
         width: 320px;
         height: 320px;

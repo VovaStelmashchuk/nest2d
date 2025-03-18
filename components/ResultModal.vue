@@ -13,6 +13,7 @@
                     v-else
                     :src="resultModalData.svg"
                     :class="displayClasses"
+                    @click="updateFullScreen"
                     class="modal__display" 
                 />
                 <MainButton 
@@ -92,6 +93,9 @@ const placeholderClasses = computed(() => ({
         position: absolute;
         top: 8px;
         right: 8px;
+    }
+    &__display {
+        cursor: pointer;
     }
     &__display,
     &__placeholder {
