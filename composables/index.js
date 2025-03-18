@@ -55,7 +55,7 @@ function openFileModal(file) {
 export const globalStore = readonly({
     getters: {
         resultsList: computed(() => state.resultsList),
-        isNesting: computed(() => state.resultsList.findIndex(item => [statusType.unfinished, statusType.pending].includes(item.status)) !== -1),
+        isNesting: computed(() => state.resultsList.some(item => [statusType.unfinished, statusType.pending].includes(item.status))),
         projectsList: computed(() => state.projectsList),
         resultModalData: computed(() => state.resultModalData),
         fileModalData: computed(() => state.fileModalData),
