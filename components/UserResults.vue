@@ -28,14 +28,14 @@ const apiPath = computed(() => {
     return route.name === 'project-slug' ? `/api${route.path}/queue` : '/api/queue/all';
 })
 const { getters, actions } = globalStore;
-const { setResult, openResultModal } = actions;
+const { setResult, setModalResultData } = actions;
 const resultsList = computed(() => getters.resultsList);
 
 onBeforeMount(() => {
     setResult(unref(apiPath));
 })
 const openModal = (result) => {
-    openResultModal(result)
+    setModalResultData(result)
     resultDialog.value = true
 }
 watch(() => route.fullPath, () => {

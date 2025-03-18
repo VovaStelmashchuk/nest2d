@@ -45,10 +45,10 @@ function setProjects(projects) {
     state.projectsList = [...projects]
 }
 
-function openResultModal(result) {
+function setModalResultData(result) {
     state.resultModalData = {...result}
 }
-function openFileModal(file) {
+function setModalFileData(file) {
     state.fileModalData = {...file}
 }
 
@@ -64,7 +64,7 @@ export const globalStore = readonly({
         setResult,
         getProjects,
         setProjects,
-        openFileModal,
-        openResultModal
+        setModalFileData,
+        setModalResultData
     }
 })

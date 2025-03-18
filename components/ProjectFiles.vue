@@ -50,11 +50,11 @@ const fileIsProcessing = (status) => status === processingType.inProgress
 const fileIsError = (status) => status === processingType.error
 
 const { actions } = globalStore;
-const { openFileModal } = actions;
+const { setModalFileData } = actions;
 
 const fileDialog = useFileDialog();
 const openModal = (file) => {
-    openFileModal(file)
+    setModalFileData(file)
     fileDialog.value = true
 }
 </script>
