@@ -171,6 +171,11 @@ const buttonClasses = computed(() => ({
             mask-image: url('/icons/svg/light.svg')
         }
     }
+    &--icon-fullscreen {
+        #{$self}__icon {
+            mask-image: url('/icons/svg/fullscreen.svg')
+        }
+    }
 
     @media (hover:hover) {
         &--theme-ghost {

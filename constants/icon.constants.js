@@ -8,6 +8,7 @@ export const iconType = {
     close: 'close',
     dark: 'dark',
     light: 'light',
+    fullscreen: 'fullscreen',
 }
 
 export const defaultIconType = iconType.trash
