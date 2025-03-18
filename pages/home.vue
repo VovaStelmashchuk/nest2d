@@ -26,7 +26,7 @@ definePageMeta({
 const router = useRouter();
 
 const { actions } = globalStore;
-const { setProjects } = actions;
+const { getProjects } = actions;
 
 const error = ref('')
 
@@ -51,7 +51,7 @@ const handleSubmit = async (files) => {
         error.value = errorData.message;
     } else {
         const data = await response.json();
-        await setProjects()
+        await getProjects()
         await router.push({ path: `/project/${data.slug}` });
     }
 }

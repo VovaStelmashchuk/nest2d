@@ -3,7 +3,7 @@ import { statusType } from "~~/constants/status.constants";
 
 const state = reactive({
     resultsList: [],
-    projectsList: [],
+    projectsList: null,
     resultModalData: {},
     fileModalData: {}
 })
@@ -33,14 +33,16 @@ async function setResult(path) {
     }
 }
 
-async function setProjects() {
+async function getProjects() {
     try {
         const data = await $fetch(API_ROUTES.PROJECTS);
-        state.projectsList = [...data.projects]
-
+        setProjects(data.projects)
     } catch (error) {
         console.error("Error fetching projects:", error);
     }
+}
+function setProjects(projects) {
+    state.projectsList = [...projects]
 }
 
 function openResultModal(result) {
@@ -60,6 +62,7 @@ export const globalStore = readonly({
     },
     actions: {
         setResult,
+        getProjects,
         setProjects,
         openFileModal,
         openResultModal

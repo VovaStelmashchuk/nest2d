@@ -22,21 +22,26 @@
 </template>
 
 <script setup>
+import { onBeforeMount } from 'vue';
+
 const route = useRoute();
 const router = useRouter();
 
-const { getters } = globalStore;
+const { getters, actions} = globalStore;
+const { setProjects } = actions;
 const headers = useRequestHeaders(['cookie']);
 
 const data = await $fetch('/api/project/me', { headers });
 
 const projectsList = computed(() => {
-    if(getters.projectsList.length) {
-        return getters.projectsList
-    } else {
-        return data.projects
-    }
+    return getters.projectsList ? getters.projectsList : data.projects
 });
+
+onBeforeMount(() => {
+    if(!getters.projectsList) {
+        setProjects(data.projects)
+    }
+})
 
 const btnLabelValue = computed(() => {
     return route.name === 'home' ? '' : 'New project'
