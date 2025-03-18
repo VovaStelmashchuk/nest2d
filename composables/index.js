@@ -15,21 +15,23 @@ const API_ROUTES = {
     RESULT: (slug) => `/api/queue/${slug}`,
 };
 
-async function setResult(path) {
+async function getResults(path) {
     try {
         const data = await $fetch(path);
-        state.resultsList = [...data.items]
-
-        if (resulTimer) {
-            clearTimeout(resulTimer);
-        }
-
-        if(globalStore.getters.isNesting) {
-            resulTimer = setTimeout(() => setResult(path), 5000)
-        }
-
+        setResults(data.items)
     } catch (error) {
         console.error("Error fetching result:", error);
+    }
+}
+function setResults(results) {
+    state.resultsList = [...results]
+
+    if (resulTimer) {
+        clearTimeout(resulTimer);
+    }
+
+    if(globalStore.getters.isNesting) {
+        resulTimer = setTimeout(() => getResults(path), 5000)
     }
 }
 
@@ -61,7 +63,7 @@ export const globalStore = readonly({
         fileModalData: computed(() => state.fileModalData),
     },
     actions: {
-        setResult,
+        getResults,
         getProjects,
         setProjects,
         setModalFileData,

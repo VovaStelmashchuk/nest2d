@@ -28,18 +28,18 @@ const apiPath = computed(() => {
     return route.name === 'project-slug' ? `/api${route.path}/queue` : '/api/queue/all';
 })
 const { getters, actions } = globalStore;
-const { setResult, setModalResultData } = actions;
+const { getResults, setModalResultData } = actions;
 const resultsList = computed(() => getters.resultsList);
 
 onBeforeMount(() => {
-    setResult(unref(apiPath));
+    getResults(unref(apiPath));
 })
 const openModal = (result) => {
     setModalResultData(result)
     resultDialog.value = true
 }
 watch(() => route.fullPath, () => {
-    setResult(unref(apiPath));
+    getResults(unref(apiPath));
 });
 
 </script>

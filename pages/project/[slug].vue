@@ -51,7 +51,7 @@ definePageMeta({
 });
 
 const { getters, actions } = globalStore;
-const { setResult, getProjects } = actions;
+const { getResults, getProjects } = actions;
 const isNesting = computed(() => getters.isNesting);
 
 const route = useRoute();
@@ -143,7 +143,7 @@ const nest = async () => {
         },
         body: unref(requestBody),
     });
-    await setResult(resultPath)
+    await getResults(resultPath)
     await getProjects()
     lastParams.value = unref(requestBody)
 };
