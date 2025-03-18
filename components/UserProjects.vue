@@ -6,17 +6,17 @@
     >
         <div  
             v-if="projectsList.length"
-            class="prodjects"
+            class="projects"
         >
             <UserProjectItem
                 v-for="project in projectsList"
                 :key="project.slug"
                 :project="project"
-                class="prodjects__item"
+                class="projects__item"
             />
         </div>
-        <p v-else class="prodjects__text">
-            Your prodjects will be here
+        <p v-else class="projects__text">
+            Your projects will be here
         </p> 
     </MainAside>
 </template>
@@ -40,7 +40,7 @@ onBeforeMount(() => {
 </script>
     
 <style lang="scss" scoped>
-.prodjects {
+.projects {
     &__text {
         color: var(--label-tertiary);
     }
