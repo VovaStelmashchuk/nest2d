@@ -5,6 +5,7 @@ const state = reactive({
     resultsList: [],
     projectsList: [],
     resultModalData: {},
+    fileModalData: {}
 })
 
 let resulTimer;
@@ -42,8 +43,11 @@ async function setProjects() {
     }
 }
 
-async function openResultModal(result) {
+function openResultModal(result) {
     state.resultModalData = {...result}
+}
+function openFileModal(file) {
+    state.fileModalData = {...file}
 }
 
 export const globalStore = readonly({
@@ -51,11 +55,13 @@ export const globalStore = readonly({
         resultsList: computed(() => state.resultsList),
         isNesting: computed(() => state.resultsList.findIndex(item => [statusType.unfinished, statusType.pending].includes(item.status)) !== -1),
         projectsList: computed(() => state.projectsList),
-        resultModalData: computed(() => state.resultModalData)
+        resultModalData: computed(() => state.resultModalData),
+        fileModalData: computed(() => state.fileModalData),
     },
     actions: {
         setResult,
         setProjects,
+        openFileModal,
         openResultModal
     }
 })

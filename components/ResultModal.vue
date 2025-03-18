@@ -16,6 +16,7 @@
                     class="modal__display" 
                 />
                 <MainButton 
+                    v-if="!isHaveError"
                     label="fullscreen"
                     :size="sizeType.s"
                     :theme="themeType.primary"
@@ -73,10 +74,10 @@ const updateFullScreen = () => {
     isFullScreen.value = !unref(isFullScreen);
 }
 const displayClasses = computed(() => ({
-    'modal__display--is-fullscreen': unref(isFullScreen)
+    'modal__display--is-fullscreen': unref(isFullScreen) && !unref(isHaveError)
 }))
 const placeholderClasses = computed(() => ({
-    'modal__placeholder--is-fullscreen': unref(isFullScreen)
+    'modal__placeholder--is-fullscreen': unref(isFullScreen) && !unref(isHaveError)
 }))
 </script>
     
@@ -92,11 +93,6 @@ const placeholderClasses = computed(() => ({
         position: absolute;
         top: 8px;
         right: 8px;
-    }
-    &__close {
-        position: absolute;
-        top: 8.5px;
-        right: 8.5px;
     }
     &__display,
     &__placeholder {

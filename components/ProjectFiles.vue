@@ -10,6 +10,7 @@
                 :fileIndex="fileIndex"
                 @increment="increment"
                 @decrement="decrement"
+                @openModal="openModal(file)"
                 v-if="fileIsDone(file.processingStatus)"
                 class="files__item file"
             />
@@ -24,6 +25,7 @@
                 class="files__item file"
             />
         </template>
+        <FileModal v-model:isModalOpen="fileDialog" />
     </div>
 </template>
 <script setup>
@@ -47,6 +49,14 @@ const fileIsDone = (status) => status === processingType.done
 const fileIsProcessing = (status) => status === processingType.inProgress
 const fileIsError = (status) => status === processingType.error
 
+const { actions } = globalStore;
+const { openFileModal } = actions;
+
+const fileDialog = useFileDialog();
+const openModal = (file) => {
+    openFileModal(file)
+    fileDialog.value = true
+}
 </script>
 
 <style lang="scss" scoped>
