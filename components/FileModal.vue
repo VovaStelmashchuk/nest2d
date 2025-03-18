@@ -47,7 +47,6 @@ const displayClasses = computed(() => ({
 .modal {
     padding: 48px 24px 24px;
     min-width: 368px;
-    min-height: 484px;
     &__wrapper {
         position: relative;
     }
