@@ -1,7 +1,5 @@
 <template>
-    <MainAside 
-        label="Results"
-    >
+    <MainAside label="Results">
         <div 
             v-if="resultsList.length"    
             class="results"
@@ -22,26 +20,34 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
+
 const resultDialog = useResultDialog();
+
 const route = useRoute();
+
+const { getters, actions } = globalStore;
+const { setResults, setModalResultData } = actions;
+const headers = useRequestHeaders(['cookie']);
 const apiPath = computed(() => {
     return route.name === 'project-slug' ? `/api${route.path}/queue` : '/api/queue/all';
 })
-const { getters, actions } = globalStore;
-const { getResults, setModalResultData } = actions;
-const resultsList = computed(() => getters.resultsList);
+
+const data = await $fetch(unref(apiPath), { headers });
+
+const resultsList = computed(() => {
+    return getters.resultsList ? getters.resultsList : data.items
+});
 
 onBeforeMount(() => {
-    getResults(unref(apiPath));
+    if (!getters.resultsList) {
+        setResults(data.items, unref(apiPath))
+    }
 })
 const openModal = (result) => {
     setModalResultData(result)
     resultDialog.value = true
 }
-watch(() => route.fullPath, () => {
-    getResults(unref(apiPath));
-});
-
 </script>
 <style lang="scss" scoped>
 .results {

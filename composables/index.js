@@ -2,7 +2,7 @@ import { computed, reactive, readonly } from "vue";
 import { statusType } from "~~/constants/status.constants";
 
 const state = reactive({
-    resultsList: [],
+    resultsList: null,
     projectsList: null,
     resultModalData: {},
     fileModalData: {}
@@ -57,13 +57,14 @@ function setModalFileData(file) {
 export const globalStore = readonly({
     getters: {
         resultsList: computed(() => state.resultsList),
-        isNesting: computed(() => state.resultsList.some(item => [statusType.unfinished, statusType.pending].includes(item.status))),
+        isNesting: computed(() => state.resultsList && state.resultsList.some(item => [statusType.unfinished, statusType.pending].includes(item.status))),
         projectsList: computed(() => state.projectsList),
         resultModalData: computed(() => state.resultModalData),
         fileModalData: computed(() => state.fileModalData),
     },
     actions: {
         getResults,
+        setResults,
         getProjects,
         setProjects,
         setModalFileData,
