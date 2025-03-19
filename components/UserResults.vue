@@ -27,7 +27,7 @@ const resultDialog = useResultDialog();
 const route = useRoute();
 
 const { getters, actions } = globalStore;
-const { setResults, setModalResultData } = actions;
+const { setResults, getResults, setModalResultData } = actions;
 const headers = useRequestHeaders(['cookie']);
 const apiPath = computed(() => {
     return route.name === 'project-slug' ? `/api${route.path}/queue` : '/api/queue/all';
@@ -44,6 +44,11 @@ onBeforeMount(() => {
         setResults(data.items, unref(apiPath))
     }
 })
+
+watch(
+    () => route.path,
+    () => getResults(unref(apiPath)),
+);
 const openModal = (result) => {
     setModalResultData(result)
     resultDialog.value = true

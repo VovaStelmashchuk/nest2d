@@ -15,7 +15,7 @@ const API_ROUTES = {
     RESULT: (slug) => `/api/queue/${slug}`,
 };
 
-async function getResults(path) {
+async function getResults(path = '/api/queue/all') {
     try {
         const data = await $fetch(path);
         setResults(data.items, path)

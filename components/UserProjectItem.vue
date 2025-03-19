@@ -5,7 +5,6 @@
     >
         <NuxtLink 
             :to="`/project/${project.slug}`"
-            @click="getResults(`/api/project/${project.slug}/queue`)"
             class="prodject__label"
         >
             {{ project.name }}
@@ -48,9 +47,6 @@ const { project } = defineProps({
 }) 
 const route = useRoute()
 const now = ref(new Date())
-
-const { actions } = globalStore;
-const { getResults } = actions;
 
 const prodjectClasses = computed(() => ({
     'prodject--active': unref(project).slug === route.params.slug
