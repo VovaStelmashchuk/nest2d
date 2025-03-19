@@ -247,6 +247,7 @@ onBeforeMount(() => {
         padding: 12px;
         background-color: var(--error-background);
         border: solid 1px var(--error-border);
+        color: var(--label-secondary);
         border-radius: 8px;
     }
     &__text {
