@@ -51,39 +51,20 @@ export default defineNuxtConfig({
         }
     },
 
-    // nitro: {
-    //     compressPublicAssets: true,
-    //     routeRules: {
-    //         '/icons/**': {
-    //             headers: {
-    //                 'cache-control': `public,max-age=${year},s-maxage=${year}`
-    //             }
-    //         },
-    //         '/fonts/**': {
-    //             headers: {
-    //                 'cache-control': `public,max-age=${year},s-maxage=${year}`
-    //             }
-    //         }
-    //     },
-    //     storage: {
-    //         cache: {
-    //             driver: 'fs',
-    //             options: {
-    //                 base: './.nitro/cache'
-    //             }
-    //         }
-    //     },
-    //     compress: {
-    //         brotli: {
-    //             enabled: true,
-    //             zlevel: 11
-    //         },
-    //         gzip: {
-    //             enabled: true,
-    //             level: 9
-    //         }
-    //     }
-    // },
+    nitro: {
+        routeRules: {
+            '/icons/**': {
+                headers: {
+                    'cache-control': `public,max-age=${year},s-maxage=${year}`
+                }
+            },
+            '/fonts/**': {
+                headers: {
+                    'cache-control': `public,max-age=${year},s-maxage=${year}`
+                }
+            }
+        },
+    },
 
     app: {
         head: {
