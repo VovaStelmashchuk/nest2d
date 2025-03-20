@@ -11,12 +11,15 @@ export default defineNuxtConfig({
             gitCommitSha: "",
         },
     },
+    
     css: [
         '@/assets/css/main.css',
     ],
+
     plugins: [
         '@/plugins/theme.js'
     ],
+
     vite: {
         css: {
             preprocessorOptions: {
@@ -35,18 +38,6 @@ export default defineNuxtConfig({
     site: {
         url: 'https://nest2d.stelmashchuk.dev/',
         name: 'Nest2D'
-    },
-
-    build: {
-        treeShake: true,
-        extractCSS: true,
-        optimization: {
-            splitChunks: {
-                layouts: true,
-                pages: true,
-                commons: true
-            }
-        }
     },
 
     app: {
