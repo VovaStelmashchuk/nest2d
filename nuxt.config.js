@@ -11,7 +11,7 @@ export default defineNuxtConfig({
             gitCommitSha: "",
         },
     },
-    
+
     css: [
         '@/assets/css/main.css',
     ],
@@ -32,6 +32,10 @@ export default defineNuxtConfig({
                     `
                 }
             }
+        },
+        build: {
+            minify: 'terser',
+            chunkSizeWarningLimit: 1000,
         }
     },
 
@@ -105,5 +109,39 @@ export default defineNuxtConfig({
                 }
             ]
         }
+    },
+
+    nitro: {
+        compressPublicAssets: true,
+        routeRules: {
+            '/icons/**': {
+                headers: {
+                'cache-control': 'public,max-age=31536000,s-maxage=31536000,immutable'
+                }
+            },
+            '/fonts/**': {
+                headers: {
+                'cache-control': 'public,max-age=31536000,s-maxage=31536000,immutable'
+                }
+            },
+            '/_nuxt/**': {
+                headers: {
+                'cache-control': 'public,max-age=31536000,immutable'
+                }
+            },
+            '/**': {
+                headers: {
+                'cache-control': 'public,max-age=0,s-maxage=86400,stale-while-revalidate'
+                }
+            }
+        }
+    },
+
+    experimental: {
+        payloadExtraction: true
+    },
+
+    build: {
+        extractCSS: true,
     },
 });
