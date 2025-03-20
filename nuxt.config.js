@@ -1,5 +1,7 @@
 import { schemaWebSite } from './utils/schema'
 
+const year = 60 * 60 * 24 * 365
+
 export default defineNuxtConfig({
     compatibilityDate: "2024-11-01",
     devtools: { enabled: true },
@@ -45,6 +47,37 @@ export default defineNuxtConfig({
                 layouts: true,
                 pages: true,
                 commons: true
+            }
+        }
+    },
+
+    nitro: {
+        compressPublicAssets: true,
+        routeRules: {
+            '/icons/**': {
+                headers: {
+                    'cache-control': `public,max-age=${year},s-maxage=${year}`
+                }
+            },
+            '/fonts/**': {
+                headers: {
+                    'cache-control': `public,max-age=${year},s-maxage=${year}`
+                }
+            }
+        },
+        storage: {
+            cache: {
+                driver: 'redis'
+            }
+        },
+        compress: {
+            brotli: {
+                enabled: true,
+                zlevel: 11
+            },
+            gzip: {
+                enabled: true,
+                level: 9
             }
         }
     },
