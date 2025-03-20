@@ -1,7 +1,5 @@
 import { schemaWebSite } from './utils/schema'
 
-const year = 60 * 60 * 24 * 365
-
 export default defineNuxtConfig({
     compatibilityDate: "2024-11-01",
     devtools: { enabled: true },
@@ -52,18 +50,19 @@ export default defineNuxtConfig({
     },
 
     nitro: {
+        compressPublicAssets: true,
         routeRules: {
             '/icons/**': {
                 headers: {
-                    'cache-control': `public,max-age=${year},s-maxage=${year}`
+                    'cache-control': 'public,max-age=31536000,s-maxage=31536000'
                 }
             },
             '/fonts/**': {
                 headers: {
-                    'cache-control': `public,max-age=${year},s-maxage=${year}`
+                    'cache-control': 'public,max-age=31536000,s-maxage=31536000'
                 }
             }
-        },
+        }
     },
 
     app: {
