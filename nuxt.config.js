@@ -49,22 +49,6 @@ export default defineNuxtConfig({
         }
     },
 
-    nitro: {
-        compressPublicAssets: true,
-        routeRules: {
-            '/icons/**': {
-                headers: {
-                    'cache-control': 'public,max-age=31536000,s-maxage=31536000'
-                }
-            },
-            '/fonts/**': {
-                headers: {
-                    'cache-control': 'public,max-age=31536000,s-maxage=31536000'
-                }
-            }
-        }
-    },
-
     app: {
         head: {
             htmlAttrs: {
