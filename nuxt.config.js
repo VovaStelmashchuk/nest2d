@@ -67,7 +67,10 @@ export default defineNuxtConfig({
         },
         storage: {
             cache: {
-                driver: 'redis'
+                driver: 'fs',
+                options: {
+                    base: './.nitro/cache'
+                }
             }
         },
         compress: {
