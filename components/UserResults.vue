@@ -20,8 +20,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-
 const resultDialog = useResultDialog();
 
 const route = useRoute();
@@ -39,7 +37,7 @@ const resultsList = computed(() => {
     return getters.resultsList ? getters.resultsList : data.items
 });
 
-onBeforeMount(() => {
+onMounted(() => {
     if (!getters.resultsList) {
         setResults(data.items, unref(apiPath))
     }
