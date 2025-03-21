@@ -25,7 +25,6 @@ const API_ROUTES = {
 async function getProject(path) {
     try {
         const data = await $fetch(path);
-        
         setProjectFiles(data.files, path)
         setProjectName(data.name)
     } catch (error) {
@@ -36,13 +35,13 @@ function setProjectName(name) {
     state.projectName = name
 }
 function setProjectFiles(files, path) {
-    state.projectFiles = [...files.map(file => ({...file, count: file.count || 1}))]
-
+    state.projectFiles = [...files.map((file, fileIndex) => ({
+        ...file, 
+        count: filesSlore.getters.currentFilesSlug.has(file.slug) ? state.projectFiles[fileIndex].count : 1
+    }))]
     if (updateTimer) {
         clearTimeout(updateTimer);
     }
-    console.log(state.projectFiles)
-    console.log(filesSlore.getters.isSvgLoaded)
     if(!filesSlore.getters.isSvgLoaded) {
         updateTimer = setTimeout(() => getProject(path), 5000)
     }
@@ -97,24 +96,22 @@ async function nest(slug, path) {
 export const filesSlore = readonly({
     getters: {
         projectFiles: computed(() => state.projectFiles),
-        isSvgLoaded: computed(() => (state.projectFiles && state.projectFiles.every(file => file.processingStatus !== processingType.inProgress)) || false),
-        filesStatusDone: computed(() => (state.projectFiles && state.projectFiles.filter(file => file.processingStatus === processingType.done)) || []),
+        isSvgLoaded: computed(() => state.projectFiles?.every(file => file.processingStatus !== processingType.inProgress) || false),
+        filesStatusDone: computed(() => state.projectFiles?.filter(file => file.processingStatus === processingType.done) || []),
         filesCount: computed(() => filesSlore.getters.filesStatusDone.reduce((acc, curr) => acc + curr.count, 0)),
         filesToNest: computed(() => filesSlore.getters.filesStatusDone.map(file => ({ slug: file.slug, count: file.count }))),
         isValidParams: computed(() => Object.values(state.params).some(param => !isValidNumber(param))),
         params: computed(() => state.params),
-        requestBody: computed(() => {
-            return JSON.stringify({
-                files: filesSlore.getters.filesToNest,
-                params: {
-                    width: Number(state.params.widthPlate),
-                    height: Number(state.params.heightPlate),
-                    tolerance: Number(state.params.tolerance),
-                    space: Number(state.params.space)
-                },
-            })
-        }),
-        currentFilesSlug: computed(() => new Set((state.projectFiles && state.projectFiles.map(file => file.slug)) || [])),
+        requestBody: computed(() => JSON.stringify({
+            files: filesSlore.getters.filesToNest,
+            params: {
+                width: Number(state.params.widthPlate),
+                height: Number(state.params.heightPlate),
+                tolerance: Number(state.params.tolerance),
+                space: Number(state.params.space)
+            },
+        })),
+        currentFilesSlug: computed(() => new Set(state.projectFiles?.map(file => file.slug) || [])),
         lastParams: computed(() => state.lastParams),
         isNewParams: computed(() => filesSlore.getters.requestBody !== state.lastParams),
         nestRequestError: computed(() => {
