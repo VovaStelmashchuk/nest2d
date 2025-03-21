@@ -22,8 +22,6 @@
 </template>
 
 <script setup>
-import { onBeforeMount } from 'vue';
-
 const route = useRoute();
 const router = useRouter();
 
@@ -37,7 +35,7 @@ const projectsList = computed(() => {
     return getters.projectsList ? getters.projectsList : data.projects
 });
 
-onBeforeMount(() => {
+onMounted(() => {
     if(!getters.projectsList) {
         setProjects(data.projects)
     }
