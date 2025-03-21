@@ -14,7 +14,6 @@ const API_ROUTES = {
     PROJECTS: "/api/project/me",
     RESULT: (slug) => `/api/queue/${slug}`,
 };
-
 async function getResults(path = '/api/queue/all') {
     try {
         const data = await $fetch(path);
@@ -34,7 +33,6 @@ function setResults(results, path) {
         resulTimer = setTimeout(() => getResults(path), 5000)
     }
 }
-
 async function getProjects() {
     try {
         const data = await $fetch(API_ROUTES.PROJECTS);
@@ -46,14 +44,12 @@ async function getProjects() {
 function setProjects(projects) {
     state.projectsList = [...projects]
 }
-
 function setModalResultData(result) {
     state.resultModalData = {...result}
 }
 function setModalFileData(file) {
     state.fileModalData = {...file}
 }
-
 export const globalStore = readonly({
     getters: {
         resultsList: computed(() => state.resultsList),

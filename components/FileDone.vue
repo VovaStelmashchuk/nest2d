@@ -60,10 +60,9 @@ defineProps({
     }
 })
 
-const emit = defineEmits(["increment", "decrement", "openModal"])
+const { actions } = filesSlore;
+const { increment, decrement } = actions;
 
-const increment = (index) => emit("increment", index)
-const decrement = (index) => emit("decrement", index)
 const openModal = () => {
     emit('openModal')
 }

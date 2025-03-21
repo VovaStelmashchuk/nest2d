@@ -26,17 +26,14 @@ definePageMeta({
 const router = useRouter();
 
 const { actions } = globalStore;
+const { actions:filesactions } = filesSlore;
 const { getProjects } = actions;
+const { getProject } = filesactions;
 
 const error = ref('')
 
 const handleSubmit = async (files) => {
     error.value = "";
-
-    if (files.length === 0) {
-        error.value = "At least one DXF file is required.";
-        return;
-    }
 
     const formData = new FormData();
     files.forEach((file) => formData.append("dxf", file));
@@ -52,6 +49,7 @@ const handleSubmit = async (files) => {
     } else {
         const data = await response.json();
         await getProjects()
+        await getProject(`/api/project/${data.slug}`)
         await router.push({ path: `/project/${data.slug}` });
     }
 }
