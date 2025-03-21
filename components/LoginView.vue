@@ -39,7 +39,7 @@
 import { themeType } from "~~/constants/theme.constants";
 
 const doAuth = async (provider) => {
-    const response = await $fetch(`/api/auth/${provider}/redirect`, {
+    const response = await $fetch(API_ROUTES.AUTH(provider), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

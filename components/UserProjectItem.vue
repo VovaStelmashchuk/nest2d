@@ -5,7 +5,7 @@
     >
         <NuxtLink 
             :to="`/project/${project.slug}`"
-            @click="getProject(`/api/project/${project.slug}`)"
+            @click="getProject(API_ROUTES.PROJECT(project.slug))"
             class="prodject__label"
         >
             {{ project.name }}

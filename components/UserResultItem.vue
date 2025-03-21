@@ -37,7 +37,7 @@
                 </div> -->
                 <MainButton 
                     v-if="isResultCompleted"
-                    :href="`/api/queue/${result.slug}/dxf`"
+                    :href="API_ROUTES.DXFFILE(result.slug)"
                     label="Download"
                     tag="a"
                     :size="sizeType.s"

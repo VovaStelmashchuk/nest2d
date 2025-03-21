@@ -20,33 +20,31 @@
 </template>
 
 <script setup>
-const resultDialog = useResultDialog();
-
 const route = useRoute();
+const resultDialog = useResultDialog();
 
 const { getters, actions } = globalStore;
 const { setResults, getResults, setModalResultData } = actions;
-const headers = useRequestHeaders(['cookie']);
-const apiPath = computed(() => {
-    return route.name === 'project-slug' ? `/api${route.path}/queue` : '/api/queue/all';
-})
 
-const data = await $fetch(unref(apiPath), { headers });
+const slug = computed(() => route.params.slug);
+const headers = useRequestHeaders(['cookie']);
+const data = getters.resultsList || await $fetch(API_ROUTES.RESULTS(unref(slug)), { headers });
 
 const resultsList = computed(() => {
-    return getters.resultsList ? getters.resultsList : data.items
+    return getters.resultsList || data.items
 });
 
 onMounted(() => {
     if (!getters.resultsList) {
-        setResults(data.items, unref(apiPath))
+        setResults(data.items, unref(slug))
     }
 })
 
 watch(
     () => route.path,
-    () => getResults(unref(apiPath)),
+    () => getResults(unref(slug)),
 );
+
 const openModal = (result) => {
     setModalResultData(result)
     resultDialog.value = true

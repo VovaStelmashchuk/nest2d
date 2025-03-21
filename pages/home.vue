@@ -38,7 +38,7 @@ const handleSubmit = async (files) => {
     const formData = new FormData();
     files.forEach((file) => formData.append("dxf", file));
 
-    const response = await fetch("/api/project", {
+    const response = await fetch(API_ROUTES.PROJECT(), {
         method: "POST",
         body: formData,
     });
@@ -49,7 +49,7 @@ const handleSubmit = async (files) => {
     } else {
         const data = await response.json();
         await getProjects()
-        await getProject(`/api/project/${data.slug}`)
+        await getProject(API_ROUTES.PROJECT(data.slug))
         await router.push({ path: `/project/${data.slug}` });
     }
 }

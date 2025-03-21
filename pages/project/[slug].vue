@@ -15,7 +15,7 @@
             :theme="themeType.primary"
             :label="btnLabel"
             :isDisable="btnIsDisable"
-            @click="nest(slug, resultPath)"
+            @click="nest(slug)"
             class="content__btn" 
         />
         <div
@@ -57,13 +57,12 @@ const nestRequestError = computed(() => filesgetters.nestRequestError);
 
 const route = useRoute();
 const slug = route.params.slug;
-const resultPath = `/api${route.path}/queue`
-const apiPath = `/api/project/${slug}`
+const apiPath = API_ROUTES.PROJECT(slug);
 
 const data = filesgetters.projectFiles || await $fetch(apiPath, { headers });
 
 const projectFiles = computed(() => {
-    return filesgetters.projectFiles ? filesgetters.projectFiles : data.files.map(file => ({...file, count: 1}))
+    return filesgetters.projectFiles || data.files.map(file => ({...file, count: 1}))
 })
 
 onMounted(() => {

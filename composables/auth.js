@@ -5,12 +5,6 @@ const state = reactive({
     userIsSet: false,
     user: {},
 })
-
-const API_ROUTES = {
-    LOGOUT: "/api/auth/logout",
-    USER: "/api/user",
-};
-
 async function setUser() {
     try {
         const { data } = await useFetch(API_ROUTES.USER);

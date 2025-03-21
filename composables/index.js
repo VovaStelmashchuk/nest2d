@@ -10,27 +10,22 @@ const state = reactive({
 
 let resulTimer;
 
-const API_ROUTES = {
-    PROJECTS: "/api/project/me",
-    RESULT: (slug) => `/api/queue/${slug}`,
-};
-async function getResults(path = '/api/queue/all') {
+async function getResults(slug) {
     try {
-        const data = await $fetch(path);
-        setResults(data.items, path)
+        const data = await $fetch(API_ROUTES.RESULTS(slug));
+        setResults(data.items, slug)
     } catch (error) {
         console.error("Error fetching result:", error);
     }
 }
-function setResults(results, path) {
+function setResults(results, slug) {
     state.resultsList = [...results]
-
     if (resulTimer) {
         clearTimeout(resulTimer);
     }
 
     if(globalStore.getters.isNesting) {
-        resulTimer = setTimeout(() => getResults(path), 5000)
+        resulTimer = setTimeout(() => getResults(slug), 5000)
     }
 }
 async function getProjects() {

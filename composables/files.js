@@ -18,10 +18,6 @@ const state = reactive({
 
 let updateTimer;
 
-const API_ROUTES = {
-    // PROJECTS: "/api/project/me",
-    // RESULT: (slug) => `/api/queue/${slug}`,
-};
 async function getProject(path) {
     try {
         const data = await $fetch(path);
@@ -51,7 +47,7 @@ async function addFiles(files, slug) {
     formData.append("projectName", state.projectName);
     files.forEach((file) => formData.append("dxf", file));
     try {
-        const response = await fetch(`/api/project/${slug}/addfiles`, {
+        const response = await fetch(API_ROUTES.ADDFILES(slug), {
             method: "POST",
             body: formData,
         });
@@ -61,7 +57,7 @@ async function addFiles(files, slug) {
             return;
         }
 
-        getProject(`/api/project/${slug}`)
+        getProject(API_ROUTES.PROJECT(slug))
     } catch (error) {
         console.error("Error while uploading files:", error);
     }
@@ -80,15 +76,15 @@ function decrement(index) {
         state.projectFiles[index].count--
     }
 }
-async function nest(slug, path) {
-    await fetch(`/api/project/${slug}/nest`, {
+async function nest(slug) {
+    await fetch(API_ROUTES.NEST(slug), {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: filesSlore.getters.requestBody,
     });
-    await getResults(path)
+    await getResults(slug)
     await getProjects()
     state.lastParams = filesSlore.getters.requestBody
 }

@@ -27,12 +27,12 @@ const router = useRouter();
 
 const { getters, actions} = globalStore;
 const { setProjects } = actions;
-const headers = useRequestHeaders(['cookie']);
 
-const data = await $fetch('/api/project/me', { headers });
+const headers = useRequestHeaders(['cookie']);
+const data = getters.projectsList || await $fetch(API_ROUTES.PROJECTS, { headers });
 
 const projectsList = computed(() => {
-    return getters.projectsList ? getters.projectsList : data.projects
+    return getters.projectsList || data.projects
 });
 
 onMounted(() => {

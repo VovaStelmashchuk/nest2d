@@ -37,7 +37,7 @@
             </div>
             <div class="controls">
                 <MainButton 
-                    :href="`/api/queue/${resultModalData.slug}/dxf`"
+                    :href="API_ROUTES.DXFFILE(resultModalData.slug)"
                     label="Download"
                     tag="a"
                     :isDisable="isHaveError"
@@ -45,7 +45,6 @@
                     :theme="themeType.primary"
                 />
                 <MainButton 
-                    href="`/api/queue/${item.slug}/dxf`"
                     label="Try again"
                     :size="sizeType.s"
                     :theme="themeType.secondary"
