@@ -60,6 +60,8 @@ defineProps({
     }
 })
 
+const emit = defineEmits(["openModal"]);
+
 const { actions } = filesSlore;
 const { increment, decrement } = actions;
 
