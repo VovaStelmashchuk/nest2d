@@ -11,10 +11,10 @@ export default defineEventHandler(async (event) => {
 
   const db = await connectDB();
   const result = await db
-    .collection("nest_request")
+    .collection("nesting_jobs")
     .findOne(
       { slug: resultSlug, ownerId: userId },
-      { projection: { svgFileName: 1 } }
+      { projection: { svg_file: 1 } }
     );
 
   if (!result) {
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     return;
   }
 
-  const svgFileName = result.svgFileName;
+  const svgFileName = result.svg_file;
 
   if (!svgFileName) {
     setResponseStatus(404);

@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const queueList = await db
-    .collection("nest_request")
+    .collection("nesting_jobs")
     .find({ ownerId: userId, projectSlug: projectSlug })
     .sort({ createdAt: -1 })
     .project({ slug: 1, status: 1, createdAt: 1, projectSlug: 1 })

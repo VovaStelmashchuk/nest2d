@@ -36,7 +36,7 @@ export async function getSvgResultBucket() {
   await connectDB();
   if (!svgResultBucket) {
     svgResultBucket = new GridFSBucket(db, {
-      bucketName: "svgResults",
+      bucketName: "nestSvg",
     });
   }
   return svgResultBucket;

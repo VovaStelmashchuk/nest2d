@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
 
   const userSvgBucket = await getUserSvgBucket();
 
-  const readStream = userSvgBucket.openDownloadStreamByName(fileSlug);
+  const readStream = userSvgBucket.openDownloadStreamByName(`${fileSlug}.svg`);
 
   setResponseHeaders(event, {
     "Content-Type": "image/svg+xml",
