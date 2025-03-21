@@ -26,9 +26,9 @@ definePageMeta({
 const router = useRouter();
 
 const { actions } = globalStore;
-const { actions:filesactions } = filesSlore;
+const { actions:filesActions } = filesSlore;
 const { getProjects } = actions;
-const { getProject } = filesactions;
+const { getProject } = filesActions;
 
 const error = ref('')
 
