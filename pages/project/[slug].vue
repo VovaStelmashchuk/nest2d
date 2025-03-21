@@ -10,7 +10,6 @@
             class="content__files" 
         />
         <MainSettings />
-        <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
         <MainButton 
             :theme="themeType.primary"
             :label="btnLabel"
