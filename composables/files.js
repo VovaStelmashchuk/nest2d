@@ -13,7 +13,21 @@ const state = reactive({
         heightPlate: '560',
         tolerance: '0.1',
         space: '0.1'
-    }
+    },
+    isSvgLoaded: computed(() => state.projectFiles?.every(file => file.processingStatus !== processingType.inProgress) || false),
+    filesStatusDone: computed(() => state.projectFiles?.filter(file => file.processingStatus === processingType.done) || []),
+    filesToNest: computed(() => state.filesStatusDone.map(file => ({ slug: file.slug, count: file.count }))),
+    currentFilesSlug: computed(() => new Set(state.projectFiles?.map(file => file.slug) || [])),
+    isValidParams: computed(() => Object.values(state.params).some(param => !isValidNumber(param))),
+    requestBody: computed(() => JSON.stringify({
+        files: state.filesToNest,
+        params: {
+            width: Number(state.params.widthPlate),
+            height: Number(state.params.heightPlate),
+            tolerance: Number(state.params.tolerance),
+            space: Number(state.params.space)
+        },
+    })),
 })
 
 let updateTimer;
@@ -33,12 +47,12 @@ function setProjectName(name) {
 function setProjectFiles(files, path) {
     state.projectFiles = [...files.map((file, fileIndex) => ({
         ...file, 
-        count: filesSlore.getters.currentFilesSlug.has(file.slug) ? state.projectFiles[fileIndex].count : 1
+        count: state.currentFilesSlug.has(file.slug) ? state.projectFiles[fileIndex].count : 1
     }))]
     if (updateTimer) {
         clearTimeout(updateTimer);
     }
-    if(!filesSlore.getters.isSvgLoaded) {
+    if(!state.isSvgLoaded) {
         updateTimer = setTimeout(() => getProject(path), 5000)
     }
 }
@@ -82,39 +96,24 @@ async function nest(slug) {
         headers: {
             "Content-Type": "application/json",
         },
-        body: filesSlore.getters.requestBody,
+        body: state.requestBody,
     });
     await getResults(slug)
     await getProjects()
-    state.lastParams = filesSlore.getters.requestBody
+    state.lastParams = state.requestBody
 }
 
 export const filesSlore = readonly({
     getters: {
         projectFiles: computed(() => state.projectFiles),
-        isSvgLoaded: computed(() => state.projectFiles?.every(file => file.processingStatus !== processingType.inProgress) || false),
-        filesStatusDone: computed(() => state.projectFiles?.filter(file => file.processingStatus === processingType.done) || []),
-        filesCount: computed(() => filesSlore.getters.filesStatusDone.reduce((acc, curr) => acc + curr.count, 0)),
-        filesToNest: computed(() => filesSlore.getters.filesStatusDone.map(file => ({ slug: file.slug, count: file.count }))),
-        isValidParams: computed(() => Object.values(state.params).some(param => !isValidNumber(param))),
+        filesCount: computed(() => state.filesStatusDone.reduce((acc, curr) => acc + curr.count, 0)),
+        isNewParams: computed(() => state.requestBody !== state.lastParams),
         params: computed(() => state.params),
-        requestBody: computed(() => JSON.stringify({
-            files: filesSlore.getters.filesToNest,
-            params: {
-                width: Number(state.params.widthPlate),
-                height: Number(state.params.heightPlate),
-                tolerance: Number(state.params.tolerance),
-                space: Number(state.params.space)
-            },
-        })),
-        currentFilesSlug: computed(() => new Set(state.projectFiles?.map(file => file.slug) || [])),
-        lastParams: computed(() => state.lastParams),
-        isNewParams: computed(() => filesSlore.getters.requestBody !== state.lastParams),
         nestRequestError: computed(() => {
             if(filesSlore.getters.filesCount < 1) {
                 return 'Please select at least one file to nest.'
             }
-            if(filesSlore.getters.isValidParams) {
+            if(state.isValidParams) {
                 return 'Please enter valid values for width, height, tolerance and space.'
             }
         
