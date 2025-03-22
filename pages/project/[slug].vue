@@ -46,7 +46,7 @@ const { getters } = globalStore;
 const isNesting = computed(() => getters.isNesting);
 const resultsList = computed(() => getters.resultsList);
 
-const { getters:filesgetters, actions } = filesSlore;
+const { getters:filesgetters, actions } = filesStore;
 
 const { setProjectFiles, setProjectName, nest } = actions;
 

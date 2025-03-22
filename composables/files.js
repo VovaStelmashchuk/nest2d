@@ -103,14 +103,14 @@ async function nest(slug) {
     state.lastParams = state.requestBody
 }
 
-export const filesSlore = readonly({
+export const filesStore = readonly({
     getters: {
         projectFiles: computed(() => state.projectFiles),
         filesCount: computed(() => state.filesStatusDone.reduce((acc, curr) => acc + curr.count, 0)),
         isNewParams: computed(() => state.requestBody !== state.lastParams),
         params: computed(() => state.params),
         nestRequestError: computed(() => {
-            if(filesSlore.getters.filesCount < 1) {
+            if(filesStore.getters.filesCount < 1) {
                 return 'Please select at least one file to nest.'
             }
             if(state.isValidParams) {

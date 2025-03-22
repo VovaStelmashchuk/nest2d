@@ -49,7 +49,7 @@ const { project } = defineProps({
 const route = useRoute()
 const now = ref(new Date())
 
-const { actions } = filesSlore;
+const { actions } = filesStore;
 const { getProject } = actions;
 
 const prodjectClasses = computed(() => ({

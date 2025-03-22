@@ -53,7 +53,7 @@
 
 <script setup>
 
-const { getters, actions } = filesSlore;
+const { getters, actions } = filesStore;
 const { updateParams } = actions;
 const params = computed(() => getters.params);
 
