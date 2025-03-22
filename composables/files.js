@@ -77,7 +77,7 @@ async function addFiles(files, slug) {
     }
 }
 function isValidNumber(value) {
-    return /^\d+(\.\d+)?$/.test(value);
+    return /^\d+([.,]\d+)?$/.test(value);
 }
 function updateParams(param) {
     state.params = { ...state.params, ...param }
