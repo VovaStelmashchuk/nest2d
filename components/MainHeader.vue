@@ -38,16 +38,10 @@
             <div class="header__theme">
                 <MainButton 
                     :theme="themeType.primary"
-                    :icon="iconType.light"
+                    :icon="themeIcon"
                     :isLabelShow=false
                     @click="updateTheme"
                     label="theme light"
-                />
-                <MainButton 
-                    :icon="iconType.dark"
-                    :isLabelShow=false
-                    @click="updateTheme"
-                    label="theme dark"
                 />
             </div>
             <MainButton 
@@ -146,6 +140,14 @@ const toggleMenu = () => {
 
 const { actions } = themeStore;
 const { updateTheme } = actions;
+
+const themeCookie = useCookie('theme');
+const themeGlobal = computed(() => {
+    return  themeCookie.value || defaultThemeType
+})
+const themeIcon = computed(() => {
+    return unref(themeGlobal) === themeType.primary ? iconType.light : iconType.dark
+})
 
 </script>
 <style lang="scss" scoped>

@@ -18,6 +18,9 @@ function updateTheme() {
 }
 
 export const themeStore = readonly({
+    getters: {
+        theme: computed(() => state.theme), 
+    },
     actions: {
         updateTheme
     }
