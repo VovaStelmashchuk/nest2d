@@ -42,6 +42,21 @@ export async function getSvgResultBucket() {
   return svgResultBucket;
 }
 
+let dxfResultBucket;
+
+/**
+ * @returns {Promise<GridFSBucket>}
+ */
+export async function getDxfResultBucket() {
+  await connectDB();
+  if (!dxfResultBucket) {
+    dxfResultBucket = new GridFSBucket(db, {
+      bucketName: "nestDxf",
+    });
+  }
+  return dxfResultBucket;
+}
+
 /**
  * @type {GridFSBucket}
  */

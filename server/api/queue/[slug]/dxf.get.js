@@ -1,4 +1,4 @@
-import { connectDB } from "~~/server/db/mongo";
+import { connectDB, getDxfResultBucket } from "~~/server/db/mongo";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -12,11 +12,19 @@ export default defineEventHandler(async (event) => {
   const db = await connectDB();
 
   const nestResult = await db
-    .collection("nest_request")
+    .collection("nesting_jobs")
     .findOne({ slug: slug, ownerId: userId });
 
-  setHeader(event, "Content-Type", "application/octet-stream");
-  setHeader(event, "Content-Disposition", `attachment; filename="${slug}.dxf"`);
+  const dxfFileName = nestResult.dxf_file;
 
-  return nestResult.dxfResult.buffer;
+  const nestDxfBucket = await getDxfResultBucket();
+
+  const readStream = nestDxfBucket.openDownloadStreamByName(dxfFileName);
+
+  setResponseHeaders(event, {
+    "Content-Type": "application/octet-stream",
+    "Content-Disposition": `attachment; filename="${slug}.dxf"`,
+    "Cache-Control": "public, max-age=86400", // Cache for 1 day
+  });
+  return readStream;
 });
