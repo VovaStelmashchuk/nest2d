@@ -91,16 +91,24 @@ function decrement(index) {
     }
 }
 async function nest(slug) {
-    await fetch(API_ROUTES.NEST(slug), {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: state.requestBody,
-    });
-    await getResults(slug)
-    await getProjects()
-    state.lastParams = state.requestBody
+    try {
+        await $fetch(API_ROUTES.NEST(slug), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: state.requestBody,
+        });
+
+        await Promise.all([
+            getResults(slug),
+            getProjects()
+        ]);
+
+        state.lastParams = state.requestBody;
+    } catch (err) {
+        console.error("Nest operation failed:", err);
+    }
 }
 
 export const filesStore = readonly({
