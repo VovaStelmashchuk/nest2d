@@ -70,6 +70,8 @@ const closeModal = () => {
         z-index: 1;
         background-color: var(--background-primary);
         border-radius: 16px;
+        max-height: 94vh;
+        max-width: 94vw;
     }
 }
 .modal-body {

@@ -26,33 +26,37 @@ definePageMeta({
 const router = useRouter();
 
 const { actions } = globalStore;
-const { setProjects } = actions;
+const { actions: filesActions } = filesStore;
+const { getProjects } = actions;
+const { getProject } = filesActions;
 
 const error = ref('')
 
 const handleSubmit = async (files) => {
     error.value = "";
 
-    if (files.length === 0) {
-        error.value = "At least one DXF file is required.";
-        return;
-    }
-
     const formData = new FormData();
     files.forEach((file) => formData.append("dxf", file));
 
-    const response = await fetch("/api/project", {
-        method: "POST",
-        body: formData,
-    });
+    try {
+        const data = await $fetch(API_ROUTES.PROJECT(), {
+            method: "POST",
+            body: formData,
+        });
+        
+        await Promise.all([
+            getProjects(),
+            getProject(API_ROUTES.PROJECT(data.slug))
+        ]);
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        error.value = errorData.message;
-    } else {
-        const data = await response.json();
-        await setProjects()
-        await router.push({ path: `/project/${data.slug}` });
+        router.push({ path: `/project/${data.slug}`});
+    } catch (err) {
+        if (err.response) {
+            const errorData = await err.response.json();
+            error.value = errorData.message;
+        } else {
+            error.value = "An unexpected error occurred.";
+        }
     }
 }
 </script>

@@ -5,12 +5,6 @@ const state = reactive({
     userIsSet: false,
     user: {},
 })
-
-const API_ROUTES = {
-    LOGOUT: "/api/auth/logout",
-    USER: "/api/user",
-};
-
 async function setUser() {
     try {
         const { data } = await useFetch(API_ROUTES.USER);
@@ -31,12 +25,12 @@ async function setUser() {
 
 async function logout() {
     try {
-        await fetch(API_ROUTES.LOGOUT, {
+        await $fetch(API_ROUTES.LOGOUT, {
             method: "POST",
             credentials: "include",
         });
         state.user = {};
-        state.userIsSet = false
+        state.userIsSet = false;
     } catch (err) {
         console.error("Logout failed:", err);
     }

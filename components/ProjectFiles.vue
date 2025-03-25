@@ -8,8 +8,7 @@
             <FileDone
                 :file="file"
                 :fileIndex="fileIndex"
-                @increment="increment"
-                @decrement="decrement"
+                @openModal="openModal(file)"
                 v-if="fileIsDone(file.processingStatus)"
                 class="files__item file"
             />
@@ -24,6 +23,7 @@
                 class="files__item file"
             />
         </template>
+        <FileModal v-model:isModalOpen="fileDialog" />
     </div>
 </template>
 <script setup>
@@ -37,16 +37,22 @@ defineProps({
     }
 })
 
-const emit = defineEmits(["addFiles", "increment", "decrement"])
+const emit = defineEmits(["addFiles"])
 
 const addFiles = (files) => emit("addFiles", files)
-const increment = (index) => emit("increment", index)
-const decrement = (index) => emit("decrement", index)
 
 const fileIsDone = (status) => status === processingType.done
 const fileIsProcessing = (status) => status === processingType.inProgress
 const fileIsError = (status) => status === processingType.error
 
+const { actions } = globalStore;
+const { setModalFileData } = actions;
+
+const fileDialog = useFileDialog();
+const openModal = (file) => {
+    setModalFileData(file)
+    fileDialog.value = true
+}
 </script>
 
 <style lang="scss" scoped>

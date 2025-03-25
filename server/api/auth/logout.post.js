@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   setHeader(
     event,
     "Clear-Site-Data",
-    '"cache", "cookies", "storage"'
+    '"cache", "storage"'
   );
   return {};
 });

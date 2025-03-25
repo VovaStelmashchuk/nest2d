@@ -1,7 +1,5 @@
 <template>
-    <MainAside 
-        label="Results"
-    >
+    <MainAside label="Results">
         <div 
             v-if="resultsList.length"    
             class="results"
@@ -22,26 +20,35 @@
 </template>
 
 <script setup>
-const resultDialog = useResultDialog();
 const route = useRoute();
-const apiPath = computed(() => {
-    return route.name === 'project-slug' ? `/api${route.path}/queue` : '/api/queue/all';
-})
-const { getters, actions } = globalStore;
-const { setResult, openResultModal } = actions;
-const resultsList = computed(() => getters.resultsList);
+const resultDialog = useResultDialog();
 
-onBeforeMount(() => {
-    setResult(unref(apiPath));
-})
-const openModal = (result) => {
-    openResultModal(result)
-    resultDialog.value = true
-}
-watch(() => route.fullPath, () => {
-    setResult(unref(apiPath));
+const { getters, actions } = globalStore;
+const { setResults, getResults, setModalResultData } = actions;
+
+const slug = computed(() => route.params.slug);
+const headers = useRequestHeaders(['cookie']);
+const data = getters.resultsList || await $fetch(API_ROUTES.RESULTS(unref(slug)), { headers });
+
+const resultsList = computed(() => {
+    return getters.resultsList || data.items
 });
 
+onMounted(() => {
+    if (!getters.resultsList) {
+        setResults(data.items, unref(slug))
+    }
+})
+
+watch(
+    () => route.path,
+    () => getResults(unref(slug)),
+);
+
+const openModal = (result) => {
+    setModalResultData(result)
+    resultDialog.value = true
+}
 </script>
 <style lang="scss" scoped>
 .results {

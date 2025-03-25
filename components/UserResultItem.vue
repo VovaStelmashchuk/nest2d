@@ -37,7 +37,7 @@
                 </div> -->
                 <MainButton 
                     v-if="isResultCompleted"
-                    :href="`/api/queue/${result.slug}/dxf`"
+                    :href="API_ROUTES.DXFFILE(result.slug)"
                     label="Download"
                     tag="a"
                     :size="sizeType.s"
@@ -46,7 +46,7 @@
                 />
             </div>
             <div
-                @click="openModal(result.slug)" 
+                @click="openModal()" 
                 class="result__area"
             />
         </template>
@@ -79,8 +79,8 @@ const isResultFailed = computed(() => {
 const isResultCompleted = computed(() => {
     return unref(result).status === statusType.completed
 })
-const openModal = (slug) => {
-    emit('openModal', slug)
+const openModal = () => {
+    emit('openModal')
 }
 </script>  
 <style lang="scss" scoped>

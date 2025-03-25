@@ -16,7 +16,7 @@ onMounted(async () => {
         githubCode: githubCode,
     };
 
-    await $fetch("/api/auth/github/login", {
+    await $fetch(API_ROUTES.LOGIN('github'), {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

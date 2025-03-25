@@ -8,7 +8,7 @@
         <p class="file__name">
             {{ file.name }}
         </p>
-        <div class="counter">
+        <div class="file__counter counter">
             <MainButton 
                 :size="sizeType.s"
                 :icon="iconType.minus"
@@ -39,6 +39,10 @@
                 @click="console.log(`delete ${file.name}`)"
             />
         </div> -->
+        <div
+            @click="openModal()" 
+            class="file__area"
+        />
     </div>
 </template>
 <script setup>
@@ -56,11 +60,14 @@ defineProps({
     }
 })
 
-const emit = defineEmits(["increment", "decrement"])
+const emit = defineEmits(["openModal"]);
 
-const increment = (index) => emit("increment", index)
-const decrement = (index) => emit("decrement", index)
+const { actions } = filesStore;
+const { increment, decrement } = actions;
 
+const openModal = () => {
+    emit('openModal')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -92,7 +99,18 @@ const decrement = (index) => emit("decrement", index)
         right: 8px;
         transition: opacity 0.3s;
     }
-
+    &__area {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        cursor: pointer;
+    }
+    &__counter {
+        position: relative;
+        z-index: 1;
+    }
     @media (hover:hover) {
         &:hover {
             border-color: var(--separator-primary);

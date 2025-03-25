@@ -7,22 +7,14 @@
         <ProjectFiles 
             :projectFiles="projectFiles"
             @addFiles="addFiles"
-            @increment="increment"
-            @decrement="decrement"
             class="content__files" 
         />
-        <MainSettings 
-            v-model:widthPlate="widthPlate" 
-            v-model:heightPlate="heightPlate" 
-            v-model:tolerance="tolerance" 
-            v-model:space="space"
-        />
-        <!-- <ProjectName :projectName="data.name" :slug="data.slug" /> -->
+        <MainSettings />
         <MainButton 
             :theme="themeType.primary"
             :label="btnLabel"
             :isDisable="btnIsDisable"
-            @click="nest"
+            @click="nest(slug)"
             class="content__btn" 
         />
         <div
@@ -41,190 +33,54 @@
 </template>
 
 <script setup async>
-import { onBeforeMount } from "vue";
 import { themeType } from "~~/constants/theme.constants";
-import { processingType } from "~~/constants/files.constants";
 
 definePageMeta({
     layout: "auth",
     middleware: "auth",
 });
 
-const { getters, actions } = globalStore;
-const { setResult, setProjects } = actions;
+const headers = useRequestHeaders(['cookie']);
+
+const { getters } = globalStore;
 const isNesting = computed(() => getters.isNesting);
+const resultsList = computed(() => getters.resultsList);
+
+const { getters:filesgetters, actions } = filesStore;
+
+const { setProjectFiles, setProjectName, nest } = actions;
+
+const filesCount = computed(() => filesgetters.filesCount);
+const isNewParams = computed(() => filesgetters.isNewParams);
+const nestRequestError = computed(() => filesgetters.nestRequestError);
 
 const route = useRoute();
 const slug = route.params.slug;
-const resultPath = `/api${route.path}/queue`
+const apiPath = API_ROUTES.PROJECT(slug);
 
-const { data } = await useFetch(`/api/project/${slug}`);
+const data = filesgetters.projectFiles || await $fetch(apiPath, { headers });
 
-const widthPlate = ref('400');
-const heightPlate = ref('560');
-const tolerance = ref('0.1');
-const space = ref('0.1');
-
-const params = computed(() => ({
-    width: unref(widthPlate),
-    height: unref(heightPlate),
-    tolerance: unref(tolerance),
-    space: unref(space)
-}))
-
-const lastParams = ref('')
-
-const projectFiles = ref(data.value.files.map(file => ({...file, count: 1})))
-const isSvgLoaded = computed(() => unref(projectFiles).every(file => file.processingStatus !== processingType.inProgress))
-const filesToNest = computed(() => {
-    return unref(projectFiles)
-    .filter((file) => {
-        return file.processingStatus === processingType.done
-    })
-    .map(file => (
-        {
-            slug: file.slug,
-            count: file.count,
-        }
-    ))
+const projectFiles = computed(() => {
+    return filesgetters.projectFiles || data.files.map(file => ({...file, count: 1}))
 })
 
-const filesCount = computed(() => {
-    return  unref(projectFiles)
-            .filter(file => file.processingStatus === processingType.done)
-            .reduce((acc, curr) => acc + curr.count, 0)
-})
-const isValidParams = computed(() => {
-    return Object.values(unref(params)).some(param => !isValidNumber(param))
-})
-
-const nestRequestError = computed(() => {
-    if(unref(filesCount) < 1) {
-        return 'Please select at least one file to nest.'
+onMounted(() => {
+    if (!filesgetters.projectFiles) {
+        setProjectFiles(data.files, apiPath)
+        setProjectName(data.name)
     }
-    if(unref(isValidParams)) {
-        return 'Please enter valid values for width, height, tolerance and space.'
-    }
-
-    return ''
-});
-const isNewParams = computed(() => {
-    return unref(requestBody) !== unref(lastParams)
-})
-const requestBody = computed(() => {
-    return JSON.stringify({
-        files: unref(filesToNest),
-        params: {
-            width: Number(unref(params).width),
-            height: Number(unref(params).height),
-            tolerance: Number(unref(params).tolerance),
-            space: Number(unref(params).space)
-        },
-    })
-})
-
-
-const isValidNumber = (value) => {
-    return /^\d+(\.\d+)?$/.test(value);
-}
-const increment = (index) => {
-    projectFiles.value[index].count++
-};
-const decrement = (index) => {
-    if(projectFiles.value[index].count > 0) {
-        projectFiles.value[index].count--
-    }
-};
-const nest = async () => {
-    await fetch(`/api/project/${slug}/nest`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: unref(requestBody),
-    });
-    await setResult(resultPath)
-    await setProjects()
-    lastParams.value = unref(requestBody)
-};
-
-const currentFilesSlug = computed(() => {
-    return new Set(unref(projectFiles).map(file => file.slug));
 })
 
 const btnLabel = computed(() => {
     return unref(isNesting) ? 'Nesting...' : `Nest ${unref(filesCount)} files`
 })
 const btnIsDisable = computed(() => {
-    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams)
+    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams) || !unref(resultsList)
 })
 
-let updateTimer;
-
-const updateData = async () => {
-    if(!unref(isSvgLoaded)) {
-        try {
-            const response = await fetch(`/api/project/${slug}`);
-
-            if (!response.ok) {
-                console.error("Error while update data:", response.statusText);
-                return;
-            }
-
-            if (updateTimer) {
-                clearTimeout(updateTimer);
-            }
-
-            const newData = await response.json();
-            projectFiles.value = newData.files.map((file, filesIndex) => ({...unref(projectFiles)[filesIndex], ...file}))
-
-            updateTimer = setTimeout(() => updateData(), 5000)
-        } catch (error) { 
-            console.error("Error update data:", error);
-        }
-    }
+const addFiles = (files) => {
+    actions.addFiles(files, slug)
 }
-
-const addFiles = async (files) => {
-    const formData = new FormData();
-    formData.append("projectName", unref(data).name);
-    files.forEach((file) => formData.append("dxf", file));
-
-    try {
-        const response = await fetch(`/api/project/${slug}/addfiles`, {
-            method: "POST",
-            body: formData,
-        });
-
-        if (!response.ok) {
-            console.error("Error while uploading files:", response.statusText);
-            return;
-        }
-
-        const projectResponse = await fetch(`/api/project/${slug}`);
-
-        if (!projectResponse.ok) {
-            console.error("Error while retrieving updated data:", projectResponse.statusText);
-            return;
-        }
-
-        const newData = await projectResponse.json();
-        const newFiles = newData.files.filter(file => {
-            return !unref(currentFilesSlug).has(file.slug);
-        })
-        projectFiles.value = [
-            ...unref(projectFiles), 
-            ...newFiles.map(file => ({...file, count: 1}))
-        ]
-        updateData()
-    } catch (error) {
-        console.error("Error while uploading files:", error);
-    }
-}
-
-onBeforeMount(() => {
-    updateData()
-})
 </script>
 
 <style lang="scss" scoped>
@@ -247,6 +103,7 @@ onBeforeMount(() => {
         padding: 12px;
         background-color: var(--error-background);
         border: solid 1px var(--error-border);
+        color: var(--label-secondary);
         border-radius: 8px;
     }
     &__text {

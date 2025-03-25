@@ -5,6 +5,7 @@
     >
         <NuxtLink 
             :to="`/project/${project.slug}`"
+            @click="getProject(API_ROUTES.PROJECT(project.slug))"
             class="prodject__label"
         >
             {{ project.name }}
@@ -47,6 +48,9 @@ const { project } = defineProps({
 }) 
 const route = useRoute()
 const now = ref(new Date())
+
+const { actions } = filesStore;
+const { getProject } = actions;
 
 const prodjectClasses = computed(() => ({
     'prodject--active': unref(project).slug === route.params.slug

@@ -53,44 +53,28 @@
 
 <script setup>
 
-const emit = defineEmits(["update:widthPlate", "update:heightPlate", "update:tolerance", "update:space"]);
+const { getters, actions } = filesStore;
+const { updateParams } = actions;
+const params = computed(() => getters.params);
 
-const props = defineProps({
-    widthPlate: {
-        type: String,
-        required: true,
-    },
-    heightPlate: {
-        type: String,
-        required: true,
-    },
-    tolerance: {
-        type: String,
-        required: true,
-    },
-    space: {
-        type: String,
-        required: true,
-    },
-})
 const localWidth = computed({
-  get: () => props.widthPlate,
-  set: value => emit("update:widthPlate", value),
+  get: () => unref(params).widthPlate,
+  set: value => updateParams({widthPlate: value}),
 });
 
 const localHeight = computed({
-  get: () => props.heightPlate,
-  set: value => emit("update:heightPlate", value),
+  get: () => unref(params).heightPlate,
+  set: value => updateParams({heightPlate: value}),
 });
 
 const localTolerance = computed({
-  get: () => props.tolerance,
-  set: value => emit("update:tolerance", value),
+  get: () => unref(params).tolerance,
+  set: value => updateParams({tolerance: value}),
 });
 
 const localSpace = computed({
-  get: () => props.space,
-  set: value => emit("update:space", value),
+  get: () => unref(params).space,
+  set: value => updateParams({space: value}),
 });
 
 // const currentAnchor = ref(1)

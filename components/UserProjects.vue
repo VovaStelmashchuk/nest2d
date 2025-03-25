@@ -6,17 +6,17 @@
     >
         <div  
             v-if="projectsList.length"
-            class="prodjects"
+            class="projects"
         >
             <UserProjectItem
                 v-for="project in projectsList"
                 :key="project.slug"
                 :project="project"
-                class="prodjects__item"
+                class="projects__item"
             />
         </div>
-        <p v-else class="prodjects__text">
-            Your prodjects will be here
+        <p v-else class="projects__text">
+            Your projects will be here
         </p> 
     </MainAside>
 </template>
@@ -24,23 +24,32 @@
 <script setup>
 const route = useRoute();
 const router = useRouter();
-const { getters, actions } = globalStore;
+
+const { getters, actions} = globalStore;
 const { setProjects } = actions;
-const projectsList = computed(() => getters.projectsList);
+
+const headers = useRequestHeaders(['cookie']);
+const data = getters.projectsList || await $fetch(API_ROUTES.PROJECTS, { headers });
+
+const projectsList = computed(() => {
+    return getters.projectsList || data.projects
+});
+
+onMounted(() => {
+    if(!getters.projectsList) {
+        setProjects(data.projects)
+    }
+})
 
 const btnLabelValue = computed(() => {
     return route.name === 'home' ? '' : 'New project'
 }) 
 
 const createNewProdject = () => router.push({ name: 'home' })
-
-onBeforeMount(() => {
-    setProjects();
-})
 </script>
     
 <style lang="scss" scoped>
-.prodjects {
+.projects {
     &__text {
         color: var(--label-tertiary);
     }

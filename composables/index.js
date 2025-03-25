@@ -2,60 +2,63 @@ import { computed, reactive, readonly } from "vue";
 import { statusType } from "~~/constants/status.constants";
 
 const state = reactive({
-    resultsList: [],
-    projectsList: [],
+    resultsList: null,
+    projectsList: null,
     resultModalData: {},
+    fileModalData: {}
 })
 
 let resulTimer;
 
-const API_ROUTES = {
-    PROJECTS: "/api/project/me",
-    RESULT: (slug) => `/api/queue/${slug}`,
-};
-
-async function setResult(path) {
+async function getResults(slug) {
     try {
-        const data = await $fetch(path);
-        state.resultsList = [...data.items]
-
-        if (resulTimer) {
-            clearTimeout(resulTimer);
-        }
-
-        if(globalStore.getters.isNesting) {
-            resulTimer = setTimeout(() => setResult(path), 5000)
-        }
-
+        const data = await $fetch(API_ROUTES.RESULTS(slug));
+        setResults(data.items, slug)
     } catch (error) {
         console.error("Error fetching result:", error);
     }
 }
+function setResults(results, slug) {
+    state.resultsList = [...results]
+    if (resulTimer) {
+        clearTimeout(resulTimer);
+    }
 
-async function setProjects() {
+    if(globalStore.getters.isNesting) {
+        resulTimer = setTimeout(() => getResults(slug), 5000)
+    }
+}
+async function getProjects() {
     try {
         const data = await $fetch(API_ROUTES.PROJECTS);
-        state.projectsList = [...data.projects]
-
+        setProjects(data.projects)
     } catch (error) {
         console.error("Error fetching projects:", error);
     }
 }
-
-async function openResultModal(result) {
+function setProjects(projects) {
+    state.projectsList = [...projects]
+}
+function setModalResultData(result) {
     state.resultModalData = {...result}
 }
-
+function setModalFileData(file) {
+    state.fileModalData = {...file}
+}
 export const globalStore = readonly({
     getters: {
         resultsList: computed(() => state.resultsList),
-        isNesting: computed(() => state.resultsList.findIndex(item => [statusType.unfinished, statusType.pending].includes(item.status)) !== -1),
+        isNesting: computed(() => state.resultsList && state.resultsList.some(item => [statusType.unfinished, statusType.pending].includes(item.status))),
         projectsList: computed(() => state.projectsList),
-        resultModalData: computed(() => state.resultModalData)
+        resultModalData: computed(() => state.resultModalData),
+        fileModalData: computed(() => state.fileModalData),
     },
     actions: {
-        setResult,
+        getResults,
+        setResults,
+        getProjects,
         setProjects,
-        openResultModal
+        setModalFileData,
+        setModalResultData
     }
 })

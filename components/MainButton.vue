@@ -84,7 +84,7 @@ const buttonClasses = computed(() => ({
     }
     &__icon {
         display: block;
-        background-size: contain;
+        mask-size: contain;
     }
 
     &--size-s {
@@ -112,11 +112,17 @@ const buttonClasses = computed(() => ({
         #{$self}__label {
             color: var(--label-primary);
         }
+        #{$self}__icon {
+            background-color: var(--label-primary);
+        }
     }
     &--theme-secondary {
         background-color: var(--fill-tertiary);
         #{$self}__label {
             color: var(--label-primary);
+        }
+        #{$self}__icon {
+            background-color: var(--label-primary);
         }
     }
     &--theme-primary {
@@ -124,31 +130,50 @@ const buttonClasses = computed(() => ({
         #{$self}__label {
             color: var(--background-primary);
         }
+        #{$self}__icon {
+            background-color: var(--background-primary);
+        }
     }
 
     &--icon-trash {
         #{$self}__icon {
-            background-image: url('/icons/svg/trash.svg')
+            mask-image: url('/icons/svg/trash.svg')
+
         }
     }
     &--icon-minus {
         #{$self}__icon {
-            background-image: url('/icons/svg/minus.svg')
+            mask-image: url('/icons/svg/minus.svg')
         }
     }
     &--icon-plus {
         #{$self}__icon {
-            background-image: url('/icons/svg/plus.svg')
+            mask-image: url('/icons/svg/plus.svg')
         }
     }
     &--icon-close {
         #{$self}__icon {
-            background-image: url('/icons/svg/close.svg')
+            mask-image: url('/icons/svg/close.svg')
         }
     }
     &--icon-menu {
         #{$self}__icon {
-            background-image: url('/icons/svg/menu.svg')
+            mask-image: url('/icons/svg/menu.svg')
+        }
+    }
+    &--icon-dark {
+        #{$self}__icon {
+            mask-image: url('/icons/svg/dark.svg')
+        }
+    }
+    &--icon-light {
+        #{$self}__icon {
+            mask-image: url('/icons/svg/light.svg')
+        }
+    }
+    &--icon-fullscreen {
+        #{$self}__icon {
+            mask-image: url('/icons/svg/fullscreen.svg')
         }
     }
 
