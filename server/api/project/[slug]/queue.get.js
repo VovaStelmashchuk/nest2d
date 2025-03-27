@@ -31,7 +31,14 @@ export default defineEventHandler(async (event) => {
     .collection("nesting_jobs")
     .find({ ownerId: userId, projectSlug: projectSlug })
     .sort({ createdAt: -1 })
-    .project({ slug: 1, status: 1, createdAt: 1, projectSlug: 1 })
+    .project({
+      slug: 1,
+      status: 1,
+      createdAt: 1,
+      projectSlug: 1,
+      placed: 1,
+      requested: 1,
+    })
     .toArray();
 
   const respnoseItems = queueList.map((queueItem) => {
@@ -42,6 +49,8 @@ export default defineEventHandler(async (event) => {
       svg: "/api/result/" + queueItem.slug + "/svg",
       projectSlug: queueItem.projectSlug,
       projectName: project.name,
+      placed: queueItem.placed,
+      requested: queueItem.requested,
     };
   });
 
