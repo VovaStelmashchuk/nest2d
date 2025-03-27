@@ -23,13 +23,13 @@
                 <InputField
                     prefix="Spacing"
                     suffix="mm"
-                    v-model="localTolerance"
+                    v-model="localSpace"
                     class="size__input"
                 />
                 <InputField
                     prefix="Tolerance"
                     suffix="mm"
-                    v-model="localSpace"
+                    v-model="localTolerance"
                     class="size__input"
                 />
             </div>
