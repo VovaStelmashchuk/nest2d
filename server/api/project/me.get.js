@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     .toArray();
 
   const queueList = await db
-    .collection("nest_request")
+    .collection("nesting_jobs")
     .find({ ownerId: userId })
     .sort({ createdAt: -1 })
     .project({ projectSlug: 1 })
