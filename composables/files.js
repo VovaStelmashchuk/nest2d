@@ -61,17 +61,12 @@ async function addFiles(files, slug) {
     formData.append("projectName", state.projectName);
     files.forEach((file) => formData.append("dxf", file));
     try {
-        const response = await fetch(API_ROUTES.ADDFILES(slug), {
+        await $fetch(API_ROUTES.ADDFILES(slug), {
             method: "POST",
             body: formData,
         });
-
-        if (!response.ok) {
-            console.error("Error while uploading files:", response.statusText);
-            return;
-        }
-
-        getProject(API_ROUTES.PROJECT(slug))
+    
+        await getProject(API_ROUTES.PROJECT(slug));
     } catch (error) {
         console.error("Error while uploading files:", error);
     }
