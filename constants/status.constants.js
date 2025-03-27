@@ -1,6 +1,6 @@
 export const statusType = {
     completed: 'completed',
-    unfinished: 'in-progress',
+    unfinished: 'processing',
     pending: 'pending',
     failed: 'failed',
     unknown: 'unknown'
