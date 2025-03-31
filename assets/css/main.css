@@ -22,6 +22,8 @@
     --error-background: rgb(222, 0, 54, 0.05);
     --error-border: rgb(222, 0, 54, 0.3);
     --menu-background: rgb(22, 26, 33, 0.7);
+
+    --primary-svg-filter: brightness(0) saturate(100%);
 }
 [data-theme="primary"] *,
 [data-theme="primary"] *::before,
@@ -40,4 +42,6 @@
 
     --separator-primary: rgb(245, 243, 240, 0.13);
     --separator-secondary: rgb(245, 243, 240, 0.08);
+
+    --primary-svg-filter: brightness(0) saturate(100%) invert(1);
 }

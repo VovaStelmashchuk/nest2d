@@ -35,6 +35,22 @@
                     {{resultModalData.slug}}.dxf
                 </template>
             </div>
+            <div class="modal__info info">
+                <span 
+                    v-if="resultModalData.requested === resultModalData.placed"
+                    class="info__label"
+                >
+                    All details are placed 
+                </span>
+                <template v-else>
+                    <span class="info__label">
+                        {{ resultModalData.requested }} parts needed to be placed
+                    </span>
+                    <span class="info__label">
+                        {{ resultModalData.placed }} parts placed
+                    </span>
+                </template>
+            </div>
             <div class="controls">
                 <MainButton 
                     :href="API_ROUTES.DXFFILE(resultModalData.slug)"
@@ -134,6 +150,17 @@ const placeholderClasses = computed(() => ({
         max-width: 320px;
         margin-left: auto;
         margin-right: auto;
+    }
+    &__info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: var(--label-primary);
+
+        &>* {
+            margin-bottom: 10px;
+        }
     }
 }
 .controls {
