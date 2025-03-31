@@ -35,7 +35,10 @@
                     {{resultModalData.slug}}.dxf
                 </template>
             </div>
-            <div class="modal__info info">
+            <div 
+                v-if="!isHaveError" 
+                class="modal__info info"
+            >
                 <span 
                     v-if="resultModalData.requested === resultModalData.placed"
                     class="info__label"
