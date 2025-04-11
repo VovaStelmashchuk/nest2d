@@ -2,52 +2,58 @@
     <DialogWrapper>
         <div class="modal">
             <div class="modal__wrapper">
-                <div 
+                <div
                     v-if="isHaveError"
                     :class="placeholderClasses"
                     class="modal__placeholder"
                 >
                     Err
                 </div>
-                <SvgDisplay 
+                <SvgDisplay
                     v-else
                     :src="resultModalData.svg"
                     :class="displayClasses"
                     @click="updateFullScreen"
-                    class="modal__display" 
+                    class="modal__display"
                 />
-                <MainButton 
+                <MainButton
                     v-if="!isHaveError"
                     label="fullscreen"
                     :size="sizeType.s"
                     :theme="themeType.primary"
-                    :isLabelShow=false
+                    :isLabelShow="false"
                     :icon="iconType.fullscreen"
                     @click="updateFullScreen"
-                    class="modal__fullscreen" 
+                    class="modal__fullscreen"
                 />
             </div>
-            <div class="modal__name">
+            <div class="modal__name modal__info info">
                 <template v-if="isHaveError">
-                    No solution found try to increase plate size
+                    <span class="info__label">
+                        No solution found try to increase plate size or reduce
+                        requested object count
+                    </span>
+                    <span class="info__label">
+                        {{ resultModalData.requested }} parts needed to be
+                        placed
+                    </span>
+                    <span class="info__label">
+                        {{ resultModalData.placed }} parts placed
+                    </span>
                 </template>
-                <template v-else>
-                    {{resultModalData.slug}}.dxf
-                </template>
+                <template v-else> {{ resultModalData.slug }}.dxf </template>
             </div>
-            <div 
-                v-if="!isHaveError" 
-                class="modal__info info"
-            >
-                <span 
+            <div v-if="!isHaveError" class="modal__info info">
+                <span
                     v-if="resultModalData.requested === resultModalData.placed"
                     class="info__label"
                 >
-                    All details are placed 
+                    All details are placed
                 </span>
                 <template v-else>
                     <span class="info__label">
-                        {{ resultModalData.requested }} parts needed to be placed
+                        {{ resultModalData.requested }} parts needed to be
+                        placed
                     </span>
                     <span class="info__label">
                         {{ resultModalData.placed }} parts placed
@@ -55,7 +61,7 @@
                 </template>
             </div>
             <div class="controls">
-                <MainButton 
+                <MainButton
                     :href="API_ROUTES.DXFFILE(resultModalData.slug)"
                     label="Download"
                     tag="a"
@@ -63,7 +69,7 @@
                     :size="sizeType.s"
                     :theme="themeType.primary"
                 />
-                <MainButton 
+                <MainButton
                     label="Try again"
                     :size="sizeType.s"
                     :theme="themeType.secondary"
@@ -75,36 +81,37 @@
 </template>
 
 <script setup>
-import { iconType } from '~~/constants/icon.constants';
-import { sizeType } from '~~/constants/size.constants';
-import { themeType } from '~~/constants/theme.constants';
-import { statusType } from "~~/constants/status.constants";
-import { onMounted } from 'vue';
+import { iconType } from '~~/constants/icon.constants'
+import { sizeType } from '~~/constants/size.constants'
+import { themeType } from '~~/constants/theme.constants'
+import { statusType } from '~~/constants/status.constants'
+import { onMounted } from 'vue'
 
-const { getters } = globalStore;
-const resultModalData = computed(() => getters.resultModalData);
+const { getters } = globalStore
+const resultModalData = computed(() => getters.resultModalData)
 
-const resultDialog = useResultDialog();
+const resultDialog = useResultDialog()
 
 const isHaveError = computed(() => {
     return unref(resultModalData).status === statusType.failed
 })
-const isFullScreen = useFullScreen();
+const isFullScreen = useFullScreen()
 const updateFullScreen = () => {
-    isFullScreen.value = !unref(isFullScreen);
-    localStorage.setItem('isFullScreen', unref(isFullScreen));
+    isFullScreen.value = !unref(isFullScreen)
+    localStorage.setItem('isFullScreen', unref(isFullScreen))
 }
 onMounted(() => {
-    isFullScreen.value = localStorage.getItem('isFullScreen') === 'true';
+    isFullScreen.value = localStorage.getItem('isFullScreen') === 'true'
 })
 const displayClasses = computed(() => ({
     'modal__display--is-fullscreen': unref(isFullScreen) && !unref(isHaveError)
 }))
 const placeholderClasses = computed(() => ({
-    'modal__placeholder--is-fullscreen': unref(isFullScreen) && !unref(isHaveError)
+    'modal__placeholder--is-fullscreen':
+        unref(isFullScreen) && !unref(isHaveError)
 }))
 </script>
-    
+
 <style lang="scss" scoped>
 .modal {
     padding: 48px 24px 24px;
@@ -161,7 +168,7 @@ const placeholderClasses = computed(() => ({
         flex-direction: column;
         color: var(--label-primary);
 
-        &>* {
+        & > * {
             margin-bottom: 10px;
         }
     }
@@ -170,9 +177,10 @@ const placeholderClasses = computed(() => ({
     display: flex;
     align-items: center;
     justify-content: center;
-    &>* {
+    & > * {
         margin-left: 4px;
         margin-right: 4px;
     }
 }
 </style>
+
