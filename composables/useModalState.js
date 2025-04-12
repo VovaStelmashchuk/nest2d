@@ -10,3 +10,6 @@ export const useFileDialog = () => {
 export const useFullScreen = () => {
     return useState("isFullScreen", () => false);
 }
+export const useSupportDialog = () => {
+    return useState("supportDialog", () => false);
+};

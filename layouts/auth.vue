@@ -10,11 +10,21 @@
             <slot />
             <UserResults />
         </main>
+        <ChatSupport v-if="supportDialog" />
+        <MainButton
+            v-if="!supportDialog"
+            :theme="themeType.primary"
+            @click="supportDialog = true"
+            label="Support"
+            class="main__btn"
+        />
         <Footer />
     </div>
 </template>
 <script setup>
 import { themeType } from '~~/constants/theme.constants';
+const supportDialog = useSupportDialog();
+
 </script>
 <style lang="scss" scoped>
 .main {
@@ -38,6 +48,13 @@ import { themeType } from '~~/constants/theme.constants';
     &__line {
         position: relative;
         z-index: 2;
+    }
+
+    &__btn {
+        position: fixed;
+        bottom: 60px;
+        right: 20px;
+        z-index: 3;
     }
 }
 .content {

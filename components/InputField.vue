@@ -3,7 +3,7 @@
         :class="inputClasses"
         class="input"
     >
-        <span class="input__prefix">
+        <span v-if="prefix" class="input__prefix">
             {{ prefix }}
         </span>
         <input
@@ -13,7 +13,7 @@
             @input="$emit('update:modelValue', $event.target.value)"
             class="input__value"
         />
-        <span class="input__suffix">
+        <span v-if="suffix" class="input__suffix">
             {{ suffix }}
         </span>
     </label>
@@ -25,7 +25,7 @@ import { computed } from 'vue';
 const { isDisable } = defineProps({
     prefix: { 
         type: String, 
-        required: true
+        default: "" 
     },
     suffix: { 
         type: String, 

@@ -32,13 +32,11 @@ export default defineEventHandler(async (event) => {
             .collection('supportMessages')
             .find({
                 userId: userId,
-                sender: 'support',
                 timestamp: { $gt: lastTimestamp }
             })
             .sort({ timestamp: 1 })
             .project({ message: 1, sender: 1, timestamp: 1, _id: 1 })
             .toArray()
-
         if (newMessages.length > 0) {
             lastTimestamp = newMessages[newMessages.length - 1].timestamp
             await eventStream.push(
@@ -52,7 +50,9 @@ export default defineEventHandler(async (event) => {
 
     const heartbeatInterval = setInterval(async () => {
         await eventStream.push(
-            `data: ${JSON.stringify({ type: 'heartbeat', ts: Date.now() })}\n\n`
+            JSON.stringify({ 
+                type: 'heartbeat', ts: Date.now() 
+            })
         )
     }, 30000)
 
