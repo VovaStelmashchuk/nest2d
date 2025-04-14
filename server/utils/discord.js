@@ -2,6 +2,7 @@ import { getDiscord } from '~/server/utils/config'
 
 const discordToken = getDiscord().botToken
 const discordServerId = getDiscord().guildId
+const supportRoleId = '1360719809976733967'
 
 export async function createChannel(name, initialMessage) {
     const data = await $fetch(
@@ -20,6 +21,11 @@ export async function createChannel(name, initialMessage) {
                         id: discordServerId,
                         type: 0,
                         deny: 1024
+                    },
+                    {
+                        id: supportRoleId,
+                        type: 0,
+                        allow: 1024
                     }
                 ]
             }

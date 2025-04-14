@@ -18,15 +18,16 @@ export default defineEventHandler(async (event) => {
         .project({ message: 1, sender: 1, timestamp: 1, _id: 1 })
         .toArray()
 
-    eventStream.push(
-        JSON.stringify({
-            type: 'initial',
-            data: messages
-        })
-    )
-
-    let lastTimestamp = messages[messages.length - 1]?.timestamp || 0
-
+    let lastTimestamp = new Date(0)
+    if (messages.length > 0) {
+        eventStream.push(
+            JSON.stringify({
+                type: 'initial',
+                data: messages
+            })
+        )
+        lastTimestamp = messages[messages.length - 1].timestamp
+    }
     const interval = setInterval(async () => {
         const newMessages = await db
             .collection('supportMessages')
@@ -50,8 +51,9 @@ export default defineEventHandler(async (event) => {
 
     const heartbeatInterval = setInterval(async () => {
         await eventStream.push(
-            JSON.stringify({ 
-                type: 'heartbeat', ts: Date.now() 
+            JSON.stringify({
+                type: 'heartbeat',
+                ts: Date.now()
             })
         )
     }, 30000)
