@@ -14,7 +14,7 @@
     </div>
 </template>
 <script setup>
-    import { sizeType } from "~~/constants/size.constants";
+import { sizeType } from "~~/constants/size.constants";
 </script>
 <style lang="scss" scoped>
 .authenticating {
