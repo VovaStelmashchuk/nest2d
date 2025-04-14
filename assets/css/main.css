@@ -15,6 +15,7 @@
     --accent-secondary: rgb(0, 0, 0, 0.8);
 
     --background-primary: rgb(245, 244, 240);
+    --background-secondary: rgb(0, 0, 0);
 
     --separator-primary: rgb(0, 11, 33, 0.15);
     --separator-secondary: rgb(0, 11, 33, 0.1);
@@ -39,6 +40,7 @@
     --accent-secondary: rgb(245, 243, 240, 0.8);
 
     --background-primary: rgb(36, 35, 34);
+    --background-secondary: rgb(245, 243, 240);
 
     --separator-primary: rgb(245, 243, 240, 0.13);
     --separator-secondary: rgb(245, 243, 240, 0.08);

@@ -79,7 +79,7 @@ const supportDialog = useSupportDialog();
     padding: 12px 32px 12px 12px;
     transition: opacity 0.3s;
     width: max-content;
-    background-color: var(--accent-primary);
+    background-color: var(--background-secondary);
 
     &__label {
         z-index: 1;
@@ -96,7 +96,7 @@ const supportDialog = useSupportDialog();
         transform: translate(-50%, -50%);
         line-height: 0;
         background-color: var(--background-primary);
-        color: var(--accent-primary);
+        color: var(--background-secondary);
         top: 47%;
         left: 50%;
         border-radius: 4px 4px 0 4px;
@@ -120,7 +120,7 @@ const supportDialog = useSupportDialog();
     &__icon {
         z-index: 2;
         position: absolute;
-        background-color: var(--accent-primary);
+        background-color: var(--background-secondary);
         width: 60px;
         height: 60px;
         transform: translate(-50%, -50%);
