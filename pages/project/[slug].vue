@@ -24,7 +24,7 @@
             {{ nestRequestError }}
         </div>
         <div 
-            v-if="!isNewParams && !isNesting"
+            v-if="!isNewParams"
             class="content__text"
         >
             Change settings or files to generate again
@@ -43,7 +43,6 @@ definePageMeta({
 const headers = useRequestHeaders(['cookie']);
 
 const { getters } = globalStore;
-const isNesting = computed(() => getters.isNesting);
 const resultsList = computed(() => getters.resultsList);
 
 const { getters:filesgetters, actions } = filesStore;
@@ -72,10 +71,10 @@ onMounted(() => {
 })
 
 const btnLabel = computed(() => {
-    return unref(isNesting) ? 'Nesting...' : `Nest ${unref(filesCount)} files`
+    return `Nest ${unref(filesCount)} files`
 })
 const btnIsDisable = computed(() => {
-    return unref(isNesting) || Boolean(unref(nestRequestError)) || !unref(isNewParams) || !unref(resultsList)
+    return Boolean(unref(nestRequestError)) || !unref(isNewParams) || !unref(resultsList)
 })
 
 const addFiles = (files) => {

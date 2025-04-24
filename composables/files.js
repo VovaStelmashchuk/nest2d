@@ -11,7 +11,7 @@ const state = reactive({
     params: {
         widthPlate: '400',
         heightPlate: '560',
-        tolerance: '0.1',
+        tolerance: '0.0001',
         space: '0.1'
     },
     isSvgLoaded: computed(() => state.projectFiles?.every(file => file.processingStatus !== processingType.inProgress) || false),

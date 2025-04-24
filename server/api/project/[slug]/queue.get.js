@@ -37,13 +37,14 @@ export default defineEventHandler(async (event) => {
             createdAt: 1,
             projectSlug: 1,
             placed: 1,
-            requested: 1
+            requested: 1,
+            error: 1,
         })
         .toArray()
 
     const respnoseItems = queueList.map((queueItem) => {
         let status = queueItem.status
-        if (queueItem.placed !== queueItem.requested) {
+        if (queueItem.error || queueItem.placed !== queueItem.requested) {
             status = 'failed'
         }
         let svg = '/api/result/' + queueItem.slug + '/svg'
@@ -57,8 +58,8 @@ export default defineEventHandler(async (event) => {
             svg: svg,
             projectSlug: queueItem.projectSlug,
             projectName: project.name,
-            placed: queueItem.placed,
-            requested: queueItem.requested
+            placed: queueItem.placed || 0,
+            requested: queueItem.requested || 0,
         }
     })
 
