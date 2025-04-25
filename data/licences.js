@@ -1,10 +1,5 @@
 export const packages = [
     { 
-        name: "@deepnest/dxf2svg-processor", 
-        version: "0.1.3", 
-        license: "AGPL3.0" 
-    },
-    { 
         name: "nuxt", 
         version: "3.15.3", 
         license: "MIT" 
@@ -12,11 +7,6 @@ export const packages = [
     { 
         name: "vue", 
         version: "3.5.13", 
-        license: "MIT" 
-    },
-    { 
-        name: "bcrypt", 
-        version: "5.1.1", 
         license: "MIT" 
     },
     { 
@@ -37,11 +27,6 @@ export const packages = [
     { 
         name: "standard-slugify", 
         version: "4.0.0", 
-        license: "MIT" 
-    },
-    { 
-        name: "offset-polygon", 
-        version: "0.9.2", 
         license: "MIT" 
     },
     { 

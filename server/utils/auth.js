@@ -1,38 +1,5 @@
 import { connectDB } from "~/server/db/mongo";
-import { compareSync } from "bcrypt";
 import { generateRandomString } from "~/server/utils/strings";
-
-export async function addSessionToUser(username, password) {
-  const db = await connectDB();
-  const user = await db.collection("users").findOne({ username: username });
-
-  if (!user) {
-    return {
-      error: "Invalid username or password",
-    };
-  }
-
-  const match = compareSync(password, user.password);
-
-  if (!match) {
-    return {
-      error: "Invalid username or password",
-    };
-  }
-
-  const session = generateSession();
-
-  await db.collection("users").updateOne(
-    { username: username },
-    {
-      $push: {
-        sessions: session,
-      },
-    }
-  );
-
-  return session;
-}
 
 export function generateSession() {
   const sessionId = generateRandomString(64);
