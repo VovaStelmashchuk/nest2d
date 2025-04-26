@@ -1,10 +1,10 @@
 <template>
-  <div class="main mx-auto shadow-lg rounded-lg min-h-screen bg-white text-black">
-    <section class="main__content m-4">
-      <h2 class="main__header">Nesting For plotters,
+  <div class="main mx-auto rounded-lg min-h-screen">
+    <section class="m-4">
+      <h2>Nesting For plotters,
         laser & plasma cutters,
         and other CNC machines </h2>
-      <p class="main__subheader mt-4">Upload your DXF files,
+      <p class="mt-4">Upload your DXF files,
         input material dimensions,
         and let Nest2d reduce material waste. </p>
       <div class="mt-8">
@@ -12,30 +12,30 @@
           class="mx-auto" />
       </div>
     </section>
-    <section id="features" class="section bg-gray-50">
+    <section id="features" class="m-4">
       <div class="container mx-auto">
         <h3>Features</h3>
         <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div class="section__card">
-            <h4 class="text-xl font-bold">DXF File Support</h4>
-            <p class="mt-4 text-gray-600">Easily upload DXF files for precision laser cutting. </p>
+          <div class="main__card">
+            <h4>DXF File Support</h4>
+            <p class="mt-4">Easily upload DXF files for precision laser cutting. </p>
           </div>
-          <div class="section__card">
-            <h4 class="text-xl font-bold">Save money</h4>
-            <p class="mt-4 text-gray-600">Minimize waste by optimizing part arrangement. </p>
+          <div class="main__card">
+            <h4>Save money</h4>
+            <p class="mt-4">Minimize waste by optimizing part arrangement. </p>
           </div>
-          <div class="section__card">
-            <h4 class="text-xl font-bold">No client resource require</h4>
-            <p class="mt-4 text-gray-600">All calculation done by server.</p>
+          <div class="main__card">
+            <h4>No client resource require</h4>
+            <p class="mt-4">All calculation done by server.</p>
           </div>
-          <div class="section__card">
-            <h4 class="text-xl font-bold">Open Source</h4>
-            <p class="mt-4 text-gray-600">Fully open-source and built for efficiency. </p>
+          <div class="main__card">
+            <h4>Open Source</h4>
+            <p class="mt-4">Fully open-source and built for efficiency. </p>
           </div>
         </div>
       </div>
     </section>
-    <section id="screenshots" class="section">
+    <section id="screenshots">
       <div class="container mx-auto">
         <h3>Intuitive design</h3>
         <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -48,10 +48,10 @@
         </div>
       </div>
     </section>
-    <section id="how-it-works" class="section bg-gray-50">
+    <section id="how-it-works">
       <div class="container mx-auto">
         <h3>How It Works</h3>
-        <div class="mt-8 flex flex-col sm:flex-row items-center sm:justify-between">
+        <div class="main__how-it-works mt-8">
           <div class="flex-1 text-center">
             <div class="border border-gray-300 w-16 h-16 rounded-full mx-auto flex items-center justify-center"><span
                 class="text-2xl font-bold">1</span></div>
@@ -82,7 +82,7 @@
         </div>
       </div>
     </section>
-    <section id="faq" class="p-6 bg-gray-50">
+    <section id="faq" class="p-6">
       <div class="container mx-auto">
         <h3 class="text-3xl font-bold text-center">Frequently Asked Questions </h3>
         <div class="mt-8">
@@ -120,51 +120,76 @@ const loginDialog = useLoginDialog();
 </script>
 <style lang="scss" scoped>
 .main {
+  background-color: var(--background-primary);
   flex-direction: column;
   display: flex;
   min-height: 100vh;
 
-  &__content {
-    flex-grow: 1;
-    margin: 40px auto;
-    max-width: 1300px;
-    width: 100%;
-  }
-
-  &__header {
+  h2 {
     text-align: center;
+    color: var(--accent-primary);
     font-size: 2.25rem;
     line-height: 2.5rem;
     font-weight: 700;
   }
 
-  &__subheader {
-    text-align: center;
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    color: #4A5568;
-  }
-}
-
-.section {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-
   h3 {
+    text-align: center;
     font-size: 1.875rem;
+    color: var(--accent-primary);
     line-height: 2.5rem;
     font-weight: 700;
-    text-align: center;
   }
 
+  p {
+    text-align: center;
+    color: var(--label-secondary);
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+  section {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
   &__card {
     border-width: 1px;
-    border-color: black;
+    border-color: var(--separator-secondary);
     padding: 1.5rem;
     border-radius: 1rem;
-    background-color: #ffffff;
+
+    h4 {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+    p {
+      text-align: left;
+      color: var(--label-secondary);
+    }
+  }
+
+  &__how-it-works {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2rem;
+
+    @media (min-width: 700px) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    h4 {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
   }
 }
+
 </style>
