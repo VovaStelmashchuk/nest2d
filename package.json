@@ -11,18 +11,19 @@
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.12.2",
+    "eris": "^0.18.0",
     "mongodb": "6.8",
     "nuxt": "^3.15.3",
     "standard-slugify": "^4.0.0",
     "tslib": "^2.8.1",
     "vite": "^6.0.6",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0",
-    "eris": "^0.18.0"
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
+    "prettier": "3.5.3",
     "sass": "1.77.6",
     "sass-loader": "^16.0.2"
   }
