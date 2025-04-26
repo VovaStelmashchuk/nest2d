@@ -1,5 +1,5 @@
 <template>
-    <div class="main mx-auto rounded-lg min-h-screen">
+    <div class="main">
         <section>
             <h2>
                 Nesting For plotters, laser & plasma cutters, and other CNC
@@ -97,7 +97,7 @@
         </section>
         <section id="get-started">
             <h3>Get Started Today</h3>
-            <p>
+            <p class="mt-0.5">
                 Sign up and start optimizing your laser cutting projects in
                 minutes.
             </p>
@@ -112,7 +112,7 @@
         </section>
         <section id="faq">
             <h3>Frequently Asked Questions</h3>
-            <p>
+            <p class="mt-0.5">
                 Stuck on something? We’re here to help with all your questions
                 and answers in one place.
             </p>

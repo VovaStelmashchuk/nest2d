@@ -1,18 +1,12 @@
 <template>
     <div class="support">
-        <div
-            @click="supportDialog = false"
-            class="support__background">
-        </div>
+        <div @click="supportDialog = false" class="support__background"></div>
         <div class="support__wrapper">
             <div class="support__header">
-                <MainTitle 
-                    label="Support Chat"
-                    class="support__title"
-                />
-                <MainButton 
+                <MainTitle label="Support Chat" class="support__title" />
+                <MainButton
                     label="close modal"
-                    :isLabelShow=false
+                    :isLabelShow="false"
                     :size="sizeType.s"
                     :icon="iconType.close"
                     :theme="themeType.primary"
@@ -37,7 +31,7 @@
                     v-model="message"
                     @keyup.enter="sendMessage"
                 />
-                <MainButton 
+                <MainButton
                     :theme="themeType.primary"
                     @click="sendMessage"
                     label="Send"
@@ -49,12 +43,12 @@
 </template>
 
 <script setup>
-import { iconType } from '~~/constants/icon.constants';
-import { sizeType } from '~~/constants/size.constants';
-import { themeType } from '~~/constants/theme.constants';
+import { iconType } from '~~/constants/icon.constants'
+import { sizeType } from '~~/constants/size.constants'
+import { themeType } from '~~/constants/theme.constants'
 import { ref, onMounted, onBeforeUnmount, unref } from 'vue'
 
-const supportDialog = useSupportDialog();
+const supportDialog = useSupportDialog()
 
 const message = ref('')
 const messages = ref([])
@@ -102,7 +96,9 @@ onBeforeUnmount(() => {
     }
 })
 
-const getMessageClasses = (sender) => ({'support__message--is-user': sender === 'user'})
+const getMessageClasses = (sender) => ({
+    'support__message--is-user': sender === 'user'
+})
 </script>
 
 <style lang="scss" scoped>
@@ -166,11 +162,11 @@ const getMessageClasses = (sender) => ({'support__message--is-user': sender === 
         background-color: var(--fill-secondary);
         color: var(--label-primary);
 
-        &--is-user  {
+        &--is-user {
             margin-left: auto;
             margin-right: initial;
             text-align: right;
-            background-color: var(--fill-tertiary); 
+            background-color: var(--fill-tertiary);
             border-radius: 8px 0 8px 8px;
             color: var(--label-secondary);
         }
@@ -190,3 +186,4 @@ const getMessageClasses = (sender) => ({'support__message--is-user': sender === 
     }
 }
 </style>
+
