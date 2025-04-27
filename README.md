@@ -1,12 +1,12 @@
-# NestApp
+# Nest2d
 
-The online platform for Nest algorithm.
+Nesting For plotters, laser & plasma cutters, and other CNC machines.
 
 ![screen of working](./doc/web_screen.png)
 
 ## How to use?
 
-#### [Visit Nest2D](https://nest2d.online/)
+#### [Visit Nest2D](https://nest2d.stelmashchuk.dev/)
 
 # What is Nest Problem?
 
