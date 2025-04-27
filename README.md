@@ -2,7 +2,7 @@
 
 The online platform for Nest algorithm.
 
-![screen of working](./samples/web_screen.png)
+![screen of working](./doc/web_screen.png)
 
 ## How to use?
 
