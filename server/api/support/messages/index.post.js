@@ -1,4 +1,5 @@
 import { connectDB } from '~/server/db/mongo'
+import { MESSAGE_SENDER } from '~/server/features/support/const'
 import { createChannel, sendMessage } from '~~/server/utils/discord'
 
 export default defineEventHandler(async (event) => {
@@ -13,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const db = await connectDB()
     const record = await db.collection('supportMessages').insertOne({
         userId: userId,
-        sender: 'user',
+        sender: MESSAGE_SENDER.USER,
         message: message,
         timestamp: new Date()
     })
