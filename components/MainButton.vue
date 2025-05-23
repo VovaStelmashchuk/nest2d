@@ -103,6 +103,9 @@ const buttonClasses = computed(() => ({
         border-radius: 6px;
         padding: 12px;
 
+        #{$self}__label {
+            font-size: 12px;
+        }
         #{$self}__icon {
             width: 14px;
             height: 14px;
