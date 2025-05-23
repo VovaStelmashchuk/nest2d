@@ -25,7 +25,7 @@ async function setUser() {
 
 async function logout() {
     try {
-        await $fetch('', {
+        await $fetch('/api/auth/logout', {
             method: 'POST',
             credentials: 'include'
         })

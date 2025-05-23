@@ -21,39 +21,13 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    const session = generateSession()
-    const db = await connectDB()
-
-    await db.collection('users').updateOne(
-        { id: `google:${sub}` },
-        {
-            $set: {
-                email: email,
-                name: name,
-                avatarUrl: picture,
-                avatarSource: 'origin',
-                provider: 'google',
-                google: {
-                    sub: sub
-                },
-                updatedAt: new Date()
-            },
-            $setOnInsert: {
-                createdAt: new Date(),
-                creddits: 150
-            },
-            $push: {
-                sessions: session
-            }
-        },
-        { upsert: true }
-    )
-
-    setCookie(event, 'sessionId', session.sessionId, {
-        expires: new Date(session.expiresAt)
+    const session = await createOrUpdateUser({
+        provider: 'google',
+        providerId: sub,
+        email: email,
+        name: name,
     })
 
-    return {
-        ok: true
-    }
+    setSessionCookie(event, session)
+    return
 })
