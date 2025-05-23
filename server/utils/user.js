@@ -1,5 +1,6 @@
 import { connectDB } from '~/server/db/mongo'
 import { generateSession } from './auth'
+import { sendWelcomeMessage } from '~/server/features/support/welcomemessage'
 
 export async function createOrUpdateUser({
     provider,
@@ -29,12 +30,15 @@ export async function createOrUpdateUser({
             sessions: session
         }
     }
-
-    await db.collection('users').updateOne(
+    const result = await db.collection('users').updateOne(
         { id: `${provider}:${providerId}` },
         updateData,
         { upsert: true }
     )
+
+    if (result.upsertedCount > 0) {
+        await sendWelcomeMessage(`${provider}:${providerId}`)
+    }
 
     return session
 }
