@@ -1,6 +1,5 @@
-import { connectDB } from '~/server/db/mongo'
-import { generateSession } from '~~/server/utils/auth'
 import { getConfig } from '~/server/utils/config'
+import { createOrUpdateUser } from '~/server/utils/user'
 
 export default defineEventHandler(async (event) => {
     const { githubCode } = await readBody(event)
@@ -24,40 +23,17 @@ export default defineEventHandler(async (event) => {
             isAvatar: !!avatar_url
         }
     }
-    const session = generateSession()
-    const db = await connectDB()
 
-    await db.collection('users').updateOne(
-        { id: `github:${id}` },
-        {
-            $set: {
-                email: email,
-                name: name,
-                avatarUrl: avatar_url,
-                avatarSource: 'origin',
-                github: {
-                    id: id
-                },
-                updatedAt: new Date()
-            },
-            $setOnInsert: {
-                createdAt: new Date(),
-                creddits: 150
-            },
-            $push: {
-                sessions: session
-            }
-        },
-        { upsert: true }
-    )
-
-    setCookie(event, 'sessionId', session.sessionId, {
-        expires: new Date(session.expiresAt)
+    const session = await createOrUpdateUser({
+        provider: 'github',
+        providerId: id,
+        email: email,
+        name: name,
     })
 
-    return {
-        ok: true
-    }
+    setSessionCookie(event, session)
+
+    return
 })
 
 async function getGithubAccessToken(githubCode) {
