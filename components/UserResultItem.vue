@@ -45,7 +45,7 @@
                     class="controls__download"
                 />
             </div>
-            <div
+            <button
                 @click="openModal()" 
                 class="result__area"
             />
