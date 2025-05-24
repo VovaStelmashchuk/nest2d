@@ -5,6 +5,7 @@ const state = reactive({
     resultsList: null,
     projectsList: null,
     resultModalData: {},
+    screenshotModalData: {},
     fileModalData: {}
 })
 
@@ -42,6 +43,9 @@ function setProjects(projects) {
 function setModalResultData(result) {
     state.resultModalData = {...result}
 }
+function setModalScreenshotData(result) {
+    state.screenshotModalData = result
+}
 function setModalFileData(file) {
     state.fileModalData = {...file}
 }
@@ -51,6 +55,7 @@ export const globalStore = readonly({
         isNesting: computed(() => state.resultsList && state.resultsList.some(item => [statusType.unfinished, statusType.pending].includes(item.status))),
         projectsList: computed(() => state.projectsList),
         resultModalData: computed(() => state.resultModalData),
+        screenshotModalData: computed(() => state.screenshotModalData),
         fileModalData: computed(() => state.fileModalData),
     },
     actions: {
@@ -59,6 +64,7 @@ export const globalStore = readonly({
         getProjects,
         setProjects,
         setModalFileData,
-        setModalResultData
+        setModalResultData,
+        setModalScreenshotData
     }
 })

@@ -4,6 +4,9 @@ export const useLoginDialog = () => {
 export const useResultDialog = () => {
     return useState("resultDialog", () => false);
 };
+export const useScreenshotDialog = () => {
+    return useState("screenshotDialog", () => false);
+};
 export const useFileDialog = () => {
     return useState("fileDialog", () => false);
 };
