@@ -37,16 +37,19 @@
             <h3 class="screenshots__title title title--medium">
                 {{ screenshots.title }}
             </h3>
-            <div
-                class="screenshots__list screenshots-list"
-            >
-                <img
+            <div class="screenshots__list screenshots-list">
+                <button 
                     v-for="screenshot in screenshots.list" 
                     :key="screenshot.src"
-                    :src="screenshot.src"
-                    alt="project ui"
-                    class="screenshots-list__img"
-                />
+                    @click="openModal(screenshot.src)"
+                >
+                    <img
+                        :src="screenshot.src"
+                        alt="project ui"
+                        class="screenshots-list__img"
+                    />
+                </button>
+
             </div>
         </section>
         <section class="main__works works" id="how-it-works">
@@ -118,6 +121,7 @@
                 </div>
             </div>
         </section>
+        <ScreenshotsModal v-model:isModalOpen="screenshotDialog" />
     </div>
 </template>
 <script setup>
@@ -127,6 +131,15 @@ definePageMeta({
 import { header, features, screenshots, howItWorks, started, faq } from '~~/data/index'
 import { themeType } from '~~/constants/theme.constants'
 const loginDialog = useLoginDialog()
+const screenshotDialog = useScreenshotDialog();
+
+const { actions } = globalStore;
+const { setModalScreenshotData } = actions;
+
+const openModal = (screenshot) => {
+    setModalScreenshotData(screenshot)
+    screenshotDialog.value = true
+}
 </script>
 <style lang="scss" scoped>
 
