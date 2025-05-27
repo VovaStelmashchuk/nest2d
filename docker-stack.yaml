@@ -3,7 +3,6 @@ version: "3.8"
 services:
   app:
     image: ghcr.io/vovastelmashchuk/nest2d:${GIT_COMMIT_SHA:-latest}
-    network_mode: "host"
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -17,7 +16,13 @@ services:
     deploy:
       update_config:
         order: start-first
+    networks:
+      - reverse-proxy
 
 secrets:
   nest2d-secret:
+    external: true
+
+networks:
+  reverse-proxy:
     external: true
