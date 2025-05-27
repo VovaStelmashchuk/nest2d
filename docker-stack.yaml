@@ -24,5 +24,5 @@ secrets:
     external: true
 
 networks:
-  reverse-proxy:
+  infra_reverse-proxy:
     external: true
