@@ -17,7 +17,7 @@ services:
       update_config:
         order: start-first
     networks:
-      - reverse-proxy
+      - infra_reverse-proxy
 
 secrets:
   nest2d-secret:
