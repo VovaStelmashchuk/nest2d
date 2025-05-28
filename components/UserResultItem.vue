@@ -77,7 +77,7 @@ const isResultFailed = computed(() => {
     return unref(result).status === statusType.failed
 })
 const isResultCompleted = computed(() => {
-    return unref(result).status === statusType.completed
+    return unref(result).status === statusType.completed || unref(result).status === statusType.done
 })
 const openModal = () => {
     emit('openModal')

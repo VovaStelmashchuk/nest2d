@@ -3,7 +3,8 @@ export const statusType = {
     unfinished: 'processing',
     pending: 'pending',
     failed: 'failed',
-    unknown: 'unknown'
+    unknown: 'unknown',
+    done: 'done'
 }
 
 export const defaultStatusType = statusType.unknown
