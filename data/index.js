@@ -20,6 +20,10 @@ export const features = {
         {
             title: 'Open Source',
             text: 'Fully open-source and built for efficiency.'
+        },
+        {
+            title: 'Saving cost for shop supplier',
+            text: 'Enable time & material savings to your customers'
         }
     ]
 }
@@ -77,6 +81,10 @@ export const faq = {
         {
             title: 'What file formats do you support?',
             firstPart: 'Currently, we support DXF files for laser cutting.'
+        },
+        {
+            title: 'Does Nest2D give the best possible results?',
+            firstPart: 'While achieving perfect nesting optimization is a complex computational challenge with no guaranteed optimal solution, Nest2D delivers highly efficient material layouts through advanced algorithms. Our system prioritizes both speed and optimization quality to provide practical, time-saving results for your laser cutting projects.' 
         },
         {
             title: 'Can I contribute to the project?',

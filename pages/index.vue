@@ -235,12 +235,14 @@ const openModal = (screenshot) => {
         justify-content: center;
         font-size: 24px;
         font-weight: 700;
+        margin-top: 12px;
+        margin-bottom: 12px;
         margin-left: auto;
         margin-right: auto;
     }
     &__title {
         margin-top: 16px;
-        margin-bottom: 8px;
+        margin-bottom: 16px;
     }
 }
 .started {
