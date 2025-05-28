@@ -1,5 +1,24 @@
 export const posts = [
-        {
+    {
+        title: 'Project updates, #12, bug fixes',
+        datetime: '2025-05-28',
+        sections: [
+            {
+                title: 'New feature',
+                content: [
+                    'Implement support chat',
+                ],
+            },
+            {
+                title: 'Bug fix',
+                content: [
+                    'Fix parsing for file with not utf-8 encoding',
+                    'Fix output DXF units, now it is mm',
+                ],
+            }
+        ]
+    },
+    {
         title: 'Big update, #11, New design',
         datetime: '2025-03-08',
         sections: [
@@ -18,8 +37,8 @@ export const posts = [
             {
                 title: 'Thanks',
                 content: [
-                  'Thanks to Max Lozianko for new design',
-                  'Thanks to Mykola Holovashchenko for new frontend',
+                    'Thanks to Max Lozianko for new design',
+                    'Thanks to Mykola Holovashchenko for new frontend',
                 ],
             },
         ]
@@ -61,11 +80,11 @@ export const posts = [
         title: 'Big update, #9, My summer vacation (2)',
         datetime: '2024-05-08',
         sections: [
-            { 
-                title: 'New feature', 
+            {
+                title: 'New feature',
                 content: [
                     'Add support for Arc DXF tag'
-                ] 
+                ]
             },
             {
                 title: 'Tech task',
@@ -80,7 +99,7 @@ export const posts = [
             {
                 title: 'Next stages',
                 content: [
-                    'Nested history page', 
+                    'Nested history page',
                     'More DXF tags support'
                 ],
             },
@@ -111,7 +130,7 @@ export const posts = [
             {
                 title: 'Next stages',
                 content: [
-                    'Nested history page', 
+                    'Nested history page',
                     'More DXF tags support'
                 ],
             },
@@ -144,7 +163,7 @@ export const posts = [
                 ],
             },
             {
-              title: 'Next stages',
+                title: 'Next stages',
                 content: [
                     'Implement the nested history page',
                     'Add support for more DXF tags',
@@ -301,7 +320,7 @@ export const posts = [
             {
                 title: 'Currently the project supports the following DXF entity types',
                 content: [
-                    'LwPolyline', 
+                    'LwPolyline',
                     'Line'
                 ],
             },
