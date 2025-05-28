@@ -25,19 +25,7 @@ export default defineEventHandler(async (event) => {
     let userSupportChannelId = user.supportChannelId
 
     if (!userSupportChannelId) {
-        const channelName = `${user.name}-${user.id}`
-        const initMessage = `Support channel created for ${user.name} (${user.id})`
-        const channelId = await createChannel(channelName, initMessage)
-
-        await db.collection('users').updateOne(
-            { id: userId },
-            {
-                $set: {
-                    supportChannelId: channelId
-                }
-            }
-        )
-        userSupportChannelId = channelId
+        userSupportChannelId = await createSupportChat(userId)
     }
 
     await sendMessage(userSupportChannelId, message)

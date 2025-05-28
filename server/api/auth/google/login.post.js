@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
         providerId: sub,
         email: email,
         name: name,
+        avatarUrl: picture
     })
 
     setSessionCookie(event, session)

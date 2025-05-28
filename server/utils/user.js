@@ -1,13 +1,15 @@
 import { connectDB } from '~/server/db/mongo'
 import { generateSession } from './auth'
 import { sendWelcomeMessage } from '~/server/features/support/welcomemessage'
+import { downloadAndStoreAvatar } from './avatar'
+import { createSupportChat } from '~/server/features/support/createSupportChat'
 
 export async function createOrUpdateUser({
     provider,
     providerId,
     email,
     name,
-    payload,
+    avatarUrl,
 }) {
     if (!provider || !providerId || !email || !name) {
         throw new Error('Missing required user data: provider and providerId are required')
@@ -16,12 +18,14 @@ export async function createOrUpdateUser({
     const session = generateSession()
     const db = await connectDB()
 
+    const avatarKey = await downloadAndStoreAvatar(providerId, avatarUrl)
+
     const updateData = {
         $set: {
             provider,
             email,
             name,
-            payload: payload,
+            avatarFileName: avatarKey,
         },
         $setOnInsert: {
             createdAt: new Date()
@@ -30,13 +34,17 @@ export async function createOrUpdateUser({
             sessions: session
         }
     }
-    const result = await db.collection('users').updateOne(
+
+    const isUserExists = await db.collection('users').findOne({ id: `${provider}:${providerId}` })
+
+    await db.collection('users').updateOne(
         { id: `${provider}:${providerId}` },
         updateData,
         { upsert: true }
     )
 
-    if (result.upsertedCount > 0) {
+    if (!isUserExists) {
+        await createSupportChat(`${provider}:${providerId}`)
         await sendWelcomeMessage(`${provider}:${providerId}`)
     }
 
