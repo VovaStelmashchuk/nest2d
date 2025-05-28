@@ -49,7 +49,7 @@ export default defineNuxtConfig({
             htmlAttrs: {
                 lang: 'en'
             },
-            title: 'Nest2D - Smart Nesting for Laser Cutting',
+            title: 'Nest2D - Smart Nesting for Laser Cutting and CNC machining',
             meta: [
                 { charset: 'utf-8' },
                 {
@@ -59,12 +59,12 @@ export default defineNuxtConfig({
                 {
                     hid: 'description',
                     name: 'description',
-                    content: 'Upload your DXF files, input material dimensions, and let Nest2d maximize your material usage. Fully open-source and built for efficiency.'
+                    content: 'The service for nesting DXF files. Nest2D optimize your material usage. Fully open-source and built for efficiency.'
                 },
                 {
                     hid: 'keywords',
                     name: 'keywords',
-                    content: 'DXF files, material dimensions, Nest2D, maximize material usage, open-source, efficiency, smart nesting, laser cutting'
+                    content: 'Nest DXF online, DXF files, material dimensions, Nest2D, maximize material usage, open-source, efficiency, smart nesting, laser cutting'
                 },
                 {
                     hid: 'robots',
