@@ -28,7 +28,8 @@ export async function createOrUpdateUser({
             avatarFileName: avatarKey,
         },
         $setOnInsert: {
-            createdAt: new Date()
+            createdAt: new Date(),
+            balance: 100
         },
         $push: {
             sessions: session

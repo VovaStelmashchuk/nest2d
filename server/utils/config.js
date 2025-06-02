@@ -18,3 +18,8 @@ export function getBaseUrl() {
 export function getCommitSha() {
     return runtimeConfig.gitCommitSha || 'unknown'
 }
+
+export function getLemonSqueezyApiKey() {
+    const config = getConfig()
+    return config.lemonsqueezy.apiKey
+}

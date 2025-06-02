@@ -50,7 +50,9 @@
                 label="Report a problem"
                 tag="a"
                 class="header__btn"
+                v-if="isSecondaryTheme"
             />
+            <UserBalance class="header__btn" v-if="!isSecondaryTheme" />
             <MainButton
                 v-if="isSecondaryTheme"
                 :theme="themeType.primary"

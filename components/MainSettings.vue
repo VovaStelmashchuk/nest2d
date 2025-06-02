@@ -1,37 +1,15 @@
 <template>
     <div class="settings">
-        <MainTitle 
-            label="Nesting settings"
-            class="settings__title" 
-        />
+        <MainTitle label="Nesting settings" class="settings__title" />
         <div class="settings__content content">
             <div class="content__size size">
                 <div class="size__line">
-                    <InputField
-                        prefix="W"
-                        suffix="mm"
-                        v-model="localWidth"
-                        class="size__input"
-                    />
-                    <InputField
-                        prefix="H"
-                        suffix="mm"
-                        v-model="localHeight"
-                        class="size__input"
-                    />
+                    <InputField prefix="W" suffix="mm" v-model="localWidth" class="size__input" />
+                    <InputField prefix="H" suffix="mm" v-model="localHeight" class="size__input" />
                 </div>
-                <InputField
-                    prefix="Spacing"
-                    suffix="mm"
-                    v-model="localSpace"
-                    class="size__input"
-                />
-                <InputField
-                    prefix="Tolerance"
-                    suffix="mm"
-                    v-model="localTolerance"
-                    class="size__input"
-                />
+                <InputField prefix="Sheet Count" suffix="units" v-model="localSheetCount" class="size__input" />
+                <InputField prefix="Spacing" suffix="mm" v-model="localSpace" class="size__input" />
+                <InputField prefix="Tolerance" suffix="mm" v-model="localTolerance" class="size__input" />
             </div>
             <!-- <div class="content__anchor anchor">
                 <p class="anchor__title">
@@ -58,23 +36,28 @@ const { updateParams } = actions;
 const params = computed(() => getters.params);
 
 const localWidth = computed({
-  get: () => unref(params).widthPlate,
-  set: value => updateParams({widthPlate: value}),
+    get: () => unref(params).widthPlate,
+    set: value => updateParams({ widthPlate: value }),
 });
 
 const localHeight = computed({
-  get: () => unref(params).heightPlate,
-  set: value => updateParams({heightPlate: value}),
+    get: () => unref(params).heightPlate,
+    set: value => updateParams({ heightPlate: value }),
+});
+
+const localSheetCount = computed({
+    get: () => unref(params).sheetCount,
+    set: value => updateParams({ sheetCount: value })
 });
 
 const localTolerance = computed({
-  get: () => unref(params).tolerance,
-  set: value => updateParams({tolerance: value}),
+    get: () => unref(params).tolerance,
+    set: value => updateParams({ tolerance: value }),
 });
 
 const localSpace = computed({
-  get: () => unref(params).space,
-  set: value => updateParams({space: value}),
+    get: () => unref(params).space,
+    set: value => updateParams({ space: value }),
 });
 
 // const currentAnchor = ref(1)
@@ -89,6 +72,7 @@ const localSpace = computed({
     &__title {
         margin-bottom: 16px;
     }
+
     &__content {
         width: 320px;
         margin-left: auto;
@@ -96,6 +80,7 @@ const localSpace = computed({
     }
 
 }
+
 .content {
     display: flex;
     justify-content: center;
@@ -103,11 +88,13 @@ const localSpace = computed({
     &__size {
         width: 221px;
     }
+
     &__anchor {
         width: 91px;
         margin-left: 8px;
     }
 }
+
 .size {
     &>*:not(:last-child) {
         margin-bottom: 8px;
@@ -118,16 +105,18 @@ const localSpace = computed({
         grid-template-columns: 1fr 1fr;
         gap: 8px;
     }
+
     &__input {
         flex-grow: 1;
         min-width: 80px;
     }
 }
+
 .anchor {
     padding: 4px;
     border-radius: 6px;
     background-color: var(--fill-tertiary);
-    
+
     &__title {
         text-align: left;
         padding-top: 8px;
@@ -136,10 +125,12 @@ const localSpace = computed({
         color: var(--label-secondary);
         margin-bottom: 15px;
     }
+
     &__list {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
     }
+
     &__item {
         cursor: pointer;
         padding-top: 100%;
@@ -164,6 +155,7 @@ const localSpace = computed({
         @media (hover:hover) {
             &:hover {
                 background-color: var(--fill-tertiary);
+
                 &::after {
                     background-color: var(--label-secondary);
                 }
@@ -179,6 +171,7 @@ const localSpace = computed({
             }
         }
     }
+
     &__input {
         opacity: 0;
         width: 0;
