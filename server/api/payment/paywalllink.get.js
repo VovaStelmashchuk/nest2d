@@ -1,15 +1,15 @@
 import { connectDB } from '~~/server/db/mongo'
-import { getBaseUrl, getLemonSqueezyApiKey } from '~~/server/utils/config'
+import { getBaseUrl, getStripeSecretKey } from '~~/server/utils/config'
 import { generateRandomString } from '~~/server/utils/strings'
+import { variants } from '~~/server/features/payment/const'
 
 const baseUrl = getBaseUrl()
-const lemonsqueezyApiKey = getLemonSqueezyApiKey()
-const redirectUrl = `${baseUrl}/profile`
-const storeId = "112943"
+const stripeSecretKey = getStripeSecretKey()
+const redirectUrl = `${baseUrl}/home`
 
 export default defineEventHandler(async (event) => {
     const userId = event.context?.auth?.userId
-    const variantId = getQuery(event).variantId
+    const stripePriceId = getQuery(event).stripePriceId
 
     if (!userId) {
         setResponseStatus(401)
@@ -23,66 +23,44 @@ export default defineEventHandler(async (event) => {
         setResponseStatus(401)
         return
     }
-    
-    const transactionSecret = generateRandomString(24)
 
-    const responseData = await $fetch(`https://api.lemonsqueezy.com/v1/checkouts`,
-        {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${lemonsqueezyApiKey}`,
-                'Accept': 'application/vnd.api+json',
-                'Content-Type': 'application/vnd.api+json'
-            },
-            body: {
-                data: {
-                    type: 'checkouts',
-                    attributes: {
-                        product_options: {
-                            redirect_url: redirectUrl,
-                            receipt_button_text: "Go to your account",
-                            receipt_thank_you_note: "Thank you for signing up! Click on the button to access your account."
-                        },
-                        checkout_data: {
-                            email: user.email,
-                            name: user.name,
-                            custom: {
-                                userId: user.id,
-                                transactionSecret: transactionSecret
-                            }
-                        },
-                    },
-                    relationships: {
-                        store: {
-                            data: {
-                                type: "stores",
-                                id: storeId
-                            }
-                        },
-                        variant: {
-                            data: {
-                                type: "variants",
-                                id: variantId
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    )
+    const transactionInternalId = generateRandomString(24)
+    const variant = variants.find(v => v.stripePriceId === stripePriceId)
+    if (!variant) {
+        setResponseStatus(400)
+        return { error: 'Invalid stripePriceId' }
+    }
 
-    const data = await responseData.data
-    const checkoutId = data.id
-    const attributes = data.attributes
-    const testMode = attributes.test_mode
-    const url = attributes.url
+    const params = new URLSearchParams()
+    params.append('success_url', redirectUrl + '?checkoutInternalId=' + transactionInternalId)
+    params.append('cancel_url', redirectUrl)
+    params.append('mode', 'payment')
+    params.append('customer_email', user.email)
+    params.append('line_items[0][price]', stripePriceId)
+    params.append('line_items[0][quantity]', '1')
+    params.append('metadata[userId]', user.id)
+    params.append('metadata[transactionInternalId]', transactionInternalId)
+
+    const responseData = await $fetch('https://api.stripe.com/v1/checkout/sessions', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${stripeSecretKey}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params,
+    })
+
+    const sessionId = responseData.id
+    const url = responseData.url
 
     await db.collection('transactions').insertOne({
-        transactionSecret: transactionSecret,
+        stripePriceId: variant.stripePriceId,
+        credit: variant.credit,
+        transactionInternalId: transactionInternalId,
         userId: user.id,
-        checkoutId: checkoutId,
+        checkoutId: sessionId,
         status: 'created',
-        testMode: testMode,
+        attempt: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
     })

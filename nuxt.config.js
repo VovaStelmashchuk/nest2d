@@ -36,9 +36,6 @@ export default defineNuxtConfig({
         build: {
             minify: 'terser',
             chunkSizeWarningLimit: 1000,
-        },
-        server: {
-            allowedHosts: ['008f-95-67-56-160.ngrok-free.app', 'c8b2-2a02-2378-127e-8c77-8d22-8fa9-587e-bc61.ngrok-free.app']
         }
     },
 

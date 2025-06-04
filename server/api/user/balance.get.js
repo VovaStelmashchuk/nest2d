@@ -1,4 +1,3 @@
-
 import { connectDB } from '~~/server/db/mongo'
 
 export default defineEventHandler(async (event) => {

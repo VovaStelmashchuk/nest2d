@@ -19,7 +19,7 @@ export function getCommitSha() {
     return runtimeConfig.gitCommitSha || 'unknown'
 }
 
-export function getLemonSqueezyApiKey() {
+export function getStripeSecretKey() {
     const config = getConfig()
-    return config.lemonsqueezy.apiKey
+    return config.stripe.secretKey
 }

@@ -8,6 +8,19 @@ export default defineEventHandler(async (event) => {
     setResponseStatus(401);
     return;
   }
+  const db = await connectDB();
+  const user = await db.collection("users").findOne({ id: userId });
+  if (!user) {
+    setResponseStatus(401);
+    return;
+  }
+
+  if (user.balance < 1) {
+    setResponseStatus(402);
+    return {
+      error: "Not enough credits",
+    };
+  }
 
   const projectSlug = getRouterParam(event, "slug");
   const body = await readBody(event);
@@ -16,8 +29,6 @@ export default defineEventHandler(async (event) => {
    **/
   const { files, params } = body;
   const filteredFiles = files.filter((file) => file.count > 0);
-
-  const db = await connectDB();
 
   const slug = `nest-${generateRandomString(6)}`;
 
