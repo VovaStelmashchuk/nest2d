@@ -41,6 +41,7 @@ export default defineEventHandler(async (event) => {
     params.append('line_items[0][quantity]', '1')
     params.append('metadata[userId]', user.id)
     params.append('metadata[transactionInternalId]', transactionInternalId)
+    params.append('allow_promotion_codes', 'true')
 
     const responseData = await $fetch('https://api.stripe.com/v1/checkout/sessions', {
         method: 'POST',
