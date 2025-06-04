@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
     params.append('cancel_url', redirectUrl)
     params.append('mode', 'payment')
     params.append('customer_email', user.email)
+    params.append('client_reference_id', user.id)
     params.append('line_items[0][price]', stripePriceId)
     params.append('line_items[0][quantity]', '1')
     params.append('metadata[userId]', user.id)
