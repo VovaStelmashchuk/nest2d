@@ -15,7 +15,6 @@ onMounted(() => {
     eventSource.value = new EventSource('/api/user/balance')
 
     unref(eventSource).onmessage = (event) => {
-        console.log('Received SSE message:', event.data)
         try {
             const parsed = JSON.parse(event.data)
             if (parsed.type === 'initial') {

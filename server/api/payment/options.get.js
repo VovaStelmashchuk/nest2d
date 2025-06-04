@@ -1,7 +1,7 @@
-import { variants } from '~~/server/features/payment/const'
+import { getStripeVariants } from '~~/server/features/payment/const'
 
 export default defineEventHandler(async (event) => {
     return {
-        options: variants
+        options: await getStripeVariants()
     }
 });

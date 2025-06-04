@@ -26,11 +26,14 @@
             </span>
         </button>
         <Footer />
+        <BuyCreditsDialog v-model:isModalOpen="buyCreditsDialog" />
     </div>
 </template>
 <script setup>
 import { themeType } from '~~/constants/theme.constants';
 const supportDialog = useSupportDialog();
+const buyCreditsDialog = useBuyCreditsDialog();
+
 
 </script>
 <style lang="scss" scoped>

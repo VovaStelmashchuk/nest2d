@@ -6,12 +6,7 @@
             <MainButton :theme="themeType.primary" @click="logoutHandler" label="Logout" class="profile__btn" />
         </div>
         <UserBalance class="profile__balance" />
-        <div class="profile__buy-credits">
-            <div v-for="price in prices.options" :key="price.stripePriceId">
-                <MainButton :theme="themeType.primary" @click="buyCreditsHandler(price.stripePriceId)"
-                    :label="`Buy ${price.credit} Credits`" class="profile__btn" />
-            </div>
-        </div>
+        <BuyCredits />
     </div>
 </template>
 <script setup>
@@ -27,13 +22,6 @@ definePageMeta({
 const { getters, actions } = authStore;
 const { logout } = actions;
 const user = computed(() => getters.user);
-
-const prices = await $fetch('/api/payment/options')
-
-const buyCreditsHandler = async (stripePriceId) => {
-    const response = await $fetch(`/api/payment/paywalllink?stripePriceId=${stripePriceId}`)
-    navigateTo(response.url, { external: true });
-}
 
 const logoutHandler = async () => {
     await logout();
@@ -58,12 +46,6 @@ const logoutHandler = async () => {
     &__balance {
         margin-top: 24px;
         margin-bottom: 24px;
-    }
-
-    &__buy-credits {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
     }
 }
 </style>

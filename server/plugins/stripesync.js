@@ -17,7 +17,8 @@ export default defineNitroPlugin(async (_) => {
             .findOneAndUpdate(
                 {
                     status: 'created',
-                    createdAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) }
+                    createdAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) },
+                    attempt: { $lt: 3 }
                 },
                 { $set: { status: 'processing', updatedAt: new Date() } },
                 { returnDocument: 'after' }

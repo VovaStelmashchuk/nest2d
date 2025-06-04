@@ -1,7 +1,7 @@
 import { connectDB } from '~~/server/db/mongo'
 import { getBaseUrl, getStripeSecretKey } from '~~/server/utils/config'
 import { generateRandomString } from '~~/server/utils/strings'
-import { variants } from '~~/server/features/payment/const'
+import { getStripeVariants } from '~~/server/features/payment/const'
 
 const baseUrl = getBaseUrl()
 const stripeSecretKey = getStripeSecretKey()
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const transactionInternalId = generateRandomString(24)
-    const variant = variants.find(v => v.stripePriceId === stripePriceId)
+    const variant = (await getStripeVariants()).find(v => v.stripePriceId === stripePriceId)
     if (!variant) {
         setResponseStatus(400)
         return { error: 'Invalid stripePriceId' }

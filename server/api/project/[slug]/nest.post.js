@@ -11,15 +11,17 @@ export default defineEventHandler(async (event) => {
   const db = await connectDB();
   const user = await db.collection("users").findOne({ id: userId });
   if (!user) {
-    setResponseStatus(401);
-    return;
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Unauthorized",
+    });
   }
 
   if (user.balance < 1) {
-    setResponseStatus(402);
-    return {
-      error: "Not enough credits",
-    };
+    throw createError({
+      statusCode: 402,
+      statusMessage: "Not enough credits",
+    });
   }
 
   const projectSlug = getRouterParam(event, "slug");

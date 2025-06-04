@@ -113,13 +113,21 @@ function decrement(index) {
 }
 async function nest(slug) {
     try {
-        await $fetch(API_ROUTES.NEST(slug), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: state.requestBody
-        })
+        try {
+            await $fetch(API_ROUTES.NEST(slug), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: state.requestBody
+            })
+        } catch (error) {
+            if (error?.response?.status === 402) {
+                const buyCreditsDialog = useBuyCreditsDialog();
+                buyCreditsDialog.value = true;
+                return
+            }
+        }
 
         await Promise.all([getResults(slug), getProjects()])
 
