@@ -4,8 +4,10 @@ export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
 
   if (!userId) {
-    setResponseStatus(event, 401);
-    return;
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Unauthorized",
+    });
   }
 
   const db = await connectDB();
@@ -16,32 +18,13 @@ export default defineEventHandler(async (event) => {
     .project({ slug: 1, status: 1, createdAt: 1, projectSlug: 1 })
     .toArray();
 
-  const allUniqueProjectSlugs = [
-    ...new Set(queueList.map((item) => item.projectSlug)),
-  ];
-
-  const projects = await db
-    .collection("projects")
-    .find({ slug: { $in: allUniqueProjectSlugs } })
-    .project({ slug: 1, name: 1 })
-    .toArray();
-
   const respnoseItems = queueList.map((queueItem) => {
-    const project = projects.find(
-      (project) => project.slug == queueItem.projectSlug
-    );
-    if (project) {
-      return {
-        slug: queueItem.slug,
-        status: queueItem.status,
-        createdAt: queueItem.createdAt,
-        svg: "/api/result/" + queueItem.slug + "/svg",
-        projectSlug: queueItem.projectSlug,
-        projectName: project.name,
-      };
-    } else {
-      return null;
-    }
+    return {
+      slug: queueItem.slug,
+      status: queueItem.status,
+      createdAt: queueItem.createdAt,
+      svg: "/api/result/" + queueItem.slug + "/svg",
+    };
   });
 
   return {

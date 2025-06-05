@@ -1,6 +1,7 @@
 import { defineEventHandler, readBody } from "h3";
 import { connectDB } from "~~/server/db/mongo";
 import { generateRandomString } from "~~/server/utils/strings";
+import standardSlugify from "standard-slugify";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -50,7 +51,8 @@ export default defineEventHandler(async (event) => {
   })
 
   const slug = `nested-${dbFiles.map((file) => {
-    return file.name + '_' + file.count
+    const fileNameSlug = standardSlugify(file.name, { keepCase: false })
+    return fileNameSlug + '_' + file.count
   }).join('-')}-${generateRandomString(4)}`;
 
   const dbParams = {
