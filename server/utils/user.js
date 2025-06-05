@@ -2,7 +2,7 @@ import { connectDB } from '~/server/db/mongo'
 import { generateSession } from './auth'
 import { sendWelcomeMessage } from '~/server/features/support/welcomemessage'
 import { downloadAndStoreAvatar } from './avatar'
-import { createSupportChat } from '~/server/features/support/createSupportChat'
+import { sendMessage } from './discord'
 
 export async function createOrUpdateUser({
     provider,
@@ -45,8 +45,12 @@ export async function createOrUpdateUser({
     )
 
     if (!isUserExists) {
-        await createSupportChat(`${provider}:${providerId}`)
-        await sendWelcomeMessage(`${provider}:${providerId}`)
+        try {
+            await sendWelcomeMessage(`${provider}:${providerId}`)
+            await sendMessage('1380126903528067184', `New user registered, email: ${email}, name: ${name}`)
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     return session

@@ -1,6 +1,7 @@
 import { connectDB } from '~/server/db/mongo'
 import { MESSAGE_SENDER } from '~/server/features/support/const'
-import { createChannel, sendMessage } from '~~/server/utils/discord'
+import { createSupportChatIfNeeded } from '~~/server/features/support/createSupportChat'
+import { sendMessage } from '~~/server/utils/discord'
 
 export default defineEventHandler(async (event) => {
     const userId = event.context?.auth?.userId
@@ -25,7 +26,7 @@ export default defineEventHandler(async (event) => {
     let userSupportChannelId = user.supportChannelId
 
     if (!userSupportChannelId) {
-        userSupportChannelId = await createSupportChat(userId)
+        userSupportChannelId = await createSupportChatIfNeeded(userId)
     }
 
     await sendMessage(userSupportChannelId, message)
