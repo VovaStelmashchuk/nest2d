@@ -32,7 +32,26 @@ export default defineEventHandler(async (event) => {
   const { files, params } = body;
   const filteredFiles = files.filter((file) => file.count > 0);
 
-  const slug = `nest-${generateRandomString(6)}`;
+  const project = await db.collection("projects").findOne({ slug: projectSlug, ownerId: userId })
+  const projectDxfFiles = project.dxf
+
+  const dbFiles = filteredFiles.map((file) => {
+    const projectDxfFile = projectDxfFiles.find((dxfFile) => dxfFile.slug === file.slug)
+    if (!projectDxfFile) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Dxf file not found",
+      });
+    }
+    return {
+      ...file,
+      name: projectDxfFile.name.replace('.dxf', '')
+    }
+  })
+
+  const slug = `nested-${dbFiles.map((file) => {
+    return file.name + '_' + file.count
+  }).join('-')}-${generateRandomString(4)}`;
 
   const dbParams = {
     height: params.height,
@@ -45,7 +64,7 @@ export default defineEventHandler(async (event) => {
   await db.collection("nesting_jobs").insertOne({
     slug: slug,
     projectSlug: projectSlug,
-    files: filteredFiles,
+    files: dbFiles,
     params: dbParams,
     status: "pending",
     createdAt: new Date(),
