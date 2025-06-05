@@ -13,7 +13,8 @@ const state = reactive({
         heightPlate: '560',
         sheetCount: 1,
         tolerance: '0.01',
-        space: '0.1'
+        space: '0.1',
+        sheetCount: 1
     },
     isSvgLoaded: computed(
         () =>
@@ -46,7 +47,8 @@ const state = reactive({
                 width: Number(state.params.widthPlate),
                 height: Number(state.params.heightPlate),
                 tolerance: Number(state.params.tolerance),
-                space: Number(state.params.space)
+                space: Number(state.params.space),
+                sheetCount: Number(state.params.sheetCount)
             }
         })
     )

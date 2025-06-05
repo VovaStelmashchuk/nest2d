@@ -16,8 +16,6 @@ export default defineEventHandler(async (event) => {
     const files = await resultDxfBucket.find({ filename: fileName }).toArray()
     const metadata = files[0].metadata
 
-    console.dir(metadata, { depth: null })
-
     if (metadata.ownerId !== userId) {
         throw createError({
             statusCode: 401,

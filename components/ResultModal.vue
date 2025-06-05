@@ -2,30 +2,20 @@
     <DialogWrapper>
         <div class="modal">
             <div class="modal__wrapper">
-                <div
-                    v-if="isHaveError"
-                    :class="placeholderClasses"
-                    class="modal__placeholder"
-                >
+                <div v-if="isHaveError" :class="placeholderClasses" class="modal__placeholder">
                     Err
                 </div>
-                <SvgDisplay
-                    v-else
-                    :src="resultModalData.svg"
-                    :class="displayClasses"
-                    @click="updateFullScreen"
-                    class="modal__display"
-                />
-                <MainButton
-                    v-if="!isHaveError"
-                    label="fullscreen"
-                    :size="sizeType.s"
-                    :theme="themeType.primary"
-                    :isLabelShow="false"
-                    :icon="iconType.fullscreen"
-                    @click="updateFullScreen"
-                    class="modal__fullscreen"
-                />
+                <div v-else class="modal__svg-row">
+                    <div v-for="(svg, idx) in resultModalData.svgs" :key="svg + idx" class="modal__svg-col">
+                        <SvgDisplay :src="svg" :class="displayClasses" @click="updateFullScreen"
+                            class="modal__display" />
+                        <MainButton :href="resultModalData.dxfs[idx]" label="Download" tag="a" download
+                            :size="sizeType.s" :theme="themeType.primary" class="modal__svg-download" />
+                    </div>
+                </div>
+                <MainButton v-if="!isHaveError" label="fullscreen" :size="sizeType.s" :theme="themeType.primary"
+                    :isLabelShow="false" :icon="iconType.fullscreen" @click="updateFullScreen"
+                    class="modal__fullscreen" />
             </div>
             <div class="modal__name modal__info info">
                 <template v-if="isHaveError">
@@ -44,10 +34,7 @@
                 <template v-else> {{ resultModalData.slug }}.dxf </template>
             </div>
             <div v-if="!isHaveError" class="modal__info info">
-                <span
-                    v-if="resultModalData.requested === resultModalData.placed"
-                    class="info__label"
-                >
+                <span v-if="resultModalData.requested === resultModalData.placed" class="info__label">
                     All details are placed
                 </span>
                 <template v-else>
@@ -61,20 +48,11 @@
                 </template>
             </div>
             <div class="controls">
-                <MainButton
-                    :href="API_ROUTES.DXFFILE(resultModalData.slug)"
-                    label="Download"
-                    tag="a"
-                    :isDisable="isHaveError"
-                    :size="sizeType.s"
-                    :theme="themeType.primary"
-                />
-                <MainButton
-                    label="Try again"
-                    :size="sizeType.s"
-                    :theme="themeType.secondary"
-                    @click="resultDialog = false"
-                />
+                <MainButton v-if="resultModalData.isMultiSheet" :href="resultModalData.zipDownloadUrl"
+                    label="Download as zip" tag="a" :isDisable="isHaveError" :size="sizeType.s"
+                    :theme="themeType.primary" />
+                <MainButton label="Try again" :size="sizeType.s" :theme="themeType.secondary"
+                    @click="resultDialog = false" />
             </div>
         </div>
     </DialogWrapper>
@@ -116,17 +94,21 @@ const placeholderClasses = computed(() => ({
 .modal {
     padding: 48px 24px 24px;
     min-width: 368px;
+
     &__wrapper {
         position: relative;
     }
+
     &__fullscreen {
         position: absolute;
         top: 8px;
         right: 8px;
     }
+
     &__display {
         cursor: pointer;
     }
+
     &__display,
     &__placeholder {
         max-width: 100%;
@@ -138,6 +120,29 @@ const placeholderClasses = computed(() => ({
             height: calc(80vh - 72px);
         }
     }
+
+    &__svg-row {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-start;
+        justify-content: center;
+        margin-bottom: 8px;
+    }
+
+    &__svg-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 320px;
+    }
+
+    &__svg-download {
+        margin-top: 8px;
+        width: 100%;
+        text-align: center;
+    }
+
     &__placeholder {
         display: flex;
         align-items: center;
@@ -148,6 +153,7 @@ const placeholderClasses = computed(() => ({
         border: solid 1px var(--error-border);
         color: var(--label-primary);
     }
+
     &__name {
         display: flex;
         justify-content: center;
@@ -161,6 +167,7 @@ const placeholderClasses = computed(() => ({
         margin-left: auto;
         margin-right: auto;
     }
+
     &__info {
         display: flex;
         align-items: center;
@@ -168,19 +175,20 @@ const placeholderClasses = computed(() => ({
         flex-direction: column;
         color: var(--label-primary);
 
-        & > * {
+        &>* {
             margin-bottom: 10px;
         }
     }
 }
+
 .controls {
     display: flex;
     align-items: center;
     justify-content: center;
-    & > * {
+
+    &>* {
         margin-left: 4px;
         margin-right: 4px;
     }
 }
 </style>
-

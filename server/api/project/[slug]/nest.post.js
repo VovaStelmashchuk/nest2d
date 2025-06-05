@@ -6,8 +6,10 @@ import standardSlugify from "standard-slugify";
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
   if (!userId) {
-    setResponseStatus(401);
-    return;
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Unauthorized",
+    });
   }
   const db = await connectDB();
   const user = await db.collection("users").findOne({ id: userId });
@@ -60,7 +62,7 @@ export default defineEventHandler(async (event) => {
     width: params.width,
     tolerance: params.tolerance,
     space: params.space,
-    sheetCount: 1
+    sheetCount: params.sheetCount
   }
 
   await db.collection("nesting_jobs").insertOne({

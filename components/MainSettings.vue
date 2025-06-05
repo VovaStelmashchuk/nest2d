@@ -7,7 +7,7 @@
                     <InputField prefix="W" suffix="mm" v-model="localWidth" class="size__input" />
                     <InputField prefix="H" suffix="mm" v-model="localHeight" class="size__input" />
                 </div>
-                <!-- <InputField prefix="Sheet Count" suffix="units" v-model="localSheetCount" class="size__input" /> -->
+                <InputField prefix="Sheet Count" suffix="units" v-model="localSheetCount" class="size__input" />
                 <InputField prefix="Spacing" suffix="mm" v-model="localSpace" class="size__input" />
                 <InputField prefix="Tolerance" suffix="mm" v-model="localTolerance" class="size__input" />
             </div>

@@ -1,54 +1,28 @@
 <template>
     <div class="result">
         <template v-if="isResultNexting">
-            <MainLoader 
-                :size="sizeType.s"
-                :theme="themeType.secondary"
-                class="result__display"
-            />
+            <MainLoader :size="sizeType.s" :theme="themeType.secondary" class="result__display" />
             <p class="result__text">
                 Nesting</p>
         </template>
         <template v-else>
-            <div 
-                v-if="isResultFailed"
-                class="result__placeholder"
-            >
+            <div v-if="isResultFailed" class="result__placeholder">
                 Err
             </div>
-            <SvgDisplay
-                v-else
-                :size="sizeType.s"
-                :src="svgSrc"
-                class="result__display"
-            />
-            <p class="result__name">
+            <template v-else>
+                <div class="result__svg-row">
+                    <SvgDisplay v-for="(svg, idx) in result.svgs" :key="svg + idx" :size="sizeType.s" :src="svg"
+                        class="result__display" />
+                </div>
+            </template>
+            <p class=" result__name">
                 {{ result.slug }}.dxf
             </p>
             <div class="result__controls controls">
-                <!-- <div class="controls__delete">
-                    <MainButton 
-                        :label="`delete ${item.projectName}`"
-                        :size="sizeType.s"
-                        :icon="iconType.trash"
-                        :isLabelShow=false
-                        @click="console.log(`delete ${item.projectName}`)"
-                    />
-                </div> -->
-                <MainButton 
-                    v-if="isResultCompleted"
-                    :href="API_ROUTES.DXFFILE(result.slug)"
-                    label="Download"
-                    tag="a"
-                    :size="sizeType.s"
-                    :theme="themeType.primary"
-                    class="controls__download"
-                />
+                <MainButton v-if="isResultCompleted" :href="downloadUrl" :label="downloadButtonText" tag="a"
+                    :size="sizeType.s" :theme="themeType.primary" class="controls__download" />
             </div>
-            <button
-                @click="openModal()" 
-                class="result__area"
-            />
+            <button @click="openModal()" class="result__area" />
         </template>
     </div>
 </template>
@@ -57,7 +31,7 @@ import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 import { statusType } from "~~/constants/status.constants";
-import { computed } from "vue";
+import { computed, unref } from "vue";
 
 const { result } = defineProps({
     result: {
@@ -65,11 +39,24 @@ const { result } = defineProps({
         required: true
     }
 })
+
 const emit = defineEmits(["openModal"]);
 
-const svgSrc = computed(() => {
-    return `${unref(result).svg}`
+const isMultiSheet = computed(() => {
+    return unref(result).isMultiSheet
 })
+
+const downloadUrl = computed(() => {
+    return unref(result).downloadUrl
+})
+
+const downloadButtonText = computed(() => {
+    if (isMultiSheet.value) {
+        return 'Download All'
+    }
+    return 'Download'
+})
+
 const isResultNexting = computed(() => {
     return [statusType.unfinished, statusType.pending].includes(unref(result).status)
 })
@@ -82,7 +69,7 @@ const isResultCompleted = computed(() => {
 const openModal = () => {
     emit('openModal')
 }
-</script>  
+</script>
 <style lang="scss" scoped>
 .result {
     $self: &;
@@ -92,11 +79,21 @@ const openModal = () => {
     border: 1px solid var(--separator-secondary);
     border-radius: 8px;
     transition: border-color 0.3s;
+
+    &__svg-row {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
     &__display,
     &__placeholder {
         width: 40px;
         height: 40px;
     }
+
     &__placeholder {
         display: flex;
         align-items: center;
@@ -107,18 +104,21 @@ const openModal = () => {
         border: solid 1px var(--error-border);
         color: var(--label-primary);
     }
+
     &__name,
     &__text {
         margin-top: 10px;
         color: var(--label-secondary);
         transition: color 0.3s;
     }
+
     &__text {
         &::after {
             content: '';
             animation: dots 2s infinite linear;
         }
     }
+
     &__area {
         position: absolute;
         top: 0;
@@ -127,6 +127,7 @@ const openModal = () => {
         left: 0;
         cursor: pointer;
     }
+
     &__controls {
         z-index: 1;
         position: absolute;
@@ -141,27 +142,34 @@ const openModal = () => {
                     opacity: 1;
                 }
             }
+
             border-color: var(--separator-primary);
+
             #{$self}__name {
                 color: var(--label-primary);
             }
         }
     }
 }
+
 @keyframes dots {
     0% {
         content: '';
     }
+
     33.33% {
         content: '.';
     }
+
     66.66% {
         content: '..';
     }
+
     100% {
         content: '...';
     }
 }
+
 .controls {
     display: flex;
     align-items: center;
@@ -170,6 +178,7 @@ const openModal = () => {
         opacity: 0;
         transition: opacity 0.3s;
     }
+
     &__download {
         margin-left: 5px;
     }
