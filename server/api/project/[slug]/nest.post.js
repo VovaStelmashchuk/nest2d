@@ -34,11 +34,19 @@ export default defineEventHandler(async (event) => {
 
   const slug = `nest-${generateRandomString(6)}`;
 
+  const dbParams = {
+    height: params.height,
+    width: params.width,
+    tolerance: params.tolerance,
+    space: params.space,
+    sheetConut: 1
+  }
+
   await db.collection("nesting_jobs").insertOne({
     slug: slug,
     projectSlug: projectSlug,
     files: filteredFiles,
-    params: params,
+    params: dbParams,
     status: "pending",
     createdAt: new Date(),
     ownerId: userId,
