@@ -36,7 +36,7 @@ export async function removeSessionFromUser(sessionId) {
 
 export async function getUserBySessionId(sessionId) {
   const db = await connectDB();
-  return await db.collection("users").findOne({
+  const user = await db.collection("users").findOne({
     sessions: {
       $elemMatch: {
         sessionId: sessionId,
@@ -46,4 +46,13 @@ export async function getUserBySessionId(sessionId) {
       },
     },
   });
+
+  if (user) {
+    await db.collection("users").updateOne(
+      { _id: user._id },
+      { $set: { lastActiveAt: new Date() } }
+    );
+  }
+
+  return user;
 }
