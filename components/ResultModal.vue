@@ -85,7 +85,7 @@
                 <MainButton 
                     v-if="resultModalData.isMultiSheet" 
                     :href="resultModalData.zipDownloadUrl"
-                    label="Download as zip" 
+                    label="Download All" 
                     tag="a" 
                     :isDisable="isHaveError" 
                     :size="sizeType.s"
