@@ -17,7 +17,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
 import MainButton from './MainButton.vue'
 import MainTitle from './MainTitle.vue'
 import { themeType } from '~~/constants/theme.constants'

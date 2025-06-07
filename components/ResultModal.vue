@@ -1,37 +1,50 @@
 <template>
     <DialogWrapper>
         <div class="modal">
+            <div
+                v-if="resultModalData.isMultiSheet"
+                class="modal__list-sheets list-sheets"
+            >
+                <MainButton 
+                    v-for="(part, partIndex) in resultModalData.dxfs"
+                    :key="partIndex"
+                    :label="`Part ${partIndex + 1}`" 
+                    :size="sizeType.s"
+                    :theme="themeType.primary"
+                    :isDisable="partIndex == acitvePart"
+                    @click="updatePartPage(partIndex)"
+                    class="list-sheets__item"
+                />
+            </div>
             <div class="modal__wrapper">
                 <div v-if="isHaveError" :class="placeholderClasses" class="modal__placeholder">
                     Err
                 </div>
-                <div
-                    v-else 
-                    :class="rowClasses"
-                    class="modal__row"
-                >
-                    <div 
-                        v-for="(svg, svgIndex) in resultModalData.svgs" 
-                        :key="svgIndex"
-                        class="modal__col"
-                    >
-                        <SvgDisplay
-                            :src="svg" 
-                            :class="displayClasses" 
-                            @click="updateFullScreen"
-                            class="modal__display"
-                        />
-                        <MainButton 
-                            :href="resultModalData.dxfs[svgIndex]" 
-                            label="Download" 
-                            tag="a" 
-                            download
-                            :size="sizeType.s" 
-                            :theme="themeType.primary" 
-                            class="modal__download" 
-                        />
-                    </div>
+                <div v-else-if="resultModalData.isMultiSheet">
+                    <SvgDisplay
+                        :src="resultModalData.svgs[acitvePart]" 
+                        :class="displayClasses" 
+                        @click="updateFullScreen"
+                        class="modal__display"
+                    />
+                    <MainButton
+                        class="modal__part-download"
+                        v-if="resultModalData.isMultiSheet" 
+                        :href="resultModalData.dxfs[acitvePart]"
+                        :label="`Download part ${acitvePart + 1}`" 
+                        tag="a" 
+                        :isDisable="isHaveError" 
+                        :size="sizeType.s"
+                        :theme="themeType.primary" 
+                    />
                 </div>
+                <SvgDisplay
+                    v-else
+                    :src="resultModalData.svgs[0]" 
+                    :class="displayClasses" 
+                    @click="updateFullScreen"
+                    class="modal__display"
+                />
                 <MainButton v-if="!isHaveError" label="fullscreen" :size="sizeType.s" :theme="themeType.primary"
                     :isLabelShow="false" :icon="iconType.fullscreen" @click="updateFullScreen"
                     class="modal__fullscreen" />
@@ -50,7 +63,9 @@
                         {{ resultModalData.placed }} parts placed
                     </span>
                 </template>
-                <template v-else> {{ resultModalData.slug }}.dxf </template>
+                <template v-else> 
+                    {{ name }}
+                </template>
             </div>
             <div v-if="!isHaveError" class="modal__info info">
                 <span v-if="resultModalData.requested === resultModalData.placed" class="info__label">
@@ -67,9 +82,24 @@
                 </template>
             </div>
             <div class="controls">
-                <MainButton v-if="resultModalData.isMultiSheet" :href="resultModalData.zipDownloadUrl"
-                    label="Download as zip" tag="a" :isDisable="isHaveError" :size="sizeType.s"
-                    :theme="themeType.primary" />
+                <MainButton 
+                    v-if="resultModalData.isMultiSheet" 
+                    :href="resultModalData.zipDownloadUrl"
+                    label="Download as zip" 
+                    tag="a" 
+                    :isDisable="isHaveError" 
+                    :size="sizeType.s"
+                    :theme="themeType.primary" 
+                />
+                <MainButton 
+                    v-if="!resultModalData.isMultiSheet" 
+                    :href="resultModalData.dxfs[0]" 
+                    label="Download" 
+                    tag="a" 
+                    download
+                    :size="sizeType.s" 
+                    :theme="themeType.primary" 
+                />
                 <MainButton label="Try again" :size="sizeType.s" :theme="themeType.secondary"
                     @click="resultDialog = false" />
             </div>
@@ -110,6 +140,14 @@ const placeholderClasses = computed(() => ({
     'modal__placeholder--is-fullscreen':
         unref(isFullScreen) && !unref(isHaveError)
 }))
+const name = computed(() => {
+    const endPart = unref(resultModalData).isMultiSheet ? `.zip` : `.dxf ` 
+    return unref(resultModalData).slug + endPart
+})
+const acitvePart = ref(0)
+const updatePartPage = (partIndex) => {
+    acitvePart.value = partIndex
+}
 </script>
 
 <style lang="scss" scoped>
@@ -203,8 +241,31 @@ const placeholderClasses = computed(() => ({
             margin-bottom: 10px;
         }
     }
+
+    &__list-sheets {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 320px;
+    }
+
+    &__part-download {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 8px;
+    }
 }
 
+.list-sheets {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    &__item {
+        margin-bottom: 8px;
+        &:not(:last-child) {
+            margin-right: 8px;
+        }
+    }
+}
 .controls {
     display: flex;
     align-items: center;
