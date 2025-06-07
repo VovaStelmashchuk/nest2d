@@ -5,12 +5,31 @@
                 <div v-if="isHaveError" :class="placeholderClasses" class="modal__placeholder">
                     Err
                 </div>
-                <div v-else class="modal__svg-row">
-                    <div v-for="(svg, idx) in resultModalData.svgs" :key="svg + idx" class="modal__svg-col">
-                        <SvgDisplay :src="svg" :class="displayClasses" @click="updateFullScreen"
-                            class="modal__display" />
-                        <MainButton :href="resultModalData.dxfs[idx]" label="Download" tag="a" download
-                            :size="sizeType.s" :theme="themeType.primary" class="modal__svg-download" />
+                <div
+                    v-else 
+                    :class="rowClasses"
+                    class="modal__row"
+                >
+                    <div 
+                        v-for="(svg, svgIndex) in resultModalData.svgs" 
+                        :key="svgIndex"
+                        class="modal__col"
+                    >
+                        <SvgDisplay
+                            :src="svg" 
+                            :class="displayClasses" 
+                            @click="updateFullScreen"
+                            class="modal__display"
+                        />
+                        <MainButton 
+                            :href="resultModalData.dxfs[svgIndex]" 
+                            label="Download" 
+                            tag="a" 
+                            download
+                            :size="sizeType.s" 
+                            :theme="themeType.primary" 
+                            class="modal__download" 
+                        />
                     </div>
                 </div>
                 <MainButton v-if="!isHaveError" label="fullscreen" :size="sizeType.s" :theme="themeType.primary"
@@ -84,6 +103,9 @@ onMounted(() => {
 const displayClasses = computed(() => ({
     'modal__display--is-fullscreen': unref(isFullScreen) && !unref(isHaveError)
 }))
+const rowClasses = computed(() => ({
+    'modal__row--is-fullscreen': unref(isFullScreen) && !unref(isHaveError)
+}))
 const placeholderClasses = computed(() => ({
     'modal__placeholder--is-fullscreen':
         unref(isFullScreen) && !unref(isHaveError)
@@ -121,26 +143,28 @@ const placeholderClasses = computed(() => ({
         }
     }
 
-    &__svg-row {
+    &__row {
         display: flex;
-        flex-direction: row;
-        gap: 12px;
-        align-items: flex-start;
-        justify-content: center;
-        margin-bottom: 8px;
+
+        &--is-fullscreen {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        }
     }
 
-    &__svg-col {
+    &__col {
         display: flex;
         flex-direction: column;
         align-items: center;
-        width: 320px;
+
+        &:not(:last-child) {
+            margin-right: 12px;
+        }
     }
 
-    &__svg-download {
+    &__download {
         margin-top: 8px;
         width: 100%;
-        text-align: center;
     }
 
     &__placeholder {

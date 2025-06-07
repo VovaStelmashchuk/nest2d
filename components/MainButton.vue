@@ -73,10 +73,12 @@ const buttonClasses = computed(() => ({
 </script>
 <style lang="scss" scoped>
 .button {
+    text-align: center;
     $self: &;
     display: flex;
     transition: background-color 0.3s, opacity 0.3s;
     width: max-content;
+    justify-content: center;
 
     &__label {
         display: block;
