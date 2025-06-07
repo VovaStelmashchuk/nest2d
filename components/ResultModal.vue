@@ -20,7 +20,7 @@
                 <div v-if="isHaveError" :class="placeholderClasses" class="modal__placeholder">
                     Err
                 </div>
-                <div v-else-if="resultModalData.isMultiSheet">
+                <template v-else-if="resultModalData.isMultiSheet">
                     <SvgDisplay
                         :src="resultModalData.svgs[acitvePart]" 
                         :class="displayClasses" 
@@ -37,7 +37,7 @@
                         :size="sizeType.s"
                         :theme="themeType.primary" 
                     />
-                </div>
+                </template>
                 <SvgDisplay
                     v-else
                     :src="resultModalData.svgs[0]" 
@@ -174,10 +174,11 @@ const updatePartPage = (partIndex) => {
         max-width: 100%;
         width: 320px;
         height: 320px;
+        max-height: 100%;
 
         &--is-fullscreen {
             width: calc(80vw - 48px);
-            height: calc(80vh - 72px);
+            height: calc(80vh - 148px);
         }
     }
 
