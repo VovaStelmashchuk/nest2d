@@ -244,9 +244,8 @@ const updatePartPage = (partIndex) => {
     }
 
     &__list-sheets {
-        margin-left: auto;
-        margin-right: auto;
-        max-width: 320px;
+        margin: -42px auto 5px;
+        max-width: 300px;
     }
 
     &__part-download {
@@ -260,11 +259,9 @@ const updatePartPage = (partIndex) => {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+
     &__item {
-        margin-bottom: 8px;
-        &:not(:last-child) {
-            margin-right: 8px;
-        }
+        margin: 4px;
     }
 }
 .controls {
