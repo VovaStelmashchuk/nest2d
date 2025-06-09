@@ -181,6 +181,17 @@ const buttonClasses = computed(() => ({
             mask-image: url('/icons/svg/fullscreen.svg')
         }
     }
+    &--icon-arrow-next,
+    &--icon-arrow-prev {
+        #{$self}__icon {
+            mask-image: url('/icons/svg/arrow.svg')
+        }
+    }
+    &--icon-arrow-prev {
+        #{$self}__icon {
+            transform: scaleX(-1)
+        }
+    }
 
     @media (hover:hover) {
         &--theme-ghost {

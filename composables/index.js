@@ -25,7 +25,7 @@ function setResults(results, slug) {
         clearTimeout(resulTimer);
     }
 
-    if(globalStore.getters.isNesting) {
+    if (globalStore.getters.isNesting) {
         resulTimer = setTimeout(() => getResults(slug), 5000)
     }
 }
@@ -41,13 +41,13 @@ function setProjects(projects) {
     state.projectsList = [...projects]
 }
 function setModalResultData(result) {
-    state.resultModalData = {...result}
+    state.resultModalData = { ...result }
 }
 function setModalScreenshotData(result) {
     state.screenshotModalData = result
 }
 function setModalFileData(file) {
-    state.fileModalData = {...file}
+    state.fileModalData = { ...file }
 }
 export const globalStore = readonly({
     getters: {

@@ -41,7 +41,7 @@
                     :icon="themeIcon"
                     :isLabelShow=false
                     @click="updateTheme"
-                    label="theme light"
+                    label="toogle theme"
                 />
             </div>
             <MainButton 
