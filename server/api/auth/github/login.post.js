@@ -1,5 +1,6 @@
 import { getConfig } from '~/server/utils/config'
 import { createOrUpdateUser } from '~/server/utils/user'
+import logger from '~/server/utils/logger'
 
 export default defineEventHandler(async (event) => {
     const { githubCode } = await readBody(event)
@@ -11,6 +12,8 @@ export default defineEventHandler(async (event) => {
             Authorization: `Bearer ${accessToken}`
         }
     })
+
+    logger.info('Github login', { data })
 
     const { id, avatar_url, email, name } = data
 
