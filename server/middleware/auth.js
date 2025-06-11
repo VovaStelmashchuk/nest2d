@@ -6,6 +6,9 @@ export default defineEventHandler(async (event) => {
   const sessionId = cookie.sessionId;
   const user = await getUserBySessionId(sessionId);
   if (user) {
-    event.context.auth = { userId: user.id };
+    event.context.auth = { 
+      userId: user.id,
+      isAdmin: user.isAdmin,
+     };
   }
 });

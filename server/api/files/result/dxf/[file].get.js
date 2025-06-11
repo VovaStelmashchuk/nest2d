@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const files = await resultDxfBucket.find({ filename: fileName }).toArray()
     const metadata = files[0].metadata
 
-    if (metadata.ownerId !== userId) {
+    if (metadata.ownerId !== userId && !(event.context.auth.isAdmin == true)) {
         throw createError({
             statusCode: 401,
             statusMessage: "Unauthorized",
