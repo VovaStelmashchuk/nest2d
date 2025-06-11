@@ -39,9 +39,10 @@
             </h3>
             <div class="screenshots__list screenshots-list">
                 <button 
-                    v-for="screenshot in screenshots.list" 
+                    v-for="(screenshot, screenshotIndex) in screenshots.list[theme]" 
                     :key="screenshot.src"
-                    @click="openModal(screenshot.src)"
+                    @click="openModal({ src: screenshot.src, index: screenshotIndex, theme: theme })"
+                    class="screenshots-list__btn"
                 >
                     <img
                         :src="screenshot.src"
@@ -97,8 +98,8 @@
             </p>
             <div class="faq__list faq-list">
                 <div 
+                    :key="faqItem.title"
                     v-for="faqItem in faq.list" 
-                    :key="faq.title"
                     class="faq-list__item"
                 >
                     <h4 class="faq-list__title title">
@@ -129,13 +130,19 @@ definePageMeta({
     middleware: 'auth'
 })
 import { header, features, screenshots, howItWorks, started, faq } from '~~/data/index'
-import { themeType } from '~~/constants/theme.constants'
+import { defaultThemeType, themeType } from '~~/constants/theme.constants'
 const loginDialog = useLoginDialog()
 const screenshotDialog = useScreenshotDialog();
 
 const { actions } = globalStore;
 const { setModalScreenshotData } = actions;
-
+const themeCookie = useCookie('theme');
+const themeGlobal = computed(() => {
+    return  themeCookie.value || defaultThemeType
+})
+const theme = computed(() => {
+    return unref(themeGlobal)
+})
 const openModal = (screenshot) => {
     setModalScreenshotData(screenshot)
     screenshotDialog.value = true
@@ -212,6 +219,19 @@ const openModal = (screenshot) => {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     display: grid;
     gap: 32px;
+
+    &__btn {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--separator-secondary);
+        transition: border-color 0.3s;
+
+        @media (hover:hover) {
+            &:hover {
+                border-color: var(--accent-primary);
+            }
+        }
+    }
 }
 .works {
     &__list {

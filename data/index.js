@@ -29,17 +29,30 @@ export const features = {
 }
 export const screenshots = {
     title: 'Intuitive design',
-    list: [
-        {
-            src: '/screenshots/project-ui.png',
-        },
-        {
-            src: '/screenshots/nest-result.png',
-        },
-        {
-            src: '/screenshots/preview.png',
-        }
-    ]
+    list: {
+        ghost: [
+            {
+                src: '/screenshots/first-ghost.png',
+            },
+            {
+                src: '/screenshots/second-ghost.png',
+            },
+            {
+                src: '/screenshots/third-ghost.png',
+            }
+        ],
+        primary: [
+            {
+                src: '/screenshots/first-primary.png',
+            },
+            {
+                src: '/screenshots/second-primary.png',
+            },
+            {
+                src: '/screenshots/third-primary.png',
+            }
+        ]
+    }
 }
 export const howItWorks = {
     title: 'How It Works',
@@ -84,7 +97,7 @@ export const faq = {
         },
         {
             title: 'Does Nest2D give the best possible results?',
-            firstPart: 'While achieving perfect nesting optimization is a complex computational challenge with no guaranteed optimal solution, Nest2D delivers highly efficient material layouts through advanced algorithms. Our system prioritizes both speed and optimization quality to provide practical, time-saving results for your laser cutting projects.' 
+            firstPart: 'While achieving perfect nesting optimization is a complex computational challenge with no guaranteed optimal solution, Nest2D delivers highly efficient material layouts through advanced algorithms. Our system prioritizes both speed and optimization quality to provide practical, time-saving results for your laser cutting projects.'
         },
         {
             title: 'Can I contribute to the project?',

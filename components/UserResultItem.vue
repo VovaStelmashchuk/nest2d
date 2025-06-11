@@ -81,10 +81,10 @@ const openModal = () => {
     transition: border-color 0.3s;
 
     &__svg-row {
-        display: flex;
-        flex-direction: row;
-        gap: 8px;
-        align-items: center;
+        max-width: 128px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
         margin-bottom: 8px;
     }
 

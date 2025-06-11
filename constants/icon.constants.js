@@ -9,6 +9,8 @@ export const iconType = {
     dark: 'dark',
     light: 'light',
     fullscreen: 'fullscreen',
+    arrowNext: 'arrow-next',
+    arrowPrev: 'arrow-prev',
 }
 
 export const defaultIconType = iconType.trash

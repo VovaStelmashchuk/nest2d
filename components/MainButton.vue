@@ -73,10 +73,12 @@ const buttonClasses = computed(() => ({
 </script>
 <style lang="scss" scoped>
 .button {
+    text-align: center;
     $self: &;
     display: flex;
     transition: background-color 0.3s, opacity 0.3s;
     width: max-content;
+    justify-content: center;
 
     &__label {
         display: block;
@@ -177,6 +179,17 @@ const buttonClasses = computed(() => ({
     &--icon-fullscreen {
         #{$self}__icon {
             mask-image: url('/icons/svg/fullscreen.svg')
+        }
+    }
+    &--icon-arrow-next,
+    &--icon-arrow-prev {
+        #{$self}__icon {
+            mask-image: url('/icons/svg/arrow.svg')
+        }
+    }
+    &--icon-arrow-prev {
+        #{$self}__icon {
+            transform: scaleX(-1)
         }
     }
 
