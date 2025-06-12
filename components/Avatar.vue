@@ -14,7 +14,7 @@
 </template>
 <script setup>
 import { NuxtLink } from '#components';
-import { computed, unref } from 'vue';
+import { computed, onBeforeMount, unref } from 'vue';
 import { defaultSizeType } from "~~/constants/size.constants";
 
 const { size } = defineProps({
@@ -23,6 +23,7 @@ const { size } = defineProps({
         default: defaultSizeType,
     },
 }) 
+
 
 const route = useRoute()
 
@@ -41,6 +42,10 @@ const avatarHref = computed(() => {
 
 const { getters } = authStore;
 const user = computed(() => getters.user);
+
+onBeforeMount(() => {
+    window.clarity("identify", unref(user).id, "", "", unref(user).name);
+});
 
 </script>
 <style lang="scss" scoped>
