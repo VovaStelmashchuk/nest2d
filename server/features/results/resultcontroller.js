@@ -37,6 +37,7 @@ export async function getResults(userId, projectSlug) {
             requested: queueItem.requested || 0,
             downloadUrl: downloadUrl,
             zipDownloadUrl: zipDownloadUrl,
+            isInProgress: queueItem.status === 'processing' || queueItem.status === 'pending',
             svgs: (queueItem.svg_files || []).map((file) => "/api/files/result/svg/" + file),
             dxfs: (queueItem.dxf_files || []).map((file) => "/api/files/result/dxf/" + file),
         }
