@@ -1,4 +1,5 @@
 import { connectDB } from '../db/mongo'
+import logger from '../utils/logger'
 
 const SENSITIVE_KEY_REGEX = /(token|password|pass)/i
 
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     const userAgent = headers['user-agent']
     const userId = event.context.auth?.userId
     const start = Date.now()
+    const isSSE = headers.accept === 'text/event-stream'
 
     let requestBody = undefined
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
@@ -66,6 +68,7 @@ export default defineEventHandler(async (event) => {
             db.collection('http').insertOne({
                 method,
                 url,
+                isSSE,
                 userAgent,
                 userId,
                 requestBody,
