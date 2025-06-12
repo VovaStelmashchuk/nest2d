@@ -15,7 +15,7 @@
                         class="result__display" />
                 </div>
             </template>
-            <p class=" result__name">
+            <p class="result__name">
                 {{ result.slug }}.dxf
             </p>
             <div class="result__controls controls">
@@ -103,6 +103,10 @@ const openModal = () => {
         background-color: var(--error-background);
         border: solid 1px var(--error-border);
         color: var(--label-primary);
+    }
+    &__name {
+        max-width: 240px;
+        word-break: break-all;
     }
 
     &__name,
