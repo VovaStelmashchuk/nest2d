@@ -7,7 +7,6 @@ export default defineEventHandler(async (event) => {
         return
     }
 
-
     const projectSlug = getRouterParam(event, 'slug')
 
     const eventStream = createEventStream(event)
