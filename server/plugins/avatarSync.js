@@ -1,7 +1,8 @@
 import { connectDB, getAvatarBucket } from "../db/mongo";
+import logger from "../utils/logger";
 
 export default defineNitroPlugin(async (_) => {
-  console.log("Avatar sync plugin start");
+  logger.info("Avatar sync plugin start");
   const db = await connectDB();
   const avatarBucket = await getAvatarBucket();
 
@@ -24,7 +25,7 @@ export default defineNitroPlugin(async (_) => {
  * @param {import('mongodb').Document} user
  */
 async function syncAvatars(db, avatarBucket, user) {
-  console.log("Syncing avatar for user", user.id);
+  logger.info("Syncing avatar for user", user.id);
   try {
     const response = await $fetch(new URL(user.avatarUrl), {
       responseType: "arrayBuffer",
@@ -68,12 +69,12 @@ async function syncAvatars(db, avatarBucket, user) {
       });
 
       uploadStream.on("error", (err) => {
-        console.error("Error uploading avatar:", err);
+        logger.error("Error uploading avatar:", err);
         reject(err);
       });
     });
   } catch (error) {
-    console.error("Failed to sync avatar for user", user.id, error);
+    logger.error("Failed to sync avatar for user", user.id, error);
 
     await db
       .collection("users")

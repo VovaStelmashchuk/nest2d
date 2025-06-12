@@ -1,6 +1,7 @@
 import { connectDB } from "../db/mongo";
+import logger from "../utils/logger";
 
 export default defineNitroPlugin(async (nitroApp) => {
-  console.log("Nitro plugin start");
+  logger.info("Nitro plugin start");
   connectDB();
 });

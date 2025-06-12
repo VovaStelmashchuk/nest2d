@@ -1,5 +1,6 @@
 import { MongoClient, GridFSBucket } from "mongodb";
 import { getConfig } from "../utils/config";
+import logger from "../utils/logger";
 
 const uri = getConfig().mongoUri;
 
@@ -98,9 +99,9 @@ export async function connectDB() {
     try {
       client = new MongoClient(uri);
       await client.connect();
-      console.log("Connected to MongoDB");
+      logger.info("Connected to MongoDB");
     } catch (error) {
-      console.error("Failed to connect to MongoDB", error);
+      logger.error("Failed to connect to MongoDB", error);
       throw error;
     }
   }
