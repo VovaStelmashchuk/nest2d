@@ -229,6 +229,7 @@ const updatePartPage = (partIndex) => {
         max-width: 320px;
         margin-left: auto;
         margin-right: auto;
+        word-break: break-all;
     }
 
     &__info {
