@@ -1,4 +1,3 @@
-import { getConfig } from '~/server/utils/config'
 import { createOrUpdateUser } from '~/server/utils/user'
 import logger from '~/server/utils/logger'
 
@@ -41,11 +40,9 @@ export default defineEventHandler(async (event) => {
 })
 
 async function getGithubAccessToken(githubCode) {
-    const githubConfig = getConfig().github
-
     const url = new URL('https://github.com/login/oauth/access_token')
-    url.searchParams.append('client_id', githubConfig.clientId)
-    url.searchParams.append('client_secret', githubConfig.clientSecret)
+    url.searchParams.append('client_id', useRuntimeConfig().public.githubClientId)
+    url.searchParams.append('client_secret', useRuntimeConfig().githubClientSecret)
     url.searchParams.append('code', githubCode)
 
     const data = await $fetch(url, {

@@ -1,10 +1,9 @@
 import { connectDB } from '~~/server/db/mongo'
-import { getBaseUrl, getStripeSecretKey } from '~~/server/utils/config'
 import { generateRandomString } from '~~/server/utils/strings'
 import { getStripeVariants } from '~~/server/features/payment/const'
 
-const baseUrl = getBaseUrl()
-const stripeSecretKey = getStripeSecretKey()
+const baseUrl = useRuntimeConfig().public.baseUrl
+const stripeSecretKey = useRuntimeConfig().stripeSecretKey
 const redirectUrl = `${baseUrl}/home`
 
 export default defineEventHandler(async (event) => {

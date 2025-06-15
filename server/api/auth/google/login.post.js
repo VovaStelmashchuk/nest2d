@@ -1,6 +1,3 @@
-import { connectDB } from '~/server/db/mongo'
-import { generateSession } from '~~/server/utils/auth'
-
 export default defineEventHandler(async (event) => {
     const { googleAccessToken } = await readBody(event)
 

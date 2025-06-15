@@ -1,6 +1,4 @@
-import { getDiscord } from '~/server/utils/config'
-
-const discordServerId = getDiscord().guildId
+const discordServerId = useRuntimeConfig().public.discordGuildId
 const supportRoleId = '1360719809976733967'
 
 export async function createChannel(name, initialMessage) {

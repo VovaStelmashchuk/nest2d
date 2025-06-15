@@ -7,11 +7,14 @@ export default defineNuxtConfig({
     runtimeConfig: {
         discordToken: "",
         gmailAppPassword: "",
-                mongoUri: '',
-public: {
-            secretFile: ".secret.json",
+        mongoUri: '',
+        stripeSecretKey: '',
+        githubClientSecret: '',
+        public: {
             baseUrl: "http://localhost:3000",
             gitCommitSha: "",
+            googleClientId: "",
+            discordGuildId: "",
         },
     },
 

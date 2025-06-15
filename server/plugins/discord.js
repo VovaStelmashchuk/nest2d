@@ -1,4 +1,3 @@
-import { getDiscord } from '~/server/utils/config'
 import Eris from 'eris'
 import { connectDB } from '~~/server/db/mongo'
 
@@ -17,7 +16,7 @@ export default defineNitroPlugin(async () => {
         console.error(err)
     })
 
-    const discordConfig = getDiscord()
+    const discordGuildId = useRuntimeConfig().public.discordGuildId
 
     bot.on('messageCreate', (msg) => {
         if (msg.author.bot) return
@@ -25,7 +24,7 @@ export default defineNitroPlugin(async () => {
         if (msg.content.toLowerCase() === '!serverid') {
             bot.createMessage(msg.channel.id, `Server ID: ${msg.guildID}`)
         } else {
-            if (msg.guildID === discordConfig.guildId) {
+            if (msg.guildID === discordGuildId) {
                 handleDiscordMessage(msg.content, msg.channel.id).then(() => {
                     bot.addMessageReaction(msg.channel.id, msg.id, '✅')
                 })
