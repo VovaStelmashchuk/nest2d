@@ -14,6 +14,7 @@ export default defineNuxtConfig({
             baseUrl: "http://localhost:3000",
             gitCommitSha: "",
             googleClientId: "",
+            githubClientId: "",
             discordGuildId: "",
         },
     },
