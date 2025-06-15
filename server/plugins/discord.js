@@ -2,11 +2,9 @@ import { getDiscord } from '~/server/utils/config'
 import Eris from 'eris'
 import { connectDB } from '~~/server/db/mongo'
 
-const token = getDiscord().botToken
-
 export default defineNitroPlugin(async () => {
     logger.info("Discord bot plugin start");
-    const bot = new Eris(token, {
+    const bot = new Eris(useRuntimeConfig().discordToken, {
         intents: ['guildMessages', 'messageContent'],
         autoreconnect: true
     })

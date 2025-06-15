@@ -1,6 +1,5 @@
 import { getDiscord } from '~/server/utils/config'
 
-const discordToken = getDiscord().botToken
 const discordServerId = getDiscord().guildId
 const supportRoleId = '1360719809976733967'
 
@@ -10,7 +9,7 @@ export async function createChannel(name, initialMessage) {
         {
             method: 'POST',
             headers: {
-                Authorization: `Bot ${discordToken}`,
+                Authorization: `Bot ${useRuntimeConfig().discordToken}`,
                 'Content-Type': 'application/json'
             },
             body: {

@@ -115,13 +115,14 @@ function decrement(index) {
 async function nest(slug) {
     try {
         try {
-            await $fetch(API_ROUTES.NEST(slug), {
+            const data = await $fetch(API_ROUTES.NEST(slug), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: state.requestBody
             })
+            console.log(data)
         } catch (error) {
             if (error?.response?.status === 402) {
                 const buyCreditsDialog = useBuyCreditsDialog();

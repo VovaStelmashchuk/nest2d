@@ -13,6 +13,7 @@ services:
       - NUXT_PUBLIC_BASE_URL=https://nest2d.stelmashchuk.dev
     secrets:
       - nest2d-secret
+      - nest2d_discord_token
     deploy:
       update_config:
         order: start-first
@@ -21,6 +22,10 @@ services:
 
 secrets:
   nest2d-secret:
+    external: true
+  nest2d_discord_token:
+    external: true
+  nest2d_gmail_app_password:
     external: true
 
 networks:

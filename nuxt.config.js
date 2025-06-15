@@ -5,6 +5,8 @@ export default defineNuxtConfig({
     devtools: { enabled: true },
     modules: ["@nuxtjs/tailwindcss"],
     runtimeConfig: {
+        discordToken: "",
+        gmailAppPassword: "",
         public: {
             secretFile: ".secret.json",
             baseUrl: "http://localhost:3000",
