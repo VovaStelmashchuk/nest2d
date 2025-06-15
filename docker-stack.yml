@@ -36,3 +36,5 @@ secrets:
 networks:
   infra_reverse-proxy:
     external: true
+  infra_mongo:
+    external: true
