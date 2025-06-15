@@ -42,7 +42,7 @@ export async function sendMessage(channelId, messageContent) {
         {
             method: 'POST',
             headers: {
-                Authorization: `Bot ${discordToken}`,
+                Authorization: `Bot ${useRuntimeConfig().discordToken}`,
                 'Content-Type': 'application/json'
             },
             body: {
