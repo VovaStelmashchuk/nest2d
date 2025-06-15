@@ -1,8 +1,7 @@
 import { MongoClient, GridFSBucket } from "mongodb";
-import { getConfig } from "../utils/config";
 import logger from "../utils/logger";
 
-const uri = getConfig().mongoUri;
+const uri = useRuntimeConfig().mongoUri;
 
 let client;
 /**

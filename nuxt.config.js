@@ -7,7 +7,8 @@ export default defineNuxtConfig({
     runtimeConfig: {
         discordToken: "",
         gmailAppPassword: "",
-        public: {
+                mongoUri: '',
+public: {
             secretFile: ".secret.json",
             baseUrl: "http://localhost:3000",
             gitCommitSha: "",

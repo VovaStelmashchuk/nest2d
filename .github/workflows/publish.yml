@@ -62,7 +62,7 @@ jobs:
         uses: cssnr/stack-deploy-action@v1
         with:
           name: ${{ env.DOCKER_STACKE_NAME }}
-          file: docker-stack.yaml
+          file: docker-stack.yml
           host: ${{ env.HOST }}
           user: ${{ env.DEPLOY_USER }}
           ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}

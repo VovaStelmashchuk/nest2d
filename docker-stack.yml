@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   app:
     image: ghcr.io/vovastelmashchuk/nest2d:${GIT_COMMIT_HASH:-latest}
@@ -7,20 +6,24 @@ services:
       - 8.8.8.8
       - 8.8.4.4
     ports:
-      - "7100:3000"
+      - 7100:3000
     environment:
       - NUXT_PUBLIC_SECRET_FILE=/run/secrets/nest2d-secret
       - NUXT_PUBLIC_BASE_URL=https://nest2d.stelmashchuk.dev
     secrets:
       - nest2d-secret
-      - nest2d_discord_token
-      - nest2d_gmail_app_password
+      - source: nest2d_discord_token
+        target: discord_token
+      - source: nest2d_gmail_app_password
+        target: gmail_app_password
+      - source: nest2d_mongo_uri
+        target: mongo_uri
     deploy:
       update_config:
         order: start-first
     networks:
       - infra_reverse-proxy
-
+      - infra_mongo
 secrets:
   nest2d-secret:
     external: true
@@ -28,7 +31,8 @@ secrets:
     external: true
   nest2d_gmail_app_password:
     external: true
-
+  nest2d_mongo_uri:
+    external: true
 networks:
   infra_reverse-proxy:
     external: true

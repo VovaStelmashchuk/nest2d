@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "nest2d",
   "private": false,
   "type": "module",
   "scripts": {
@@ -24,6 +24,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "kickstart-scripts": "^1.0.1",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
     "prettier": "3.5.3",
