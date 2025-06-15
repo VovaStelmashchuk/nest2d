@@ -14,6 +14,7 @@ services:
     secrets:
       - nest2d-secret
       - nest2d_discord_token
+      - nest2d_gmail_app_password
     deploy:
       update_config:
         order: start-first
