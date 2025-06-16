@@ -11,6 +11,9 @@ if (!GMAIL_USER || !APP_PASSWORD) {
   process.exit(1);
 }
 
+logger.info('GMAIL_USER: %s', GMAIL_USER);
+logger.error('APP_PASSWORD: %s', APP_PASSWORD);
+
 async function sendEmailWithAppPassword(to, subject, htmlBody) {
   try {
     const transporter = nodemailer.createTransport({
