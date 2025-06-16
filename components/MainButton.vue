@@ -69,7 +69,7 @@ const buttonClasses = computed(() => ({
     [`button--theme-${unref(theme)}`]: Boolean(unref(theme)),
     [`button--icon-${unref(icon)}`]: Boolean(unref(icon)),
     'button--disabled': unref(isDisable),
-    'button--full': Boolean(unref(icon)) && Boolean(unref(label)),
+    'button--full': Boolean(unref(icon)) && Boolean(unref(isLabelShow)),
 }))
 </script>
 <style lang="scss" scoped>
