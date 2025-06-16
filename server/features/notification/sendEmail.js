@@ -19,11 +19,14 @@ async function sendEmailWithAppPassword(to, subject, htmlBody) {
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
-      secure: true,
+      secure: false,
+      requireTLS: true,
       auth: {
         user: GMAIL_USER,
         pass: APP_PASSWORD,
       },
+      logger: logger,
+      debug: true
     });
 
     const mailOptions = {
