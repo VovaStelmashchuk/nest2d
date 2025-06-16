@@ -11,7 +11,7 @@
                     this tab or continue with other work.
                 </p>
                 <p class="text__item">
-                    Would you like to get an email notification when it’s finished?
+                    <b>Would you like to get an email notification when it’s finished?</b>
                 </p>
             </div>
             <div class="modal__controls controls">
