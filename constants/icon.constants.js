@@ -8,6 +8,7 @@ export const iconType = {
     close: 'close',
     dark: 'dark',
     light: 'light',
+    bell: 'bell',
     fullscreen: 'fullscreen',
     arrowNext: 'arrow-next',
     arrowPrev: 'arrow-prev',

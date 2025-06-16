@@ -1,3 +1,4 @@
+
 import { computed, reactive, readonly } from 'vue'
 import { processingType } from '~~/constants/files.constants'
 
@@ -122,7 +123,8 @@ async function nest(slug) {
                 },
                 body: state.requestBody
             })
-            console.log(data)
+            // console.log(data)
+            // useInfoAboutNest().value = true
         } catch (error) {
             if (error?.response?.status === 402) {
                 const buyCreditsDialog = useBuyCreditsDialog();

@@ -69,6 +69,7 @@ const buttonClasses = computed(() => ({
     [`button--theme-${unref(theme)}`]: Boolean(unref(theme)),
     [`button--icon-${unref(icon)}`]: Boolean(unref(icon)),
     'button--disabled': unref(isDisable),
+    'button--full': Boolean(unref(icon)) && Boolean(unref(label)),
 }))
 </script>
 <style lang="scss" scoped>
@@ -143,7 +144,6 @@ const buttonClasses = computed(() => ({
     &--icon-trash {
         #{$self}__icon {
             mask-image: url('/icons/svg/trash.svg')
-
         }
     }
     &--icon-minus {
@@ -181,6 +181,11 @@ const buttonClasses = computed(() => ({
             mask-image: url('/icons/svg/fullscreen.svg')
         }
     }
+    &--icon-bell {
+        #{$self}__icon {
+            mask-image: url('/icons/svg/bell.svg')
+        }
+    }
     &--icon-arrow-next,
     &--icon-arrow-prev {
         #{$self}__icon {
@@ -214,6 +219,14 @@ const buttonClasses = computed(() => ({
     &--disabled {
         pointer-events: none;
         opacity: 0.3;
+    }
+
+    &--full {
+        &#{$self}--size-s {
+            #{$self}__icon {
+                margin-right: 8px;
+            }
+        }
     }
 }
 </style>
