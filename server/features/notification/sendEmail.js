@@ -61,7 +61,7 @@ export async function sendNestFinishEmail(nestingJob) {
     const emailSubject = `Your nesting project ${project.name} is finished`;
     const emailBody = `
       <p>Your nesting project ${project.name} is finished</p>
-      <p>You can view the project <a href="${useRuntimeConfig().public.baseUrl}/projects/${project.slug}">here</a></p>
+      <p>You can view the project <a href="${useRuntimeConfig().public.baseUrl}/project/${project.slug}">here</a></p>
     `;
 
     await sendEmailWithAppPassword(recipient, emailSubject, emailBody);

@@ -3,7 +3,7 @@ import { computed, reactive, readonly } from 'vue'
 import { processingType } from '~~/constants/files.constants'
 
 const { actions } = globalStore
-const { getResults, getProjects } = actions
+const { getResults, getProjects, setModalNestData } = actions
 
 const state = reactive({
     projectFiles: null,
@@ -123,8 +123,8 @@ async function nest(slug) {
                 },
                 body: state.requestBody
             })
-            // console.log(data)
-            // useInfoAboutNest().value = true
+            setModalNestData(data)
+            useInfoAboutNest().value = true
         } catch (error) {
             if (error?.response?.status === 402) {
                 const buyCreditsDialog = useBuyCreditsDialog();

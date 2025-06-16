@@ -6,7 +6,8 @@ const state = reactive({
     projectsList: null,
     resultModalData: {},
     screenshotModalData: {},
-    fileModalData: {}
+    fileModalData: {},
+    nestDialogData: {}
 })
 
 let resulTimer;
@@ -46,6 +47,9 @@ function setModalResultData(result) {
 function setModalScreenshotData(result) {
     state.screenshotModalData = result
 }
+function setModalNestData(result) {
+    state.nestDialogData = { ...result }
+}
 function setModalFileData(file) {
     state.fileModalData = { ...file }
 }
@@ -57,6 +61,7 @@ export const globalStore = readonly({
         resultModalData: computed(() => state.resultModalData),
         screenshotModalData: computed(() => state.screenshotModalData),
         fileModalData: computed(() => state.fileModalData),
+        nestDialogData: computed(() => state.nestDialogData)
     },
     actions: {
         getResults,
@@ -65,6 +70,7 @@ export const globalStore = readonly({
         setProjects,
         setModalFileData,
         setModalResultData,
-        setModalScreenshotData
+        setModalScreenshotData,
+        setModalNestData
     }
 })
