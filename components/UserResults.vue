@@ -24,7 +24,6 @@ const route = useRoute();
 const resultDialog = useResultDialog();
 const { getters, actions } = globalStore;
 const { setResults, setModalResultData } = actions;
-
 const eventSource = ref(null)
 
 const slug = computed(() => route.params.slug);
@@ -32,7 +31,6 @@ const slug = computed(() => route.params.slug);
 onMounted(() => {
     updateResults()
 })
-
 const updateResults = () => {
     setResults([])
 
@@ -45,16 +43,16 @@ const updateResults = () => {
     unref(eventSource).onmessage = (event) => {
         try {
             const parsed = JSON.parse(event.data)
-            
-            setResults(parsed.data.items)
+            if (parsed.type === 'initial' || parsed.type === 'update') {
+                setResults(parsed.data.items) 
+            }
         } catch (e) {
             console.error('Error parsing SSE message:', e)
         }
     }
-
-    // unref(eventSource).onerror = (err) => {
-    //     console.error('SSE connection error:', err)
-    // }
+    unref(eventSource).onerror = (err) => {
+        console.error('SSE connection error:', err)
+    }
 }
 
 

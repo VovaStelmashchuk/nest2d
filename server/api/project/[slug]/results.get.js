@@ -39,10 +39,10 @@ export default defineEventHandler(async (event) => {
             previousResult = newResult
         }
 
-        if (newResult.items.every(result => !result.isInProgress)) {
-            await cleanupEventStream(heartbeatInterval, interval, eventStream)
-            return
-        }
+        // if (newResult.items.every(result => !result.isInProgress)) {
+        //     await cleanupEventStream(heartbeatInterval, interval, eventStream)
+        //     return
+        // }
     }, 1000)
 
     const heartbeatInterval = setInterval(async () => {
