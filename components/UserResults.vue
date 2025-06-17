@@ -1,11 +1,11 @@
 <template>
     <MainAside label="Results">
         <div 
-            v-if="resultsList.length"    
+            v-if="getters.resultsList.length"    
             class="results"
         >
             <UserResultItem 
-                v-for="result in resultsList"
+                v-for="result in getters.resultsList"
                 :key="result.id"
                 :result="result"
                 @openModal="openModal(result)"
@@ -22,33 +22,58 @@
 <script setup>
 const route = useRoute();
 const resultDialog = useResultDialog();
-
 const { getters, actions } = globalStore;
-const { setResults, getResults, setModalResultData } = actions;
+const { setResults, setModalResultData } = actions;
+
+const eventSource = ref(null)
 
 const slug = computed(() => route.params.slug);
-const headers = useRequestHeaders(['cookie']);
-const data = getters.resultsList || await $fetch(API_ROUTES.RESULTS(unref(slug)), { headers });
-
-const resultsList = computed(() => {
-    return getters.resultsList || data.items
-});
 
 onMounted(() => {
-    if (!getters.resultsList) {
-        setResults(data.items, unref(slug))
-    }
+    updateResults()
 })
 
-watch(
-    () => route.path,
-    () => getResults(unref(slug)),
-);
+const updateResults = () => {
+    setResults([])
+
+    if (unref(eventSource)) {
+        unref(eventSource).close()
+    }
+
+    eventSource.value = new EventSource(API_ROUTES.RESULTS(unref(slug)))
+
+    unref(eventSource).onmessage = (event) => {
+        try {
+            const parsed = JSON.parse(event.data)
+            
+            setResults(parsed.data.items)
+        } catch (e) {
+            console.error('Error parsing SSE message:', e)
+        }
+    }
+
+    // unref(eventSource).onerror = (err) => {
+    //     console.error('SSE connection error:', err)
+    // }
+}
+
 
 const openModal = (result) => {
     setModalResultData(result)
     resultDialog.value = true
 }
+
+onBeforeUnmount(() => {
+    if (unref(eventSource)) {
+        unref(eventSource).close()
+    }
+})
+
+watch(
+    () => route.path,
+    () => updateResults(),
+);
+
 </script>
 <style lang="scss" scoped>
 .results {

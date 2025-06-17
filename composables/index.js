@@ -2,7 +2,7 @@ import { computed, reactive, readonly } from "vue";
 import { statusType } from "~~/constants/status.constants";
 
 const state = reactive({
-    resultsList: null,
+    resultsList: [],
     projectsList: null,
     resultModalData: {},
     screenshotModalData: {},
@@ -10,25 +10,8 @@ const state = reactive({
     nestDialogData: {}
 })
 
-let resulTimer;
-
-async function getResults(slug) {
-    try {
-        const data = await $fetch(API_ROUTES.RESULTS(slug));
-        setResults(data.items, slug)
-    } catch (error) {
-        console.error("Error fetching result:", error);
-    }
-}
-function setResults(results, slug) {
+function setResults(results) {
     state.resultsList = [...results]
-    if (resulTimer) {
-        clearTimeout(resulTimer);
-    }
-
-    if (globalStore.getters.isNesting) {
-        resulTimer = setTimeout(() => getResults(slug), 5000)
-    }
 }
 async function getProjects() {
     try {
@@ -64,7 +47,6 @@ export const globalStore = readonly({
         nestDialogData: computed(() => state.nestDialogData)
     },
     actions: {
-        getResults,
         setResults,
         getProjects,
         setProjects,

@@ -3,7 +3,7 @@ import { computed, reactive, readonly } from 'vue'
 import { processingType } from '~~/constants/files.constants'
 
 const { actions } = globalStore
-const { getResults, getProjects, setModalNestData } = actions
+const { getProjects, setModalNestData } = actions
 
 const state = reactive({
     projectFiles: null,
@@ -133,7 +133,7 @@ async function nest(slug) {
             }
         }
 
-        await Promise.all([getResults(slug), getProjects()])
+        await Promise.all([getProjects()])
 
         state.lastParams = state.requestBody
     } catch (err) {

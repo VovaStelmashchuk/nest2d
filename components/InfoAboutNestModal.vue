@@ -36,7 +36,6 @@ const infoAboutNestDialog = useInfoAboutNest()
 
 const email = async () => {
     const data = unref(nestDialogData)
-    console.log(data.slug)
     await $fetch(`/api/nest/${data.slug}/notify`, {
         method: 'POST',
     })
