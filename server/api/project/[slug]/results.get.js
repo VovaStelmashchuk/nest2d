@@ -22,6 +22,13 @@ export default defineEventHandler(async (event) => {
         }
     }))
 
+    const heartbeatInterval = setInterval(async () => {
+        eventStream.push(JSON.stringify({
+            type: 'heartbeat',
+            ts: Date.now()
+        }))
+    }, 30000)
+
     let previousResult = result
     const interval = setInterval(async () => {
         const newResult = await getResults(userId, projectSlug)
@@ -38,29 +45,12 @@ export default defineEventHandler(async (event) => {
             }))
             previousResult = newResult
         }
-
-        // if (newResult.items.every(result => !result.isInProgress)) {
-        //     await cleanupEventStream(heartbeatInterval, interval, eventStream)
-        //     return
-        // }
     }, 1000)
 
-    const heartbeatInterval = setInterval(async () => {
-        eventStream.push(JSON.stringify({
-            type: 'heartbeat',
-            ts: Date.now()
-        }))
-    }, 30000)
-
     eventStream.onClosed(async () => {
-        await cleanupEventStream(heartbeatInterval, interval, eventStream)
+        clearInterval(heartbeatInterval)
+        clearInterval(interval)
     })
 
     return eventStream.send()
 });
-
-async function cleanupEventStream(heartbeatInterval, interval, eventStream) {
-    clearInterval(heartbeatInterval)
-    clearInterval(interval)
-    await eventStream.close()
-}

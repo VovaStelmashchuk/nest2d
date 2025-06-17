@@ -46,14 +46,9 @@ export default defineEventHandler(async (event) => {
     }, 30000)
 
     eventStream.onClosed(async () => {
-        await cleanupEventStream(heartbeatInterval, interval, eventStream)
+        clearInterval(heartbeatInterval)
+        clearInterval(interval)
     })
 
     return eventStream.send()
 });
-
-async function cleanupEventStream(heartbeatInterval, interval, eventStream) {
-    clearInterval(heartbeatInterval)
-    clearInterval(interval)
-    await eventStream.close()
-} 
