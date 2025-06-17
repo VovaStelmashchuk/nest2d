@@ -23,7 +23,7 @@
 const route = useRoute();
 const resultDialog = useResultDialog();
 const { getters, actions } = globalStore;
-const { setResults, setModalResultData } = actions;
+const { setResults, setModalResultData, updateNotification } = actions;
 const eventSource = ref(null)
 
 const slug = computed(() => route.params.slug);
@@ -45,6 +45,10 @@ const updateResults = () => {
             const parsed = JSON.parse(event.data)
             if (parsed.type === 'initial' || parsed.type === 'update') {
                 setResults(parsed.data.items) 
+                
+                if (parsed.data.needNotification) {
+                    updateNotification(parsed.data.needNotification)
+                }
             }
         } catch (e) {
             console.error('Error parsing SSE message:', e)

@@ -7,7 +7,8 @@ const state = reactive({
     resultModalData: {},
     screenshotModalData: {},
     fileModalData: {},
-    nestDialogData: {}
+    nestDialogData: {},
+    needNotification: false
 })
 
 function setResults(results) {
@@ -36,6 +37,9 @@ function setModalNestData(result) {
 function setModalFileData(file) {
     state.fileModalData = { ...file }
 }
+function updateNotification(value) {
+    state.needNotification = value
+}
 export const globalStore = readonly({
     getters: {
         resultsList: computed(() => state.resultsList),
@@ -44,7 +48,8 @@ export const globalStore = readonly({
         resultModalData: computed(() => state.resultModalData),
         screenshotModalData: computed(() => state.screenshotModalData),
         fileModalData: computed(() => state.fileModalData),
-        nestDialogData: computed(() => state.nestDialogData)
+        nestDialogData: computed(() => state.nestDialogData),
+        needNotification: computed(() => state.needNotification)
     },
     actions: {
         setResults,
@@ -53,6 +58,7 @@ export const globalStore = readonly({
         setModalFileData,
         setModalResultData,
         setModalScreenshotData,
+        updateNotification,
         setModalNestData
     }
 })

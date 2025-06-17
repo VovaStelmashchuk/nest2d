@@ -34,7 +34,6 @@ import { themeType } from '~~/constants/theme.constants';
 const supportDialog = useSupportDialog();
 const buyCreditsDialog = useBuyCreditsDialog();
 
-
 </script>
 <style lang="scss" scoped>
 .main {
