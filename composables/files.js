@@ -106,11 +106,26 @@ function updateParams(param) {
     state.params = { ...state.params, ...param }
 }
 function increment(index) {
-    state.projectFiles[index].count++
+    if (state.projectFiles[index].count < 999) {
+        state.projectFiles[index].count++
+    }
 }
 function decrement(index) {
     if (state.projectFiles[index].count > 0) {
         state.projectFiles[index].count--
+    }
+}
+function updateCount(value, index) {
+    if (!isValidNumber(value)) {
+        state.projectFiles[index].count = 999
+        state.projectFiles[index].count = 0
+    } else {
+        if (Number(value) > 999) {
+            state.projectFiles[index].count = 0
+            state.projectFiles[index].count = 999
+        } else {
+            state.projectFiles[index].count = Number(value)
+        }
     }
 }
 async function nest(slug) {
@@ -164,6 +179,7 @@ export const filesStore = readonly({
         setProjectFiles,
         setProjectName,
         updateParams,
+        updateCount,
         getProject,
         increment,
         decrement,
