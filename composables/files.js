@@ -105,14 +105,20 @@ function isValidNumber(value) {
 function updateParams(param) {
     state.params = { ...state.params, ...param }
 }
-function increment(index) {
-    if (state.projectFiles[index].count < 999) {
-        state.projectFiles[index].count++
+function increment(index, event) {
+    const step = event && event.shiftKey ? 10 : 1
+    if (state.projectFiles[index].count + step <= 999) {
+        state.projectFiles[index].count += step
+    } else {
+        state.projectFiles[index].count = 999
     }
 }
 function decrement(index) {
-    if (state.projectFiles[index].count > 0) {
-        state.projectFiles[index].count--
+    const step = event && event.shiftKey ? 10 : 1
+    if (state.projectFiles[index].count - step >= 0) {
+        state.projectFiles[index].count -= step
+    } else {
+        state.projectFiles[index].count = 0
     }
 }
 function updateCount(value, index) {

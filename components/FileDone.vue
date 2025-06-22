@@ -14,7 +14,7 @@
                 :icon="iconType.minus"
                 :isDisable="file.count < 1"
                 :isLabelShow="false"
-                @click="decrement(fileIndex)"
+                @click="decrement(fileIndex, $event)"
                 label="decrement"
                 class="counter__btn"
             />
@@ -31,7 +31,7 @@
                 :icon="iconType.plus"
                 :isLabelShow="false"
                 :isDisable="file.count >= 999"
-                @click="increment(fileIndex)"
+                @click="increment(fileIndex, $event)"
                 label="increment"
                 class="counter__btn"
             />
