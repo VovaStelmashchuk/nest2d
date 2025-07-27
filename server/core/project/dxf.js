@@ -45,6 +45,7 @@ export async function saveFilesToProject(event, projectSlug, userId) {
       processingStatus: "pending",
       projectSlug: projectSlug,
       ownerId: userId,
+      uploadAt: new Date(),
     };
 
     file_records.push(file_record);

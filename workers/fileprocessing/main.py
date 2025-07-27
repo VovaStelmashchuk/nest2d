@@ -3,6 +3,7 @@ import traceback
 from utils.logger import setup_logger
 from utils.mongo import db, _client
 from pymongo import ReturnDocument
+from core.main import process_file
 
 logger = setup_logger("main_fileprocessing")
 logger.info("Starting new file processing worker")
@@ -30,7 +31,7 @@ while True:
         continue
     
     try:
-        doJobProject(doc)
+        process_file(doc)
     except Exception as e:
         logger.error("Error in project processing", extra={"error": str(e), "traceback": traceback.format_exc()})
         user_dxf_files.update_one(

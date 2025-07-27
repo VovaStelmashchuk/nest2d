@@ -9,6 +9,8 @@ env:
   REGISTRY: ghcr.io
   DOCKER_STACKE_NAME: nest2d
   DEPLOY_USER: deploy
+  MAIN_APP_IMAGE_NAME: vovastelmashchuk/main-app
+  USER_FILE_PROCESSING_WORKER_IMAGE_NAME: vovastelmashchuk/user-file-processing-worker
   HOST: 167.235.52.168
 
 jobs:
@@ -31,18 +33,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get repository name in lowercase
-        id: repo_name
-        run: echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
-      - name: Build and push Docker image
+      - name: Build and push main app image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.MAIN_APP_IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.MAIN_APP_IMAGE_NAME }}:${{ github.sha }}
+          build-args: |
+            GIT_COMMIT_SHA=${{ github.sha }}
+
+      - name: Build and push user file processing worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./workers/fileprocessing
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.USER_FILE_PROCESSING_WORKER_IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.USER_FILE_PROCESSING_WORKER_IMAGE_NAME }}:${{ github.sha }}
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
 
@@ -57,6 +66,8 @@ jobs:
       - name: Create env file
         run: |
           echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
+          echo "MAIN_APP_IMAGE_NAME=${{ env.MAIN_APP_IMAGE_NAME }}" >> ./envfile
+          echo "USER_FILE_PROCESSING_WORKER_IMAGE_NAME=${{ env.USER_FILE_PROCESSING_WORKER_IMAGE_NAME }}" >> ./envfile
 
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1

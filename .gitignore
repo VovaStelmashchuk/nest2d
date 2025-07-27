@@ -35,3 +35,6 @@ __pycache__
 *.pyz
 *.pywz
 *.pyzw
+
+# test data 
+.test-data
