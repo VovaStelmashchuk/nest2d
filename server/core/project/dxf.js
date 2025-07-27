@@ -5,7 +5,7 @@ import { generateRandomString } from "~~/server/utils/strings";
 
 import standardSlugify from "standard-slugify";
 
-export async function saveFilesToProject(event, projectSlug) {
+export async function saveFilesToProject(event, projectSlug, userId) {
   const fields = await readMultipartFormData(event);
   const dxfFileFields = fields.filter((field) => field.name === "dxf");
 
@@ -44,6 +44,7 @@ export async function saveFilesToProject(event, projectSlug) {
       name: userFileName,
       processingStatus: "pending",
       projectSlug: projectSlug,
+      ownerId: userId,
     };
 
     file_records.push(file_record);

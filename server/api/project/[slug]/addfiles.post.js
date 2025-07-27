@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: "Forbidden" });
   }
 
-  await saveFilesToProject(event, projectSlug);
+  await saveFilesToProject(event, projectSlug, userId);
 
   return {
     slug: projectSlug,

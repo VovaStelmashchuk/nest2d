@@ -2,6 +2,7 @@ import time
 import traceback
 from utils.logger import setup_logger
 from utils.mongo import db, _client
+from pymongo import ReturnDocument
 
 logger = setup_logger("main_fileprocessing")
 logger.info("Starting new file processing worker")
