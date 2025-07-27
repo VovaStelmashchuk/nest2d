@@ -69,6 +69,7 @@ jobs:
           echo "MAIN_APP_IMAGE_NAME=${{ env.MAIN_APP_IMAGE_NAME }}" >> ./envfile
           echo "USER_FILE_PROCESSING_WORKER_IMAGE_NAME=${{ env.USER_FILE_PROCESSING_WORKER_IMAGE_NAME }}" >> ./envfile
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> ./envfile
+          echo "WORKERS_REPLICAS=${{ vars.WORKERS_REPLICAS }}" >> ./envfile
 
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1

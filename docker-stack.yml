@@ -28,6 +28,18 @@ services:
     networks:
       - infra_reverse-proxy
       - infra_mongo
+
+  user-file-processing-worker:
+    image: ghcr.io/${USER_FILE_PROCESSING_WORKER_IMAGE_NAME}:${GIT_COMMIT_HASH:-latest}
+    environment:
+      - MONGO_URI=${MONGO_URI}
+    deploy:
+      replicas: ${WORKERS_REPLICAS}
+      update_config:
+        order: start-first
+    networks:
+      - infra_mongo
+
 secrets:
   nest2d_discord_token:
     external: true
