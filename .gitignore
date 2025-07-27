@@ -24,3 +24,14 @@ logs
 .secret.json
 .prod-secret.json
 .**secret**.json
+
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw

@@ -19,28 +19,40 @@ export async function saveFilesToProject(event, projectSlug) {
   const dxfUserBucket = await getUserDxfBucket();
 
   const dxfs = [];
+  const file_records = [];
 
   dxfFileFields.forEach((dxfFile) => {
     const fileBuffer = dxfFile.data;
     const userFileName = dxfFile.filename;
-    const fileSlug = `${projectSlug}-${standardSlugify(userFileName, {
+    const file_slug = standardSlugify(userFileName, {
       keepCase: false,
-    })}-${generateRandomString(6)}`;
+    }) + `-${generateRandomString(6)}.dxf`;
 
-    const uploadSream = dxfUserBucket.openUploadStream(fileSlug);
+    const uploadSream = dxfUserBucket.openUploadStream(file_slug);
     uploadSream.write(fileBuffer);
     uploadSream.end();
 
     const dxfRecord = {
-      slug: fileSlug,
+      slug: file_slug,
       name: userFileName,
       processingStatus: "in-progress",
     };
-
     dxfs.push(dxfRecord);
+
+    const file_record = {
+      slug: file_slug,
+      name: userFileName,
+      processingStatus: "pending",
+      projectSlug: projectSlug,
+    };
+
+    file_records.push(file_record);
   });
 
   const db = await connectDB();
+
+  await db.collection("user_dxf_files").insertMany(file_records);
+
   await db
     .collection("projects")
     .updateOne({ slug: projectSlug }, { $push: { dxf: { $each: dxfs } } });
