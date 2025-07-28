@@ -1,9 +1,10 @@
 import io
 from utils.logger import setup_logger
-from utils.mongo import user_dxf_bucket, valid_dxf_bucket
+from utils.mongo import user_dxf_bucket, valid_dxf_bucket, user_dxf_files_svg_bucket
 from dxf_utils import read_dxf
 from utils.mongo import db
 from ezdxf.document import Drawing
+from core.svg_generator import create_svg_from_doc
 
 def _make_dxf_copy(doc) -> Drawing:
     logger = setup_logger("dxf_copy_maker")
@@ -48,9 +49,37 @@ def _make_dxf_copy(doc) -> Drawing:
     
     return dxf_copy
 
+def _make_svg_file(drawing, doc):
+    if doc.get("isSvgFileExist", False):
+        return
+    
+    logger = setup_logger("svg_file_maker")
+    flattening = doc["flattening"]
+    owner_id = doc["ownerId"]
+    
+    slug = doc["slug"]
+    svg_slug = slug.removesuffix('.dxf') + '-origin.svg'
+    
+    logger.info("Making svg file", extra={"flattening": flattening, "file_slug": doc["slug"]})
+    
+    svg_string = create_svg_from_doc(drawing, flattening)
+    svg_bytes = io.BytesIO(svg_string.encode("utf-8"))
+    
+    user_dxf_files_svg_bucket.upload_from_stream(filename=svg_slug, source=svg_bytes, metadata={"ownerId": owner_id})
+    
+    db["user_dxf_files"].update_one(
+        {"_id": doc["_id"]},
+        {"$set": {
+            "isSvgFileExist": True,
+            "svgFileSlug": svg_slug
+        }}
+    )
+
 def process_file(doc):
     logger = setup_logger("core_fileprocessing")
     logger.info("Processing file", extra={"doc": doc})
     
     dxf_copy_drawing = _make_dxf_copy(doc)
+    
+    _make_svg_file(dxf_copy_drawing, doc)
     
