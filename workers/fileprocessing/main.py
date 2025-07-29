@@ -53,25 +53,10 @@ except Exception as e:
 
 user_dxf_files = db["user_dxf_files"]
 
-time.sleep(2 * keep_alive_interval)
-
-now = datetime.now()
-threshold_time = now - timedelta(seconds=keep_alive_interval)
-
-db["user_dxf_files"].update_many(
-    {
-        "processingStatus": "processing",
-        "update_ts": {"$lte": threshold_time}
-    },
-    {
-        "$set": {"processingStatus": "pending"}
-    }
-)
-
 def keep_alive_worker():
     global current_doc_id
     
-    while True:
+    while not shutdown_requested:
         if current_doc_id:
             try:
                 user_dxf_files.update_one(
@@ -103,7 +88,7 @@ while not shutdown_requested:
     
     try:
         user_dxf_files.update_one(
-            {"_id": current_doc_id},
+            {"_id": current_doc_id },
             {"$set": {"update_ts": datetime.now()}}
         )
         process_file(doc)
