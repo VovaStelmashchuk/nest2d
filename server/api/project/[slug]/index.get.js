@@ -16,9 +16,6 @@ export default defineEventHandler(async (event) => {
       projection: {
         name: 1,
         slug: 1,
-        "dxf.slug": 1,
-        "dxf.name": 1,
-        "dxf.processingStatus": 1,
       },
     }
   );
@@ -27,25 +24,33 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: "Project not found" });
   }
 
-  const files = project.dxf || [];
+  const projectFiles = await db.collection("user_dxf_files")
+    .find({ 
+      projectSlug: slug,
+      ownerId: userId,
+    })
+    .sort({ uploadAt: 1 })
+    .toArray();
 
   return {
     name: project.name,
     slug: project.slug,
-    files: files.map((file) => mapFileToUi(project.slug, file)),
+    files: projectFiles.map((file) => mapFileToUi(file)),
   };
 });
 
-const mapFileToUi = (projectSlug, file) => {
+const mapFileToUi = (file) => {
   const svgUrl =
-    file.processingStatus === "done"
-      ? `/api/project/${projectSlug}/${file.slug}/svg`
+    file.processingStatus === "completed"
+      ? `/api/files/project/svg/${file.svgFileSlug}`
       : null;
+
+  const status = file.processingStatus === "completed" ? "done" : file.processingStatus;
+
   return {
     slug: file.slug,
     name: file.name,
-    svg: file.svg,
     svgUrl: svgUrl,
-    processingStatus: file.processingStatus,
+    processingStatus: status,
   };
 };
