@@ -45,7 +45,14 @@ const mapFileToUi = (file) => {
       ? `/api/files/project/svg/${file.svgFileSlug}`
       : null;
 
-  const status = file.processingStatus === "completed" ? "done" : file.processingStatus;
+  let status;
+  if (file.processingStatus === "completed") {
+    status = "done";
+  } else if (file.processingStatus === "processing" || file.processingStatus === "pending") {
+    status = "in-progress";
+  } else {
+    status = file.processingStatus;
+  }
 
   return {
     slug: file.slug,
