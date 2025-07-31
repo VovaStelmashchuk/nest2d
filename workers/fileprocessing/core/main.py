@@ -5,6 +5,7 @@ from dxf_utils import read_dxf
 from utils.mongo import db
 from ezdxf.document import Drawing
 from core.svg_generator import create_svg_from_doc
+from core.polygonizer.main import close_polygon_from_dxf
 
 def _make_dxf_copy(doc) -> Drawing:
     logger = setup_logger("dxf_copy_maker")
@@ -82,4 +83,9 @@ def process_file(doc):
     dxf_copy_drawing = _make_dxf_copy(doc)
     
     _make_svg_file(dxf_copy_drawing, doc)
+    
+    tolerance = doc["flattening"]
+    
+    closed_polygons = close_polygon_from_dxf(dxf_copy_drawing, tolerance, "dxf_polygonizer")
+    print(closed_polygons)
     

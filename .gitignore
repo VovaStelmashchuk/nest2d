@@ -35,6 +35,7 @@ __pycache__
 *.pyz
 *.pywz
 *.pyzw
-
+**/venv/**
 # test data 
 .test-data
+
