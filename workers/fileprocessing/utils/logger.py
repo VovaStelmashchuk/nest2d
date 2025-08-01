@@ -54,8 +54,12 @@ def setup_logger(name="common_fileprocessing"):
 
     if not logger.handlers:
         console_handler = logging.StreamHandler()
+        file_handler = logging.FileHandler("logs.log")
         console_formatter = JsonFormatter()
         console_handler.setFormatter(console_formatter)
         logger.addHandler(console_handler)
+        file_formatter = JsonFormatter()
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
 
     return logger

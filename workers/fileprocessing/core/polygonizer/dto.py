@@ -9,10 +9,13 @@ from shapely.geometry import Polygon
 class ClosedPolygon:
     points: List[Point]
     handles: List[str]
+    _geometry_cache: Polygon = None
     
     @property
     def geometry(self) -> Polygon:
-        return Polygon(self.points)
+        if self._geometry_cache is None:
+            self._geometry_cache = Polygon(self.points)
+        return self._geometry_cache
     
 @dataclass(slots=True)
 class PolygonPart:

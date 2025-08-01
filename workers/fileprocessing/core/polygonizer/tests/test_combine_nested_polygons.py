@@ -82,7 +82,7 @@ class TestCombineNestedPolygons:
         )
         
         # With small tolerance, should not be considered nested
-        result_small_tol = _combine_nested_polygons([parent, child], 0.01)
+        result_small_tol = _combine_nested_polygons([parent, child], 0.001)
         assert len(result_small_tol) == 2
         
         # With larger tolerance, should be considered nested

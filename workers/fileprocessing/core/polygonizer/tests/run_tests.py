@@ -28,9 +28,7 @@ def main():
             if test_file.exists():
                 args[0] = str(test_file)
     
-    # Run the tests
     exit_code = pytest.main(args)
-    
     return exit_code
 
 if __name__ == "__main__":
