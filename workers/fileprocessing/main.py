@@ -30,7 +30,7 @@ def signal_handler(signum, frame):
             logger.info(f"Resetting current job {current_doc_id} to pending status")
             user_dxf_files.update_one(
                 {"_id": current_doc_id},
-                {"$set": {"processingStatusV2": "pending"}}
+                {"$set": {"processingStatus": "pending"}}
             )
             logger.info(f"Successfully reset job {current_doc_id} to pending")
         except Exception as e:
@@ -75,8 +75,8 @@ keepalive_thread.start()
 while not shutdown_requested:
     logger.info("Worker file processing try to find new files to process")
     doc = user_dxf_files.find_one_and_update(
-        {"processingStatusV2": "pending"},
-        {"$set": {"processingStatusV2": "processing"}},
+        {"processingStatus": "pending"},
+        {"$set": {"processingStatus": "processing"}},
         return_document=ReturnDocument.AFTER
     )
     
@@ -95,13 +95,13 @@ while not shutdown_requested:
         
         user_dxf_files.update_one(
             {"_id": current_doc_id},
-            {"$set": {"processingStatusV2": "completed"}}
+            {"$set": {"processingStatus": "completed"}}
         )
     except Exception as e:
         logger.error("Error in project processing", extra={"error": str(e), "traceback": traceback.format_exc()})
         user_dxf_files.update_one(
             {"_id": current_doc_id},
-            {"$set": {"processingStatusV2": "error",
+            {"$set": {"processingStatus": "error",
                       "processingError": str(e)}}
         )
     finally:
