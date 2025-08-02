@@ -3,24 +3,25 @@ import { MESSAGE_SENDER } from '~/server/features/support/const'
 
 export default defineEventHandler(async (event) => {
     const userId = event.context?.auth?.userId
-    if (!userId) {
+    const isAdmin = event.context?.auth?.isAdmin
+    if (!userId || !isAdmin) {
         setResponseStatus(401)
         return
     }
 
     const { message } = await readBody(event)
 
+    const customerId = event.context.params.user_id
+
     const db = await connectDB()
     const record = await db.collection('supportMessages').insertOne({
-        userId: userId,
-        sender: MESSAGE_SENDER.USER,
+        userId: customerId,
+        sender: MESSAGE_SENDER.SUPPORT,
         message: message,
         timestamp: new Date()
     })
 
     const { insertedId } = record
-
-    const user = await db.collection('users').findOne({ id: userId })
 
     const dbMessage = await db
         .collection('supportMessages')
