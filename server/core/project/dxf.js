@@ -35,7 +35,6 @@ export async function saveFilesToProject(event, projectSlug, userId) {
     const dxfRecord = {
       slug: file_slug,
       name: userFileName,
-      processingStatus: "in-progress",
     };
     dxfs.push(dxfRecord);
 
@@ -55,15 +54,4 @@ export async function saveFilesToProject(event, projectSlug, userId) {
   const db = await connectDB();
 
   await db.collection("user_dxf_files").insertMany(file_records);
-
-  await db
-    .collection("projects")
-    .updateOne({ slug: projectSlug }, { $push: { dxf: { $each: dxfs } } });
-
-  await db
-    .collection("projects")
-    .updateOne(
-      { slug: projectSlug },
-      { $set: { svgGeneratorStatus: "pending" } }
-    );
 }
