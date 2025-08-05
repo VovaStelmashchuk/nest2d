@@ -161,10 +161,10 @@ def _combine_open_parts(part_a: PolygonPart, part_b: PolygonPart, tol: float) ->
     Return a tuple of (True if the parts are combined, the combined part).
     """
     
-    a_start= part_a.points[0]
-    a_end= part_a.points[-1]
-    b_start= part_b.points[0]
-    b_end= part_b.points[-1]
+    a_start = part_a.points[0]
+    a_end = part_a.points[-1]
+    b_start = part_b.points[0]
+    b_end = part_b.points[-1]
     
     if a_start.distance(b_start) <= tol:
         return True, PolygonPart(
@@ -259,6 +259,9 @@ def combine_polygon_parts(
         # If we combined open parts with closed parts, continue the loop
         if open_parts_to_remove:
             continue
+        
+        # Filter closed_parts to remove polygons with area less than 1e-9
+        closed_parts = [part for part in closed_parts if part.geometry.area >= 1e-6]
         
         closed_parts = _combine_nested_polygons(closed_parts, tol)
         if len(closed_parts) != original_close_part_count:
