@@ -221,23 +221,19 @@ def combine_polygon_parts(
             if open_part.is_closed(tol):
                 closed_parts.append(open_part.to_closed_polygon())
                 open_parts.remove(open_part)
-                run_combine_closed_parts = True
                 break
             
         if original_open_part_count != len(open_parts):
             continue
         
-        # Try to combine open parts with each other
         combined = False
         n = len(open_parts)
         for i in range(n):
             for j in range(i + 1, n):
                 combine, new_part = _combine_open_parts(open_parts[i], open_parts[j], tol)
                 if combine:
-                    # Remove the two parts that were combined
-                    open_parts.pop(j)  # Remove j first (higher index)
-                    open_parts.pop(i)  # Then remove i
-                    # Add the new combined part
+                    open_parts.pop(j)
+                    open_parts.pop(i)
                     open_parts.append(new_part)
                     combined = True
                     break
@@ -301,7 +297,6 @@ def combine_polygon_parts(
             
             closed_parts.append(close_polygone)
             open_parts = []
-            run_combine_closed_parts = True
             continue
         
         break

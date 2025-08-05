@@ -15,17 +15,26 @@ from ezdxf.document import Drawing
 from shapely.geometry import Point
 import time
 
+_drawing_cache = {}
+
 def _getting_drawing(doc) -> Drawing:
     logger = setup_logger("getting_drawing")
     dxf_file_slug = doc["slug"]
     
     logger.info("Getting drawing", extra={"slug": dxf_file_slug})
     
+    if dxf_file_slug in _drawing_cache:
+        return _drawing_cache[dxf_file_slug]
+    
     if not doc.get("isDxfCopyExist", False):
         raise Exception("Dxf copy not exists")
     
     grid_out = valid_dxf_bucket.open_download_stream_by_name(dxf_file_slug)
-    return read_dxf(grid_out)
+    
+    drawing = read_dxf(grid_out)
+    _drawing_cache[dxf_file_slug] = drawing
+    
+    return drawing
 
 def _make_dxf_copy(doc) -> Drawing:
     logger = setup_logger("dxf_copy_maker")
@@ -91,8 +100,12 @@ def _make_svg_file(doc):
     doc["isSvgFileExist"] = True
     doc["svgFileSlug"] = svg_slug
     
-def _close_polygon_from_dxf(doc, logger_tag: str) -> List[ClosedPolygon]:
+def _close_polygon_from_dxf(doc, logger_tag: str):
     logger = setup_logger(logger_tag)
+    
+    if doc.get("isPolygonPartsExist", False):
+        logger.info("polygon_parts_already_exist", extra={"slug": doc["slug"]})
+        return
     
     def update_cache(open_parts, closed_parts):
         logger.info("save_progress", extra={"open_parts": len(open_parts), "closed_parts": len(closed_parts)})
@@ -162,6 +175,15 @@ def _close_polygon_from_dxf(doc, logger_tag: str) -> List[ClosedPolygon]:
         update_cache(open_parts, closed_parts)
         
     def save_progress(open_parts, closed_parts):
+        db["user_dxf_files"].update_one(
+            {"_id": doc["_id"]},
+            {"$set": {
+                "progress": {
+                    "open_parts": len(open_parts),
+                    "closed_parts": len(closed_parts)
+                }
+            }}
+        )
         if not hasattr(save_progress, "_last_update") or (time.time() - save_progress._last_update > 60):
             update_cache(open_parts, closed_parts)
             save_progress._last_update = time.time()
@@ -196,8 +218,19 @@ def _close_polygon_from_dxf(doc, logger_tag: str) -> List[ClosedPolygon]:
     
     end_time = time.time()
     logger.info("time taken", extra={"time": end_time - start_time})
+
+def _set_valid_entity_count(doc):
+    drawing = _getting_drawing(doc)
+    entity_count = len(drawing.modelspace())
     
-    return closed_parts
+    db["user_dxf_files"].update_one(
+        {"_id": doc["_id"]},
+        {
+            "$set": {
+                "validEntityCount": entity_count
+            }
+        }
+    )
 
 def process_file(doc):
     start_time = time.time()
@@ -207,18 +240,26 @@ def process_file(doc):
     _make_dxf_copy(doc)
     _make_svg_file(doc)
     
-    closed_polygons = _close_polygon_from_dxf(doc, "dxf_polygonizer") 
+    _set_valid_entity_count(doc)
+    
+    _close_polygon_from_dxf(doc, "dxf_polygonizer") 
     
     end_time = time.time()
     logger.info("time taken", extra={"time": end_time - start_time})
+    
+    original_processing_time = doc.get("processingTime", 0)
     
     db["user_dxf_files"].update_one(
         {"_id": doc["_id"]},
         {
             "$set": {
-                "processingTime": end_time - start_time,
+                "processingTime": original_processing_time + (end_time - start_time),
             }
         }
     )
     
-    logger.info("close_polygon_from_dxf_finish", extra={"closed_polygons": len(closed_polygons)})
+    slug = doc["slug"]
+    
+    if slug in _drawing_cache:
+        del _drawing_cache[slug]
+    
