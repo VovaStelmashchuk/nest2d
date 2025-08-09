@@ -23,8 +23,9 @@ sys.path.extend([parent_dir, grandparent_dir, root_dir])
 
 import ezdxf
 from ezdxf.math import Vec3
-from shapely.geometry import Point, LineString, Polygon
+from shapely.geometry import Point, LineString, Polygon, MultiPolygon
 from shapely.geometry.base import BaseGeometry
+from shapely.plotting import patch_from_polygon
 
 from dxf_parser import convert_entity_to_shapely
 from dxf_parser import DxfEntityGeometry
@@ -37,13 +38,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def process_dxf_file(file_path: str, tolerance: float = 0.01):
+def process_dxf_file(file_path: str, tolerance: float = 0.01, no_plot: bool = False):
     """
     Process a DXF file and convert entities to Shapely objects.
-    
-    Args:
-        file_path: Path to the DXF file
-        tolerance: Tolerance for curve flattening
     """
     try:
         print(f"Processing DXF file: {file_path}")
@@ -51,6 +48,10 @@ def process_dxf_file(file_path: str, tolerance: float = 0.01):
         doc = ezdxf.readfile(file_path)
         print(f"✓ DXF file loaded successfully")
         closed_polygons = build_geometry(doc, tolerance)
+        
+        if no_plot:
+            print(f"Computed {len(closed_polygons)} closed polygons; plotting disabled (--no-plot)")
+            return
         
         import matplotlib.pyplot as plt
         
@@ -124,6 +125,11 @@ def main():
         help="Tolerance for curve flattening (default: 0.01)"
     )
     parser.add_argument(
+        "--no-plot",
+        action="store_true",
+        help="Skip plotting (faster for large DXF files)"
+    )
+    parser.add_argument(
         "--verbose", 
         action="store_true", 
         help="Enable verbose output"
@@ -131,17 +137,14 @@ def main():
     
     args = parser.parse_args()
     
-    # Check if file exists
     if not os.path.exists(args.dxf_file):
         print(f"Error: File {args.dxf_file} does not exist")
         sys.exit(1)
     
-    # Set logging level
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
     
-    # Process the DXF file
-    process_dxf_file(args.dxf_file, args.tolerance)
+    process_dxf_file(args.dxf_file, args.tolerance, no_plot=args.no_plot)
 
 
 if __name__ == "__main__":
