@@ -161,10 +161,10 @@ def _combine_open_parts(part_a: PolygonPart, part_b: PolygonPart, tol: float) ->
     Return a tuple of (True if the parts are combined, the combined part).
     """
     
-    a_start= part_a.points[0]
-    a_end= part_a.points[-1]
-    b_start= part_b.points[0]
-    b_end= part_b.points[-1]
+    a_start = part_a.points[0]
+    a_end = part_a.points[-1]
+    b_start = part_b.points[0]
+    b_end = part_b.points[-1]
     
     if a_start.distance(b_start) <= tol:
         return True, PolygonPart(
@@ -221,23 +221,19 @@ def combine_polygon_parts(
             if open_part.is_closed(tol):
                 closed_parts.append(open_part.to_closed_polygon())
                 open_parts.remove(open_part)
-                run_combine_closed_parts = True
                 break
             
         if original_open_part_count != len(open_parts):
             continue
         
-        # Try to combine open parts with each other
         combined = False
         n = len(open_parts)
         for i in range(n):
             for j in range(i + 1, n):
                 combine, new_part = _combine_open_parts(open_parts[i], open_parts[j], tol)
                 if combine:
-                    # Remove the two parts that were combined
-                    open_parts.pop(j)  # Remove j first (higher index)
-                    open_parts.pop(i)  # Then remove i
-                    # Add the new combined part
+                    open_parts.pop(j)
+                    open_parts.pop(i)
                     open_parts.append(new_part)
                     combined = True
                     break
@@ -263,6 +259,9 @@ def combine_polygon_parts(
         # If we combined open parts with closed parts, continue the loop
         if open_parts_to_remove:
             continue
+        
+        # Filter closed_parts to remove polygons with area less than 1e-9
+        closed_parts = [part for part in closed_parts if part.geometry.area >= 1e-6]
         
         closed_parts = _combine_nested_polygons(closed_parts, tol)
         if len(closed_parts) != original_close_part_count:
@@ -301,7 +300,6 @@ def combine_polygon_parts(
             
             closed_parts.append(close_polygone)
             open_parts = []
-            run_combine_closed_parts = True
             continue
         
         break

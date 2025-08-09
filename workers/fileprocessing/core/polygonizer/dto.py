@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import List
 from shapely.geometry import Point
 from shapely.geometry import Polygon
+from shapely.geometry import LineString
 
 @dataclass(slots=True)
 class ClosedPolygon:
@@ -21,6 +22,12 @@ class ClosedPolygon:
 class PolygonPart:
     points: List[Point]
     handles: List[str]
+   
+    @property
+    def geometry(self) -> Polygon:
+        line = LineString(self.points)
+        buffer = line.buffer(0.1)
+        return buffer
     
     def is_valid(self) -> bool:
         return len(self.points) >= 2 

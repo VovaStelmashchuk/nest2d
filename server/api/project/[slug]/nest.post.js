@@ -2,6 +2,7 @@ import { defineEventHandler, readBody } from "h3";
 import { connectDB } from "~~/server/db/mongo";
 import { generateRandomString } from "~~/server/utils/strings";
 import standardSlugify from "standard-slugify";
+import logger from "~~/server/utils/logger";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -28,34 +29,41 @@ export default defineEventHandler(async (event) => {
   }
 
   const projectSlug = getRouterParam(event, "slug");
+  const project = await db.collection("projects").findOne({ slug: projectSlug, ownerId: userId })
+  if (!project) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Project not found",
+    });
+  }
   const body = await readBody(event);
   /**
    * @type {{originFiles: {name: string, count: int}[], params: {height: float, width: float, tolerance: float, space: float}}}
    **/
   const { files, params } = body;
+
   const filteredFiles = files.filter((file) => file.count > 0);
 
-  const project = await db.collection("projects").findOne({ slug: projectSlug, ownerId: userId })
-  const projectDxfFiles = project.dxf
+  const userDxfFilesDatabase = await db.collection("user_dxf_files").find({
+    slug: { $in: filteredFiles.map((file) => file.slug) }
+  }).project({
+    _id: 0,
+    slug: 1,
+    name: 1,
+  }).toArray()
 
-  const dbFiles = filteredFiles.map((file) => {
-    const projectDxfFile = projectDxfFiles.find((dxfFile) => dxfFile.slug === file.slug)
-    if (!projectDxfFile) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: "Dxf file not found",
-      });
-    }
+  const fileMetadata = userDxfFilesDatabase.map((file) => {
     return {
-      ...file,
-      name: projectDxfFile.name.replace('.dxf', '')
+      slug: file.slug,
+      simpleName: file.name.replace('.dxf', ''),
+      count: filteredFiles.find((f) => f.slug === file.slug)?.count || 0
     }
   })
 
-  const slug = `nested-${dbFiles.map((file) => {
-    const fileNameSlug = standardSlugify(file.name, { keepCase: false })
+  const nestingSlug = `nested-${fileMetadata.map((file) => {
+    const fileNameSlug = standardSlugify(file.simpleName, { keepCase: false })
     return fileNameSlug + '_' + file.count
-  }).join('-')}-${generateRandomString(4)}`;
+  }).join('-')}-${generateRandomString(6)}`;
 
   const dbParams = {
     height: params.height,
@@ -66,9 +74,9 @@ export default defineEventHandler(async (event) => {
   }
 
   await db.collection("nesting_jobs").insertOne({
-    slug: slug,
+    slug: nestingSlug,
     projectSlug: projectSlug,
-    files: dbFiles,
+    files: fileMetadata,
     params: dbParams,
     status: "pending",
     createdAt: new Date(),
@@ -76,6 +84,6 @@ export default defineEventHandler(async (event) => {
   });
 
   return {
-    slug: slug,
+    slug: nestingSlug,
   };
 });

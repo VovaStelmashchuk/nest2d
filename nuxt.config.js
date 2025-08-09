@@ -5,7 +5,6 @@ export default defineNuxtConfig({
     devtools: { enabled: true },
     modules: ["@nuxtjs/tailwindcss"],
     runtimeConfig: {
-        discordToken: "",
         gmailAppPassword: "",
         mongoUri: '',
         stripeSecretKey: '',
@@ -15,7 +14,6 @@ export default defineNuxtConfig({
             gitCommitSha: "",
             googleClientId: "",
             githubClientId: "",
-            discordGuildId: "",
         },
     },
 

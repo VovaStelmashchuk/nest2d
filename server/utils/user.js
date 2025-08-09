@@ -2,7 +2,6 @@ import { connectDB } from '~/server/db/mongo'
 import { generateSession } from './auth'
 import { sendWelcomeMessage } from '~/server/features/support/welcomemessage'
 import { downloadAndStoreAvatar } from './avatar'
-import { sendMessage } from './discord'
 import logger from './logger'
 
 export async function createOrUpdateUser({
@@ -54,7 +53,6 @@ export async function createOrUpdateUser({
     if (!isUserExists) {
         try {
             await sendWelcomeMessage(`${provider}:${providerId}`)
-            await sendMessage('1380126903528067184', `New user registered, email: ${email}, name: ${name}`)
         } catch (err) {
             logger.warn('Error sending welcome message', err)
         }

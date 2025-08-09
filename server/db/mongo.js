@@ -108,6 +108,9 @@ export async function getUserSvgBucket() {
   return userSvgBucket;
 }
 
+/**
+ * @type {GridFSBucket}
+ */
 let validUserDxfBucket;
 
 /**

@@ -11,11 +11,8 @@ services:
       - NUXT_PUBLIC_BASE_URL=https://nest2d.stelmashchuk.dev
       - NUXT_PUBLIC_GOOGLE_CLIENT_ID=476104126469-bv13u3dlpooq1j3jglcgj7sup6dt26nk.apps.googleusercontent.com
       - NUXT_PUBLIC_GITHUB_CLIENT_ID=Ov23limwK0oEIzSCUExe
-      - NUXT_PUBLIC_DISCORD_GUILD_ID=1359969381500583946
       - NUXT_MONGO_URI=${MONGO_URI}
     secrets:
-      - source: nest2d_discord_token
-        target: discord_token
       - source: nest2d_gmail_app_password
         target: gmail_app_password
       - source: nest2d_stripe_secret_key
@@ -41,8 +38,6 @@ services:
       - infra_mongo
 
 secrets:
-  nest2d_discord_token:
-    external: true
   nest2d_gmail_app_password:
     external: true
   nest2d_stripe_secret_key:
