@@ -3,17 +3,32 @@ from time import time
 from typing import List, Dict, Iterable
 from itertools import chain
 
-from dxf_parser import DxfEntityGeometry, convert_entity_to_shapely
+from .dxf_parser import DxfEntityGeometry, convert_entity_to_shapely
 
 from ezdxf.document import Drawing
 from shapely.geometry import Polygon
 from shapely.validation import make_valid
 from shapely.ops import unary_union
 
+from utils.logger import setup_logger
+
+logger = setup_logger("build_geometry")
+
 @dataclass(slots=True)
 class ClosedPolygon:
     geometry: Polygon
     handles: List[str]
+    
+    def to_mongo_dict(self) -> Dict[str, List[List[float]]]:
+        if not isinstance(self.geometry, Polygon):
+            raise TypeError("The 'geometry' attribute must be a shapely Polygon.")
+
+        exterior_coords = list(zip(*self.geometry.exterior.coords.xy))
+        
+        return {
+            'coordinates': exterior_coords,
+            'handles': self.handles
+        }
 
 def merge_dxf_entities_into_polygons(dxf_entities: Iterable[DxfEntityGeometry], tolerance: float = 0.01) -> List[ClosedPolygon]:
     result = []
@@ -23,7 +38,7 @@ def merge_dxf_entities_into_polygons(dxf_entities: Iterable[DxfEntityGeometry], 
             result.append(ClosedPolygon(geometry=make_valid(dxf_entity.geometry.convex_hull.buffer(tolerance)), handles=[dxf_entity.handle]))
         
     while True:
-        print(f"Merging {len(result)} polygons")
+        logger.info("Merging polygons", extra={"len": len(result)})
         result.sort(key=lambda cp: cp.geometry.area, reverse=True)
         old_size = len(result)
         for i in range(len(result)):
@@ -50,7 +65,6 @@ def build_geometry(drawing: Drawing, tolerance: float = 0.01) -> List[ClosedPoly
     """
     Build geometry from DXF drawing with simple buffering.
     """
-    start_time = time()
     msp = drawing.modelspace()
 
     dxf_geometries: List[DxfEntityGeometry] = []
@@ -59,12 +73,10 @@ def build_geometry(drawing: Drawing, tolerance: float = 0.01) -> List[ClosedPoly
             dxf_geometry: DxfEntityGeometry = convert_entity_to_shapely(entity, tolerance)
             dxf_geometries.append(dxf_geometry)
         except Exception as e:
-            print(f"Error converting entity {entity.dxftype()} (handle: {entity.dxf.handle}): {e}")
+            logger.error("Error converting entity", extra={"entity": entity.dxftype(), "handle": entity.dxf.handle, "error": e})
             continue
 
     closed_polygons = merge_dxf_entities_into_polygons(dxf_geometries, tolerance)
-    print(f"Computed {len(closed_polygons)} closed polygons")
-    end_time = time()
-    print(f"Time taken: {end_time - start_time} seconds")
+    logger.info("Computed closed polygons", extra={"len": len(closed_polygons)})
     
     return closed_polygons    

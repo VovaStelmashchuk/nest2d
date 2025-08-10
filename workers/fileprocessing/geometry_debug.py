@@ -11,26 +11,11 @@ import argparse
 import logging
 from pathlib import Path
 
-from build_geometry import build_geometry
-
-# Add the parent directories to the path to import modules
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)  # core/
-grandparent_dir = os.path.dirname(parent_dir)  # fileprocessing/
-root_dir = os.path.dirname(grandparent_dir)  # workers/
-
-sys.path.extend([parent_dir, grandparent_dir, root_dir])
+from core.geometry.build_geometry import build_geometry
 
 import ezdxf
-from ezdxf.math import Vec3
-from shapely.geometry import Point, LineString, Polygon, MultiPolygon
-from shapely.geometry.base import BaseGeometry
 from shapely.plotting import patch_from_polygon
 
-from dxf_parser import convert_entity_to_shapely
-from dxf_parser import DxfEntityGeometry
-
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -147,5 +132,4 @@ def main():
     process_dxf_file(args.dxf_file, args.tolerance, no_plot=args.no_plot)
 
 
-if __name__ == "__main__":
-    main() 
+main()

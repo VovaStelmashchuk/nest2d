@@ -15,6 +15,8 @@ from ezdxf.document import Drawing
 from shapely.geometry import Point
 import time
 
+from core.geometry.build_geometry import build_geometry
+
 _drawing_cache = {}
 
 def _getting_drawing(doc) -> Drawing:
@@ -106,112 +108,23 @@ def _close_polygon_from_dxf(doc, logger_tag: str):
     if doc.get("isPolygonPartsExist", False):
         logger.info("polygon_parts_already_exist", extra={"slug": doc["slug"]})
         return
-    
-    def update_cache(open_parts, closed_parts):
-        logger.info("save_progress", extra={"open_parts": len(open_parts), "closed_parts": len(closed_parts)})
-        
-        serialized_open_parts = []
-        for part in open_parts:
-            serialized_open_parts.append({
-                "points": [[p.x, p.y] for p in part.points],
-                "handles": part.handles
-            })
-            
-        serialized_closed_parts = []
-        for part in closed_parts:
-            serialized_closed_parts.append({
-                "points": [[p.x, p.y] for p in part.points],
-                "handles": part.handles
-            })
-        
-        db["user_dxf_files"].update_one(
-            {"_id": doc["_id"]},
-            {"$set": { 
-                "isPolygoneCacheActive": True,
-                "polygoneCache": {
-                    "open_parts": serialized_open_parts,
-                    "closed_parts": serialized_closed_parts
-                }
-            }
-            }
-        )
-       
+     
     tolerance = doc["flattening"]
-    
-    open_parts = None
-    closed_parts = None
-    
-    if doc.get("isPolygoneCacheActive", False):
-       logger.info("polygone_cache_active", extra={"polygone_cache": doc["slug"]})
-       
-       serialized_open_parts = doc["polygoneCache"]["open_parts"]
-       serialized_closed_parts = doc["polygoneCache"]["closed_parts"]
-       
-       open_parts = []
-       for part in serialized_open_parts:
-           open_parts.append(PolygonPart(
-               points=[Point(p[0], p[1]) for p in part["points"]],
-               handles=part["handles"]
-           ))
-           
-       closed_parts = []
-       for part in serialized_closed_parts:
-           closed_parts.append(ClosedPolygon(
-               points=[Point(p[0], p[1]) for p in part["points"]],
-               handles=part["handles"]
-           ))
-           
-       logger.info("polygone_cache_parts_loaded", extra={"open_parts": len(open_parts), "closed_parts": len(closed_parts)})
-    else:
-        logger.info("polygone_cache_not_active", extra={"slug": doc["slug"]})
-        logger.info("building polygone cache parts", extra={"slug": doc["slug"]})
-        
-        drawing = _getting_drawing(doc)
-        polygon_parts = polygon_parts_from_dxf(drawing, tolerance) 
-        
-        closed_parts = [part.to_closed_polygon() for part in polygon_parts if part.is_closed(tolerance)]
-        open_parts = [part for part in polygon_parts if not part.is_closed(tolerance)]
-        
-        update_cache(open_parts, closed_parts)
-        
-    def save_progress(open_parts, closed_parts):
-        db["user_dxf_files"].update_one(
-            {"_id": doc["_id"]},
-            {"$set": {
-                "progress": {
-                    "open_parts": len(open_parts),
-                    "closed_parts": len(closed_parts)
-                }
-            }}
-        )
-        if not hasattr(save_progress, "_last_update") or (time.time() - save_progress._last_update > 60):
-            update_cache(open_parts, closed_parts)
-            save_progress._last_update = time.time()
-       
+ 
     start_time = time.time()
-    closed_parts = combine_polygon_parts(open_parts, closed_parts, tolerance, logger_tag, callback=save_progress)
+    drawing = _getting_drawing(doc)
+    closed_parts = build_geometry(drawing, tolerance)
     
     logger.info("result", extra={
         "closed_parts": len(closed_parts),
     })
     
-    serialized_closed_parts = []
-    for part in closed_parts:
-        serialized_closed_parts.append({
-            "points": [[p.x, p.y] for p in part.points],
-            "handles": part.handles
-        })
-    
     db["user_dxf_files"].update_one(
         {"_id": doc["_id"]},
         {
             "$set": {
-                "isPolygoneCacheActive": False,
                 "isPolygonPartsExist": True,
-                "polygonParts": serialized_closed_parts
-            },
-            "$unset": {
-                "polygoneCache": 1
+                "polygonParts": [part.to_mongo_dict() for part in closed_parts]
             }
         }
     )
