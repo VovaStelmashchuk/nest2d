@@ -3,8 +3,11 @@ import uuid
 import ezdxf
 from ezdxf.document import Drawing
 from gridfs.synchronous.grid_file import GridOut
-from ezdxf.disassemble import recursive_decompose
+from ezdxf.audit import Auditor
+from ezdxf.explode import explode_entity
+from ezdxf import recover
 from utils.logger import setup_logger
+from ezdxf.render.hatching import hatch_entity 
 
 logger = setup_logger("dxf_utils")
 
@@ -24,44 +27,62 @@ def read_dxf(dxf_stream: GridOut) -> Drawing:
 
     return read_dxf_file(temp_file_path)
 
-def read_dxf_file(dxf_path: str) -> Drawing:
-    doc = ezdxf.readfile(dxf_path)
+def read_dxf_file(dxf_path: str) -> Drawing | None:
+    """
+    Reads a DXF file and performs several cleaning operations.
+
+    - Handles corrupt files with duplicate handles by auditing and fixing them.
+    - Removes all TEXT and MTEXT entities.
+    - Explodes complex entities like HATCH, INSERT (blocks), and DIMENSIONS into
+      simpler geometric primitives (lines, arcs, etc.).
+
+    Args:
+        dxf_path: The file path to the DXF document.
+
+    Returns:
+        The modified ezdxf Drawing object, or None if the file cannot be loaded.
+    """
+    try:
+        # 1. Load the document. ezdxf will attempt to fix minor errors on load.
+        doc, auditor = recover.readfile(dxf_path)
+    except IOError:
+        logger.error(f"Could not find or read file: {dxf_path}")
+        return None
+    except ezdxf.DXFStructureError:
+        logger.error(f"File '{dxf_path}' is severely corrupt and cannot be loaded.")
+        return None
+
+    if auditor.has_errors:
+        logger.warning("Auditor found and fixed errors in document.", extra={"count": len(auditor.errors)})
+
     msp = doc.modelspace()
 
-    text_entities = [entity for entity in msp if entity.dxftype() in ("TEXT", "MTEXT")]
-    
-    for entity in text_entities:
-        msp.delete_entity(entity)
-        
-    new_doc = ezdxf.new(dxfversion=doc.dxfversion)
-    new_msp = new_doc.modelspace()
-    
-    for layer in doc.layers:
-        if layer.dxf.name not in new_doc.layers:
-            new_layer = new_doc.layers.add(name=layer.dxf.name)
-            new_layer.dxf.color = layer.dxf.color
-            new_layer.dxf.linetype = layer.dxf.linetype
-            new_layer.dxf.lineweight = layer.dxf.lineweight
-        else:
-            existing_layer = new_doc.layers.get(layer.dxf.name)
-            existing_layer.dxf.color = layer.dxf.color
-            existing_layer.dxf.linetype = layer.dxf.linetype
-            existing_layer.dxf.lineweight = layer.dxf.lineweight
-            
-    entities = recursive_decompose(msp)
-    
-    # Copy all entities (except text entities which were already removed)
-    for entity in entities:
-        try:
-            new_entity = entity.copy()
-            new_entity.dxf.handle = uuid.uuid4().hex[:8].upper()
-            new_msp.add_entity(new_entity.copy())
-        except Exception as e:
-            logger.warning("Warning: Could not copy entity", extra={
-                "entity_type": entity.dxftype(),
-                "handle": getattr(entity.dxf, 'handle', 'unknown'),
-                "error": e
-            })
-            continue
-    
-    return new_doc
+    text_entities = msp.query("TEXT MTEXT")
+    if text_entities:
+        msp.delete_entities(text_entities)
+        logger.info(f"Removed {len(text_entities)} TEXT/MTEXT entities.")
+
+    hatches = msp.query("HATCH")
+    if hatches:
+        logger.info(f"Found {len(hatches)} HATCH entities to convert to lines.")
+        for hatch in hatches:
+            try:
+                for line in hatch_entity(hatch):
+                    msp.add_line(line.start, line.end, dxfattribs=hatch.graphic_properties())
+                msp.delete_entity(hatch)
+            except Exception as e:
+                logger.error(f"Failed to convert HATCH (handle #{hatch.dxf.handle}): {e}")
+
+    entities_to_explode = msp.query("INSERT DIMENSION LEADER")
+    if entities_to_explode:
+        logger.info("Found complex entities to explode.", extra={"count": len(entities_to_explode)})
+        for entity in entities_to_explode:
+            try:
+                exploded_entities = explode_entity(entity)
+                msp.add_entities(exploded_entities)
+                msp.delete_entity(entity)
+            except Exception as e:
+                logger.error("Failed to explode entity", extra={"entity_type": entity.dxftype(), "handle": entity.dxf.handle, "error": e})
+
+    logger.info(f"Successfully processed '{dxf_path}'.")
+    return doc

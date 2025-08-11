@@ -71,10 +71,11 @@ def build_geometry(drawing: Drawing, tolerance: float = 0.01) -> List[ClosedPoly
     for entity in msp:
         try:
             dxf_geometry: DxfEntityGeometry = convert_entity_to_shapely(entity, tolerance)
-            dxf_geometries.append(dxf_geometry)
+            if dxf_geometry is not None:
+                dxf_geometries.append(dxf_geometry)
         except Exception as e:
             logger.error("Error converting entity", extra={"entity": entity.dxftype(), "handle": entity.dxf.handle, "error": e})
-            continue
+            raise e
 
     closed_polygons = merge_dxf_entities_into_polygons(dxf_geometries, tolerance)
     logger.info("Computed closed polygons", extra={"len": len(closed_polygons)})

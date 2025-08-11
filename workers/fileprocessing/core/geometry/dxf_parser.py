@@ -1,80 +1,96 @@
 from dataclasses import dataclass
-from typing import List, Tuple, Union
-from ezdxf.math import Vec3
 from shapely.geometry import Point, LineString, Polygon
 from shapely.geometry.base import BaseGeometry
+
+from utils.logger import setup_logger
+
+logger = setup_logger("dxf_parser")
+
+class GeometryConversionError(Exception):
+    """Custom exception for errors during DXF to Shapely geometry conversion."""
+    pass
 
 @dataclass(slots=True)
 class DxfEntityGeometry:
     geometry: BaseGeometry
     handle: str
     
-def _vec2(p: Vec3) -> Tuple[float, float]:
-    return (p.x, p.y)
+def _vec2(v):
+    return Point(float(v[0]), float(v[1]))
 
-def convert_entity_to_shapely(entity, tol: float) -> DxfEntityGeometry:
-    # ... [Same as previous `convert_entity_to_shapely` code]
-    # This function is responsible for converting a single DXF entity to a
-    # buffered Shapely polygon where necessary.
-
+def _flatten_entity(entity, tol: float):
+    """
+    Return list of Point vertices approximating *e*
+    and its DXF handle.  All curve entities are tessellated with the
+    user–supplied *tol* so the maximum sagitta ≤ tol.
+    """
     h = entity.dxf.handle
     kind = entity.dxftype()
-    shapely_geom = None
 
     if kind == "LINE":
-        points = [_vec2(entity.dxf.start), _vec2(entity.dxf.end)]
-        shapely_geom = LineString(points).buffer(tol)
+        pts = [_vec2(entity.dxf.start), _vec2(entity.dxf.end)]
 
-    elif kind in ["LWPOLYLINE", "POLYLINE"]:
-        points = [_vec2(p) for p in entity.get_points(format="xy")] if kind == "LWPOLYLINE" else [_vec2(p) for p in entity.points()]
-        is_closed = entity.closed if kind == "LWPOLYLINE" else getattr(entity, "is_closed", False)
+    elif kind == "LWPOLYLINE":
+        pts = [_vec2(p) for p in entity.get_points(format="xy")]
+        if entity.closed:
+            pts.append(pts[0])
 
-        if is_closed and len(points) > 2:
-            if points[0] != points[-1]:
-                points.append(points[0])
-            shapely_geom = Polygon(points)
+    elif kind == "POLYLINE":
+        pts = [_vec2(p) for p in entity.points()]
+        if getattr(entity, "is_closed", False):
+            pts.append(pts[0])
+
+    elif kind == "ARC":
+        radius = entity.dxf.radius
+        if radius < tol:
+            pts = []
         else:
-            shapely_geom = LineString(points).buffer(tol)
+            pts = [_vec2(p) for p in entity.flattening(sagitta=tol)]
 
-    elif kind in ["ARC", "CIRCLE", "ELLIPSE"]:
-        points = [_vec2(p) for p in entity.flattening(sagitta=tol)]
-        
-        if not points: 
-            return None
-            
-        if kind == "ARC":
-            shapely_geom = LineString(points).buffer(tol)
-        else: # CIRCLE, ELLIPSE
-            if len(points) > 2 and points[0] != points[-1]:
-                points.append(points[0])
-            shapely_geom = Polygon(points)
+    elif kind == "CIRCLE":
+        pts = [_vec2(p) for p in entity.flattening(sagitta=tol)]
+
+    elif kind == "ELLIPSE":
+        pts = [_vec2(p) for p in entity.flattening(distance=tol)]
 
     elif kind == "SPLINE":
-        try:
-            points = [_vec2(p) for p in entity.flattening(distance=tol)]
-            
-            if not points:
-                shapely_geom = None
-            else:
-                is_closed = getattr(entity, 'is_closed', False)
-                if is_closed and len(points) > 2:
-                    if points[0] != points[-1]:
-                        points.append(points[0])
-                    shapely_geom = Polygon(points)
-                else:
-                    shapely_geom = LineString(points).buffer(tol)
-        except Exception:
-            try:
-                points = [_vec2(p) for p in entity.control_points]
-                if len(points) >= 2:
-                    shapely_geom = LineString(points).buffer(tol)
-            except:
-                shapely_geom = None
-
-    elif kind == "POINT":
-        shapely_geom = Point(_vec2(entity.dxf.location)).buffer(tol)
+        pts = [_vec2(p) for p in entity.flattening(distance=tol)]
 
     else:
-        shapely_geom = None
+        raise GeometryConversionError(f"Unsupported entity type: {kind} (handle: {h})")
 
-    return DxfEntityGeometry(geometry=shapely_geom, handle=h)
+    return pts, h
+
+def convert_entity_to_shapely(entity, tol: float = 0.01) -> DxfEntityGeometry | None:
+    """
+    Converts a single DXF entity to a Shapely geometry object.
+    
+    Raises:
+        GeometryConversionError: If the entity cannot be converted.
+    """
+    points = []
+    
+    try:
+        points, h = _flatten_entity(entity, tol)
+    except GeometryConversionError as e:
+        raise e
+    
+    if len(points) == 0:
+        return None
+    
+    if len(points) == 1:
+        shapely_geom = Point(points[0])
+    elif len(points) == 2:
+        shapely_geom = LineString(points)
+    else:
+        first_point = points[0]
+        last_point = points[-1]
+        distance = first_point.distance(last_point)
+        is_closed = distance < tol
+        if is_closed:
+            shapely_geom = Polygon(points)
+        else:
+            shapely_geom = LineString(points)
+    
+    return DxfEntityGeometry(geometry=shapely_geom.buffer(tol), handle=h)
+    
