@@ -16,7 +16,7 @@ import { computed, unref } from 'vue';
 import { defaultSizeType } from '~~/constants/size.constants';
 import { defaultThemeType } from '~~/constants/theme.constants';
 
-const { label, icon, target, href, size, theme, isDisable, isLabelShow } = defineProps({
+const { label, icon, target, href, size, theme, isDisable, isLabelShow, isNotClickable } = defineProps({
     label: {
         type: String,
         default: '',
@@ -52,6 +52,10 @@ const { label, icon, target, href, size, theme, isDisable, isLabelShow } = defin
     isLabelShow: {
         type: Boolean,
         default: true
+    },
+    isNotClickable: {
+        type: Boolean,
+        default: false
     }
 }) 
 const attr = computed(() => {
@@ -69,6 +73,7 @@ const buttonClasses = computed(() => ({
     [`button--theme-${unref(theme)}`]: Boolean(unref(theme)),
     [`button--icon-${unref(icon)}`]: Boolean(unref(icon)),
     'button--disabled': unref(isDisable),
+    'button--not-clickable': unref(isNotClickable),
     'button--full': Boolean(unref(icon)) && Boolean(unref(isLabelShow)),
 }))
 </script>
@@ -219,6 +224,9 @@ const buttonClasses = computed(() => ({
     &--disabled {
         pointer-events: none;
         opacity: 0.3;
+    }
+    &--not-clickable {
+        pointer-events: none;
     }
 
     &--full {

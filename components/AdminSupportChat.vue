@@ -1,40 +1,59 @@
 <template>
-    <div class="admin-support-chat">
-        <div class="chat-header">
-            <h3>Support Chat</h3>
-            <span class="user-id">User ID: {{ userId }}</span>
-            <div class="status" :class="{ connected: isConnected }">
-                {{ isConnected ? 'Connected' : 'Disconnected' }}
+    <div class="chat">
+        <div class="chat__header header">
+            <div class="header__wrapper">
+                <MainTitle
+                    label="Support Chat"
+                    class="header__title"
+                />
+                <span class="header__id">User ID: {{ userId }}</span>
             </div>
         </div>
-
-        <div class="chat-messages" ref="messagesContainer">
-            <div v-if="loading" class="loading-messages">
-                <div class="spinner"></div>
+        <UiScrollbar
+            ref="messagesContainer"
+            class="chat__messages messages"
+        >
+            <div v-if="loading" class="chat__loading loading">
+                <MainLoader
+                    :size="sizeType.l"
+                    class="loading__loader"
+                />
                 <p>Loading messages...</p>
             </div>
-
-            <div v-else-if="messages.length === 0" class="empty-messages">
-                <p>No messages yet. Start the conversation!</p>
+            <div 
+                v-else-if="messages.length === 0"
+                class="chat__empty empty"
+            >
+                <p class="empty__text">No messages yet. Start the conversation!</p>
             </div>
-
-            <div v-else>
+            <div 
+                class="message-list" 
+                v-else
+            >
                 <div v-for="message in messages" :key="message._id"
-                    :class="['message', message.sender === 'admin' ? 'admin-message' : 'user-message']">
-                    <div class="message-content">
-                        <p>{{ message.message }}</p>
-                        <span class="message-time">{{ formatTime(message.timestamp) }}</span>
-                    </div>
+                    class="message"
+                    :class="[message.sender === 'admin' ? '' : 'message--is-user']"
+                >
+                    <p>{{ message.message }}</p>
+                    <span class="message__time">{{ formatTime(message.timestamp) }}</span>
                 </div>
             </div>
-        </div>
-
-        <div class="chat-input">
-            <textarea v-model="newMessage" @keydown.enter.prevent="sendMessage" placeholder="Type your message..."
-                rows="3" :disabled="!isConnected"></textarea>
-            <button @click="sendMessage" :disabled="!newMessage.trim() || !isConnected">
-                Send
-            </button>
+        </UiScrollbar>
+        <div class="chat__footer footer">
+            <InputField
+                placeholder="Type your message..."
+                class="footer__input"
+                v-model="newMessage"
+                @keyup.enter="sendMessage"
+                :disabled="!isConnected"
+            />
+            <MainButton
+                :theme="themeType.primary"
+                :disabled="!newMessage.trim() || !isConnected"
+                @click="sendMessage"
+                label="Send"
+                class="footer__btn"
+            />
         </div>
 
         <div v-if="error" class="error-message">
@@ -45,7 +64,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { themeType } from '~~/constants/theme.constants'
+import { sizeType } from "~~/constants/size.constants"
+import { nextTick } from 'vue';
 
 const props = defineProps({
     userId: {
@@ -75,24 +96,24 @@ const connectToChat = () => {
             isConnected.value = true
         }
 
-        eventSource.onmessage = (event) => {
+        eventSource.onmessage = async (event) => {
             const data = JSON.parse(event.data)
-
             switch (data.type) {
                 case 'initial':
                     messages.value = data.data
                     loading.value = false
+                    await nextTick()
                     scrollToBottom()
                     break
                 case 'newMessages':
                     messages.value.push(...data.data)
+                    await nextTick()
                     scrollToBottom()
                     break
                 case 'heartbeat':
-                    // Connection is alive
                     break
             }
-        }
+        } 
 
         eventSource.onerror = (error) => {
             console.error('EventSource error:', error)
@@ -105,6 +126,8 @@ const connectToChat = () => {
         error.value = 'Failed to connect to chat'
         loading.value = false
     }
+
+    scrollToBottom()
 }
 
 const sendMessage = async () => {
@@ -118,19 +141,19 @@ const sendMessage = async () => {
             timestamp: new Date()
         }
 
-        // Send message to API
         await $fetch('/api/support/messages', {
             method: 'POST',
             body: messageData
         })
 
-        // Add message to local state
         messages.value.push({
             _id: Date.now().toString(),
             ...messageData
         })
 
         newMessage.value = ''
+
+        await nextTick()
         scrollToBottom()
     } catch (error) {
         console.error('Error sending message:', error)
@@ -138,12 +161,16 @@ const sendMessage = async () => {
     }
 }
 
-const scrollToBottom = () => {
-    setTimeout(() => {
-        if (messagesContainer.value) {
-            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-        }
-    }, 100)
+const scrollToBottom = async () => {
+    await nextTick()
+    
+    if (messagesContainer.value) {
+        const element = messagesContainer.value.$el || messagesContainer.value
+
+        element.scrollTo({
+            top: element.scrollHeight,
+        })
+    }
 }
 
 const formatTime = (timestamp) => {
@@ -151,18 +178,8 @@ const formatTime = (timestamp) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-// Watch for userId changes and reconnect
-watch(() => props.userId, (newUserId) => {
-    if (newUserId) {
-        if (eventSource) {
-            eventSource.close()
-        }
-        connectToChat()
-    }
-})
-
 onMounted(() => {
-    if (props.userId) {
+    if (props.userId) { 
         connectToChat()
     }
 })
@@ -174,209 +191,105 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
-.admin-support-chat {
+<style lang="scss" scoped>
+.chat {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: white;
-}
 
-.chat-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f8fafc;
-    border-radius: 8px 8px 0 0;
+    &__header {
+        margin-bottom: 16px;
+    }
+    &__footer {
+        margin-top: 16px;
+    }
+
+    &__empty,
+    &__messages {
+        width: 100%;
+        height: 100%;
+    }
+    &__loading {
+        width: 100%;
+        height: 100%;  
+    }
+}
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
 
-.chat-header h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.user-id {
-    font-size: 14px;
-    color: #64748b;
-}
-
-.status {
-    font-size: 12px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    background: #ef4444;
-    color: white;
-}
-
-.status.connected {
-    background: #10b981;
-}
-
-.chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.loading-messages {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: #64748b;
-}
-
-.spinner {
-    width: 24px;
-    height: 24px;
-    border: 2px solid #e2e8f0;
-    border-top: 2px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 12px;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
+    &__wrapper {
+        display: flex;
+        align-items: center;
     }
 
-    100% {
-        transform: rotate(360deg);
+    &__id {
+        color: var(--label-primary);
+        margin-left: 100px;
     }
 }
-
-.empty-messages {
+.message-list {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: #64748b;
-    font-style: italic;
+    flex-direction: column;
 }
-
 .message {
-    display: flex;
-    margin-bottom: 8px;
-}
-
-.admin-message {
-    justify-content: flex-end;
-}
-
-.user-message {
-    justify-content: flex-start;
-}
-
-.message-content {
-    max-width: 70%;
-    padding: 12px 16px;
-    border-radius: 12px;
-    position: relative;
-}
-
-.admin-message .message-content {
-    background: #3b82f6;
-    color: white;
-    border-bottom-right-radius: 4px;
-}
-
-.user-message .message-content {
-    background: #f1f5f9;
-    color: #1e293b;
-    border-bottom-left-radius: 4px;
-}
-
-.message-content p {
-    margin: 0;
-    line-height: 1.4;
-    word-wrap: break-word;
-}
-
-.message-time {
-    font-size: 11px;
-    opacity: 0.7;
-    margin-top: 4px;
-    display: block;
-}
-
-.chat-input {
-    padding: 16px;
-    border-top: 1px solid #e2e8f0;
-    display: flex;
-    gap: 12px;
-    align-items: flex-end;
-}
-
-.chat-input textarea {
-    flex: 1;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    padding: 8px 12px;
-    resize: none;
-    font-family: inherit;
+    background-color: var(--fill-tertiary);
+    border-radius: 8px 0 8px 8px;
+    color: var(--label-secondary);
     font-size: 14px;
-}
+    line-height: 1.4;
+    margin-bottom: 10px;
+    padding: 6px 8px;
+    text-align: right;
+    margin-left: auto;
 
-.chat-input textarea:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
+    &--is-user {
+        background-color: var(--fill-secondary);
+        border-radius: 0 8px 8px;
+        color: var(--label-primary);
+        text-align: left;
+        margin-right: auto;
+        margin-left: initial;
+    }
 
-.chat-input textarea:disabled {
-    background: #f1f5f9;
-    cursor: not-allowed;
+    &__time {
+        color: var(--label-tertiary);
+        font-size: 12px;
+        margin-top: 8px;
+        display: block;
+    }
 }
-
-.chat-input button {
-    padding: 8px 16px;
-    background: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.chat-input button:hover:not(:disabled) {
-    background: #2563eb;
-}
-
-.chat-input button:disabled {
-    background: #94a3b8;
-    cursor: not-allowed;
-}
-
-.error-message {
-    padding: 16px;
+.loading  {
+    flex-direction: column;
     text-align: center;
-    color: #ef4444;
-    border-top: 1px solid #e2e8f0;
-}
+    display: flex;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+    color: var(--label-secondary);
 
-.error-message button {
-    margin-top: 8px;
-    padding: 6px 12px;
-    background: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    &__loader {
+        margin-bottom: 60px;
+    }
 }
+.empty {
+    text-align: center;
+    display: flex;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+    color: var(--label-secondary);
+}
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-.error-message button:hover {
-    background: #2563eb;
+    &__input {
+        flex: 1;
+    }
+    &__btn {
+        margin-left: 10px;
+    }
 }
 </style>

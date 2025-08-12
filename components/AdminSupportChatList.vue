@@ -1,49 +1,67 @@
 <template>
-    <div class="admin-chat-list">
-        <div class="header">
-            <h1>Support Chat List</h1>
-            <div class="status" :class="{ connected: isConnected }">
-                {{ isConnected ? 'Connected' : 'Disconnected' }}
-            </div>
+    <div class="chats">
+        <div class="chats__header header">
+            <MainTitle
+                label="Support Chat List"
+                class="header__title"
+            />
         </div>
-
-        <div class="chat-list" v-if="chatList.length > 0">
-            <div v-for="chat in chatList" :key="chat.userId" class="chat-item"
-                :class="{ active: selectedUserId === chat.userId }" @click="selectChat(chat.userId)">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        {{ chat.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
+        <UiScrollbar class="chats__scrollbar">
+            <div class="chats__list" v-if="chatList.length > 0">
+                <div
+                    v-for="chat in chatList" 
+                    :key="chat.userId" 
+                    class="chats__item chats-item"
+                    :class="{ active: selectedUserId === chat.userId }" 
+                    @click="selectChat(chat.userId)"
+                >
+                    <div class="user">
+                        <div 
+                            :style="{ backgroundColor: letterToBg(getUserName(chat.user)) }"
+                            class="user__avatar avatar"
+                        >   
+                            <p class="avatar__text">
+                                {{ getUserName(chat.user) }}
+                            </p>
+                        </div>
+                        <div class="user__details">
+                            <div class="user__name">{{ chat.user?.name || 'Unknown User' }}</div>
+                            <div class="user__id">ID: {{ chat.userId }}</div>
+                        </div>
                     </div>
-                    <div class="user-details">
-                        <div class="user-name">{{ chat.user?.name || 'Unknown User' }}</div>
-                        <div class="user-id">ID: {{ chat.userId }}</div>
+                    <div class="chats-item__message message">
+                        <div class="message__text">{{ chat.lastMessage }}</div>
                     </div>
                 </div>
-                <div class="last-message">
-                    <div class="message-text">{{ chat.lastMessage }}</div>
-                    <div class="message-time">{{ formatTime(chat.timestamp) }}</div>
-                </div>
+            </div> 
+            <div v-else-if="loading" class="chats__loading loading">
+                <MainLoader
+                    :size="sizeType.l"
+                    class="loading__loader"
+                />
+                <p class="loading__text">Loading chat list...</p>
             </div>
-        </div>
-
-        <div v-else-if="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Loading chat list...</p>
-        </div>
-
-        <div v-else class="empty-state">
-            <p>No support chats found</p>
-        </div>
-
-        <div v-if="error" class="error">
-            <p>{{ error }}</p>
-            <button @click="connectToChatList">Retry</button>
-        </div>
+            <div v-else class="chats__empty empty">
+                <p class="empty__text">No support chats found</p>
+            </div>
+            <div v-if="error" class="chats__error error">
+                <p class="error__text">1231{{ error }}</p>
+                <MainButton 
+                    label="Retry"
+                    tag="button"
+                    :theme="themeType.primary"
+                    class="error__btn"
+                    @click="connectToChatList"
+                />
+            </div>
+        </UiScrollbar>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { sizeType } from "~~/constants/size.constants"
+import { themeType } from '~~/constants/theme.constants'
 
 const chatList = ref([])
 const loading = ref(true)
@@ -102,20 +120,6 @@ const selectChat = (userId) => {
     emit('select-chat', userId)
 }
 
-const formatTime = (timestamp) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffInHours = (now - date) / (1000 * 60 * 60)
-
-    if (diffInHours < 1) {
-        return 'Just now'
-    } else if (diffInHours < 24) {
-        return `${Math.floor(diffInHours)}h ago`
-    } else {
-        return date.toLocaleDateString()
-    }
-}
-
 onMounted(() => {
     connectToChatList()
 })
@@ -125,175 +129,201 @@ onUnmounted(() => {
         eventSource.close()
     }
 })
+
+const getUserName = (user) => {
+    return user?.name?.split(' ').map(word => word.charAt(0).toUpperCase()).join('') || 'U'
+}
+
+const letterToBg = (letter) => {
+    let value = letter.split('').map(char => char.charCodeAt(0)).join('')
+    const hexValue = parseInt(value).toString(16)
+
+    return `#${hexValue.padStart(6, '0').substring(0, 6)}`
+}
 </script>
 
 <style lang="scss" scoped>
-.admin-chat-list {
-    max-width: 400px;
-    border-right: 1px solid #e2e8f0;
-    height: 100vh;
+$user: '.user';
+$message: '.message';
+.chats {
     display: flex;
     flex-direction: column;
+
+    &__header {
+        margin-bottom: 16px;
+    }
+
+    &__scrollbar {
+        width: 100%;
+        height: 100%;
+    }
+
+    &__empty,
+    &__loading,
+    &__error {
+        width: 100%;
+        height: 100%;  
+    }
+
+    &__item {
+        &:not(:last-child) {
+            margin-bottom: 8px;
+        }
+    }
 }
 
 .header {
-    padding: 20px;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f8fafc;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.header h1 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.status {
-    font-size: 12px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    background: #ef4444;
-    color: white;
-
-    &.connected {
-        background: #10b981;
-    }
-}
-
-.chat-list {
-    flex: 1;
-    overflow-y: auto;
-}
-
-.chat-item {
-    padding: 16px 20px;
-    border-bottom: 1px solid #f1f5f9;
+.chats-item {
+    border-radius: 8px;
+    color: var(--label-tertiary);
+    padding: 16px;
+    position: relative;
+    transition: color .3s;
     cursor: pointer;
-    transition: background-color 0.2s;
+
+    &:after {
+        border: 1px solid var(--separator-secondary);
+        border-radius: 8px;
+        bottom: 0;
+        content: "";
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: border-color .3s;
+    }
 
     &:hover {
-        background: #f8fafc;
+        &:after {
+            border-color: var(--separator-primary);
+        }
+
+        #{$user}__name {
+            color: var(--label-primary);
+        }
+        #{$user}__id {
+            color: var(--label-secondary);
+        }
+        #{$message}__text {
+            color: var(--label-primary);
+        }
     }
 
     &.active {
-        background: #dbeafe;
-        border-left: 3px solid #3b82f6;
+        pointer-events: none;
+
+        &:after {
+            border-width: 2px;
+            border-color: var(--accent-primary);
+        }
+
+        #{$user}__name {
+            color: var(--label-primary);
+        }
+        #{$user}__id {
+            color: var(--label-secondary);
+        }
+        #{$message}__text {
+            color: var(--label-primary);
+        }
+    }
+
+    &__message {
+        margin-top: 16px;
     }
 }
 
-.user-info {
+.user {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
+
+    &__avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    &__details {
+        flex: 1;
+    }
+
+    &__name {    
+        transition: color .3s;
+        font-weight: 500;
+        color: var(--label-secondary);
+        margin-bottom: 8px;
+    }
+
+    &__id {     
+        transition: color .3s;
+        font-size: 12px;
+        color: var(--label-tertiary);
+    }
 }
 
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #3b82f6;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.avatar {
     font-weight: 600;
-    font-size: 16px;
-    margin-right: 12px;
-}
-
-.user-details {
-    flex: 1;
-}
-
-.user-name {
-    font-weight: 500;
-    color: #1e293b;
-    margin-bottom: 2px;
-}
-
-.user-id {
-    font-size: 12px;
-    color: #64748b;
-}
-
-.last-message {
-    margin-left: 52px;
-}
-
-.message-text {
-    color: #475569;
-    font-size: 14px;
-    line-height: 1.4;
-    margin-bottom: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.message-time {
-    font-size: 11px;
-    color: #94a3b8;
-}
-
-.loading {
-    flex: 1;
+    margin-right: 24px;
     display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &__text {
+        color: #fff;
+    }
+}
+
+.message {
+    &__text {
+        transition: color .3s;
+        font-weight: 500;
+        color: var(--label-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.empty {
+    text-align: center;
+    display: flex;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+    color: var(--label-secondary);
+}
+
+.loading  {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #64748b;
-}
-
-.spinner {
-    width: 24px;
-    height: 24px;
-    border: 2px solid #e2e8f0;
-    border-top: 2px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 12px;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-.empty-state {
-    flex: 1;
+    text-align: center;
     display: flex;
-    align-items: center;
+    padding: 16px;
     justify-content: center;
-    color: #64748b;
-    font-style: italic;
+    align-items: center;
+    color: var(--label-secondary);
+
+    &__loader {
+        margin-bottom: 60px;
+    }
 }
 
 .error {
-    padding: 20px;
+    flex-direction: column;
     text-align: center;
-    color: #ef4444;
+    display: flex;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
 
-    button {
-        margin-top: 12px;
-        padding: 8px 16px;
-        background: #3b82f6;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-
-        &:hover {
-            background: #2563eb;
-        }
+    &__text {
+        color: #ef4444;
+        margin-bottom: 40px;
     }
 }
 </style>
