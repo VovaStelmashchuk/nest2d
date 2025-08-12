@@ -5,7 +5,8 @@
             @select-chat="handleChatSelection"
         />
         <AdminSupportChat 
-            v-if="selectedUserId" 
+            v-if="selectedUserId"
+            :key="selectedUserId"
             :userId="selectedUserId" 
             class="support__chat" 
         />

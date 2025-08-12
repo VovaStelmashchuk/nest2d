@@ -10,8 +10,8 @@
             </div>
         </div>
         <UiScrollbar
-            class="chat__messages messages"
             ref="messagesContainer"
+            class="chat__messages messages"
         >
             <div v-if="loading" class="chat__loading loading">
                 <MainLoader
@@ -39,7 +39,6 @@
                 </div>
             </div>
         </UiScrollbar>
-
         <div class="chat__footer footer">
             <InputField
                 placeholder="Type your message..."
@@ -67,6 +66,7 @@
 <script setup>
 import { themeType } from '~~/constants/theme.constants'
 import { sizeType } from "~~/constants/size.constants"
+import { nextTick } from 'vue';
 
 const props = defineProps({
     userId: {
@@ -96,24 +96,24 @@ const connectToChat = () => {
             isConnected.value = true
         }
 
-        eventSource.onmessage = (event) => {
+        eventSource.onmessage = async (event) => {
             const data = JSON.parse(event.data)
-
             switch (data.type) {
                 case 'initial':
                     messages.value = data.data
                     loading.value = false
+                    await nextTick()
                     scrollToBottom()
                     break
                 case 'newMessages':
                     messages.value.push(...data.data)
+                    await nextTick()
                     scrollToBottom()
                     break
                 case 'heartbeat':
-                    // Connection is alive
                     break
             }
-        }
+        } 
 
         eventSource.onerror = (error) => {
             console.error('EventSource error:', error)
@@ -126,6 +126,8 @@ const connectToChat = () => {
         error.value = 'Failed to connect to chat'
         loading.value = false
     }
+
+    scrollToBottom()
 }
 
 const sendMessage = async () => {
@@ -139,19 +141,19 @@ const sendMessage = async () => {
             timestamp: new Date()
         }
 
-        // Send message to API
         await $fetch('/api/support/messages', {
             method: 'POST',
             body: messageData
         })
 
-        // Add message to local state
         messages.value.push({
             _id: Date.now().toString(),
             ...messageData
         })
 
         newMessage.value = ''
+
+        await nextTick()
         scrollToBottom()
     } catch (error) {
         console.error('Error sending message:', error)
@@ -159,12 +161,16 @@ const sendMessage = async () => {
     }
 }
 
-const scrollToBottom = () => {
-    setTimeout(() => {
-        if (messagesContainer.value) {
-            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-        }
-    }, 100)
+const scrollToBottom = async () => {
+    await nextTick()
+    
+    if (messagesContainer.value) {
+        const element = messagesContainer.value.$el || messagesContainer.value
+
+        element.scrollTo({
+            top: element.scrollHeight,
+        })
+    }
 }
 
 const formatTime = (timestamp) => {
@@ -172,18 +178,8 @@ const formatTime = (timestamp) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-// Watch for userId changes and reconnect
-watch(() => props.userId, (newUserId) => {
-    if (newUserId) {
-        if (eventSource) {
-            eventSource.close()
-        }
-        connectToChat()
-    }
-})
-
 onMounted(() => {
-    if (props.userId) {
+    if (props.userId) { 
         connectToChat()
     }
 })
@@ -217,7 +213,6 @@ onUnmounted(() => {
         height: 100%;  
     }
 }
-
 .header {
     display: flex;
     justify-content: space-between;
@@ -264,7 +259,6 @@ onUnmounted(() => {
         display: block;
     }
 }
-
 .loading  {
     flex-direction: column;
     text-align: center;
@@ -278,7 +272,6 @@ onUnmounted(() => {
         margin-bottom: 60px;
     }
 }
-
 .empty {
     text-align: center;
     display: flex;
@@ -287,7 +280,6 @@ onUnmounted(() => {
     align-items: center;
     color: var(--label-secondary);
 }
-
 .footer {
     display: flex;
     align-items: center;
