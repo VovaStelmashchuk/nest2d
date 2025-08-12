@@ -22,8 +22,13 @@
                     @click="selectChat(chat.userId)"
                 >
                     <div class="user">
-                        <div class="user__avatar">
-                            {{ chat.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
+                        <div 
+                            :style="{ backgroundColor: letterToBg(getUserName(chat.user)) }"
+                            class="user__avatar avatar"
+                        >   
+                            <p class="avatar__text">
+                                {{ getUserName(chat.user) }}
+                            </p>
                         </div>
                         <div class="user__details">
                             <div class="user__name">{{ chat.user?.name || 'Unknown User' }}</div>
@@ -130,6 +135,17 @@ onUnmounted(() => {
         eventSource.close()
     }
 })
+
+const getUserName = (user) => {
+    return user?.name?.split(' ').map(word => word.charAt(0).toUpperCase()).join('') || 'U'
+}
+
+const letterToBg = (letter) => {
+    let value = letter.split('').map(char => char.charCodeAt(0)).join('')
+    const hexValue = parseInt(value).toString(16)
+
+    return `#${hexValue.padStart(6, '0').substring(0, 6)}`
+}
 </script>
 
 <style lang="scss" scoped>
@@ -238,13 +254,6 @@ $message: '.message';
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: var(--accent-primary);
-        color: var(--background-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        margin-right: 24px;
     }
 
     &__details {
@@ -262,6 +271,18 @@ $message: '.message';
         transition: color .3s;
         font-size: 12px;
         color: var(--label-tertiary);
+    }
+}
+
+.avatar {
+    font-weight: 600;
+    margin-right: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &__text {
+        color: #fff;
     }
 }
 
@@ -283,6 +304,7 @@ $message: '.message';
     justify-content: center;
     align-items: center;
 }
+
 .loading  {
     flex-direction: column;
     text-align: center;
@@ -295,6 +317,7 @@ $message: '.message';
         margin-bottom: 60px;
     }
 }
+
 .error {
     flex-direction: column;
     text-align: center;
