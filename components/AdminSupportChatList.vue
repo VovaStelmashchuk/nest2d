@@ -5,12 +5,6 @@
                 label="Support Chat List"
                 class="header__title"
             />
-            <MainButton 
-                :label="isConnected ? 'Connected' : 'Disconnected'"
-                tag="div"
-                isNotClickable
-                :theme="themeType.primary"
-            />
         </div>
         <UiScrollbar class="chats__scrollbar">
             <div class="chats__list" v-if="chatList.length > 0">

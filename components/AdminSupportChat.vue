@@ -8,14 +8,7 @@
                 />
                 <span class="header__id">User ID: {{ userId }}</span>
             </div>
-            <MainButton 
-                :label="isConnected ? 'Connected' : 'Disconnected'"
-                tag="div"
-                isNotClickable
-                :theme="themeType.primary"
-            />
         </div>
-
         <UiScrollbar
             class="chat__messages messages"
             ref="messagesContainer"
