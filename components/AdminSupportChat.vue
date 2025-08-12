@@ -2,58 +2,31 @@
     <div class="chat">
         <div class="chat__header header">
             <div class="header__wrapper">
-                <MainTitle
-                    label="Support Chat"
-                    class="header__title"
-                />
+                <MainTitle label="Support Chat" class="header__title" />
                 <span class="header__id">User ID: {{ userId }}</span>
             </div>
         </div>
-        <UiScrollbar
-            ref="messagesContainer"
-            class="chat__messages messages"
-        >
+        <UiScrollbar ref="messagesContainer" class="chat__messages messages">
             <div v-if="loading" class="chat__loading loading">
-                <MainLoader
-                    :size="sizeType.l"
-                    class="loading__loader"
-                />
+                <MainLoader :size="sizeType.l" class="loading__loader" />
                 <p>Loading messages...</p>
             </div>
-            <div 
-                v-else-if="messages.length === 0"
-                class="chat__empty empty"
-            >
+            <div v-else-if="messages.length === 0" class="chat__empty empty">
                 <p class="empty__text">No messages yet. Start the conversation!</p>
             </div>
-            <div 
-                class="message-list" 
-                v-else
-            >
-                <div v-for="message in messages" :key="message._id"
-                    class="message"
-                    :class="[message.sender === 'admin' ? '' : 'message--is-user']"
-                >
+            <div class="message-list" v-else>
+                <div v-for="message in messages" :key="message._id" class="message"
+                    :class="[message.sender === 'support' ? '' : 'message--is-user']">
                     <p>{{ message.message }}</p>
                     <span class="message__time">{{ formatTime(message.timestamp) }}</span>
                 </div>
             </div>
         </UiScrollbar>
         <div class="chat__footer footer">
-            <InputField
-                placeholder="Type your message..."
-                class="footer__input"
-                v-model="newMessage"
-                @keyup.enter="sendMessage"
-                :disabled="!isConnected"
-            />
-            <MainButton
-                :theme="themeType.primary"
-                :disabled="!newMessage.trim() || !isConnected"
-                @click="sendMessage"
-                label="Send"
-                class="footer__btn"
-            />
+            <InputField placeholder="Type your message..." class="footer__input" v-model="newMessage"
+                @keyup.enter="sendMessage" :disabled="!isConnected" />
+            <MainButton :theme="themeType.primary" :disabled="!newMessage.trim() || !isConnected" @click="sendMessage"
+                label="Send" class="footer__btn" />
         </div>
 
         <div v-if="error" class="error-message">
@@ -113,7 +86,7 @@ const connectToChat = () => {
                 case 'heartbeat':
                     break
             }
-        } 
+        }
 
         eventSource.onerror = (error) => {
             console.error('EventSource error:', error)
@@ -136,19 +109,11 @@ const sendMessage = async () => {
     try {
         const messageData = {
             message: newMessage.value,
-            userId: props.userId,
-            sender: 'admin',
-            timestamp: new Date()
         }
 
-        await $fetch('/api/support/messages', {
+        await $fetch(`/api/support/admin/${props.userId}`, {
             method: 'POST',
             body: messageData
-        })
-
-        messages.value.push({
-            _id: Date.now().toString(),
-            ...messageData
         })
 
         newMessage.value = ''
@@ -163,7 +128,7 @@ const sendMessage = async () => {
 
 const scrollToBottom = async () => {
     await nextTick()
-    
+
     if (messagesContainer.value) {
         const element = messagesContainer.value.$el || messagesContainer.value
 
@@ -179,7 +144,7 @@ const formatTime = (timestamp) => {
 }
 
 onMounted(() => {
-    if (props.userId) { 
+    if (props.userId) {
         connectToChat()
     }
 })
@@ -199,6 +164,7 @@ onUnmounted(() => {
     &__header {
         margin-bottom: 16px;
     }
+
     &__footer {
         margin-top: 16px;
     }
@@ -208,11 +174,13 @@ onUnmounted(() => {
         width: 100%;
         height: 100%;
     }
+
     &__loading {
         width: 100%;
-        height: 100%;  
+        height: 100%;
     }
 }
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -228,10 +196,12 @@ onUnmounted(() => {
         margin-left: 100px;
     }
 }
+
 .message-list {
     display: flex;
     flex-direction: column;
 }
+
 .message {
     background-color: var(--fill-tertiary);
     border-radius: 8px 0 8px 8px;
@@ -259,7 +229,8 @@ onUnmounted(() => {
         display: block;
     }
 }
-.loading  {
+
+.loading {
     flex-direction: column;
     text-align: center;
     display: flex;
@@ -272,6 +243,7 @@ onUnmounted(() => {
         margin-bottom: 60px;
     }
 }
+
 .empty {
     text-align: center;
     display: flex;
@@ -280,6 +252,7 @@ onUnmounted(() => {
     align-items: center;
     color: var(--label-secondary);
 }
+
 .footer {
     display: flex;
     align-items: center;
@@ -288,6 +261,7 @@ onUnmounted(() => {
     &__input {
         flex: 1;
     }
+
     &__btn {
         margin-left: 10px;
     }
