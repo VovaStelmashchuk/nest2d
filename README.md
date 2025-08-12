@@ -85,19 +85,6 @@ Locally preview production build:
 npm run preview
 ```
 
-## Secrets
-
-Project use docker secrets for storing sensitive data. For local development create `.secret.json` file in the root of the project.
-In case you want to getting secret from other file change the `.env` file.
-
-Sample of `.secret.json` file:
-
-```json
-{
-  "mongoUri": "mongodb://<user>:<pass>@<ip>:<port>/<dbname>?<connection specific options>"
-}
-```
-
 ### Referenced Paper
 
 - [López-Camacho _et al._ 2013](http://www.cs.stir.ac.uk/~goc/papers/EffectiveHueristic2DAOR2013.pdf)

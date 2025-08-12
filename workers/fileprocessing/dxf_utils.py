@@ -59,7 +59,8 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
 
     text_entities = msp.query("TEXT MTEXT")
     if text_entities:
-        msp.delete_entities(text_entities)
+        for text_entity in text_entities:
+            msp.delete_entity(text_entity)
         logger.info(f"Removed {len(text_entities)} TEXT/MTEXT entities.")
 
     hatches = msp.query("HATCH")

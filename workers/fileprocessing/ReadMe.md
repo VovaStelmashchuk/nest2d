@@ -11,10 +11,15 @@ docker build -t nest2d-worker-fileprocessing:local .
 
 Run as service
 
-
 ```sh
 docker service create \
   --name my-file-processing-service \
   --env-file ./.env \
   nest2d-worker-fileprocessing:local
+```
+
+## Local development run 
+
+```sh
+docker run --network host -it -v "$(pwd):/app" -w /app nest2d-worker-fileprocessing:local bash
 ```

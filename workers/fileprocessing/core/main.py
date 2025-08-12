@@ -6,10 +6,6 @@ from utils.mongo import db
 from ezdxf.document import Drawing
 from core.svg_generator import create_svg_from_doc
 
-from core.polygonizer.dxf import polygon_parts_from_dxf
-from core.polygonizer.dto import ClosedPolygon, PolygonPart
-from core.polygonizer.core import combine_polygon_parts
-
 from typing import List
 from ezdxf.document import Drawing
 from shapely.geometry import Point
