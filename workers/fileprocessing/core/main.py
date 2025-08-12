@@ -100,8 +100,8 @@ def _make_svg_file(doc):
     
 def _close_polygon_from_dxf(doc, logger_tag: str):
     logger = setup_logger(logger_tag)
-    
-    if doc.get("isPolygonPartsExist", False):
+     
+    if doc.get("polygonParts"):
         logger.info("polygon_parts_already_exist", extra={"slug": doc["slug"]})
         return
      

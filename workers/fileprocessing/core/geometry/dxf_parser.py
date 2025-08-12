@@ -55,6 +55,9 @@ def _flatten_entity(entity, tol: float):
 
     elif kind == "SPLINE":
         pts = [_vec2(p) for p in entity.flattening(distance=tol)]
+        
+    elif kind == "POINT":
+        pts = [_vec2(entity.dxf.location)]
 
     else:
         raise GeometryConversionError(f"Unsupported entity type: {kind} (handle: {h})")
