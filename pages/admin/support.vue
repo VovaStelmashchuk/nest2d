@@ -44,7 +44,7 @@ const handleChatSelection = (userId) => {
     }
     &__chat {
         flex: 1 1 0;
-        margin-left: 40px;
+        margin-left: 8px;
     }
 }
 
