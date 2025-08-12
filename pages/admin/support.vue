@@ -1,9 +1,19 @@
 <template>
-    <div class="page-admin-support">
-        <AdminSupportChatList @select-chat="handleChatSelection" />
-        <AdminSupportChat v-if="selectedUserId" :userId="selectedUserId" />
-        <div v-else class="no-chat-selected">
-            <p>Select a chat from the list to start messaging</p>
+    <div class="support">
+        <AdminSupportChatList 
+            class="support__chats" 
+            @select-chat="handleChatSelection"
+        />
+        <AdminSupportChat 
+            v-if="selectedUserId" 
+            :userId="selectedUserId" 
+            class="support__chat" 
+        />
+        <div 
+            v-else
+            class="support__chat placeholder"
+        >
+            <p class="placeholder__text">Select a chat from the list to start messaging</p>
         </div>
     </div>
 </template>
@@ -12,7 +22,7 @@
 import { ref } from 'vue'
 
 definePageMeta({
-    layout: "profile",
+    layout: "support",
     middleware: "auth",
 });
 
@@ -24,39 +34,31 @@ const handleChatSelection = (userId) => {
 </script>
 
 <style lang="scss" scoped>
-.page-admin-support {
+.support {
     display: flex;
-    flex-direction: row;
-    height: 100vh;
-    min-height: 400px;
-    max-width: 1200px;
-    margin: 0 auto;
-    background: var(--background-primary);
+    height: calc(100vh - 280px);
+    
+    &__chats {
+        width: 400px;
+        overflow-y: auto;
+    }
+    &__chat {
+        flex: 1 1 0;
+        width: 100%;
+        overflow-y: auto;
+    }
 }
 
-.page-admin-support> :first-child {
-    width: 400px;
-    min-width: 400px;
-    max-width: 400px;
-    border-right: 1px solid #eee;
-    height: 100%;
-    overflow-y: auto;
-}
-
-.page-admin-support> :last-child {
-    flex: 1 1 0;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-}
-
-.no-chat-selected {
+.placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    color: #64748b;
-    font-style: italic;
-    text-align: center;
+
+    &__text {
+        border: 1px solid var(--separator-secondary);
+        border-radius: 8px;
+        padding: 15px;
+        color: var(--label-primary);
+    }
 }
 </style>

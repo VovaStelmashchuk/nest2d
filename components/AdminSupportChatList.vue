@@ -1,39 +1,50 @@
 <template>
-    <div class="admin-chat-list">
-        <div class="header">
-            <h1>Support Chat List</h1>
-            <div class="status" :class="{ connected: isConnected }">
+    <div class="chats">
+        <div class="chats__header header">
+            <MainTitle
+                label="Support Chat List"
+                class="header__title"
+            />
+            <div 
+                :class="{ connected: isConnected }"
+                class="header__status"
+            >
                 {{ isConnected ? 'Connected' : 'Disconnected' }}
             </div>
         </div>
-
-        <div class="chat-list" v-if="chatList.length > 0">
-            <div v-for="chat in chatList" :key="chat.userId" class="chat-item"
-                :class="{ active: selectedUserId === chat.userId }" @click="selectChat(chat.userId)">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        {{ chat.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
+        <UiScrollbar class="chats__scrollbar">
+            <div class="chats__list" v-if="chatList.length > 0">
+                <div
+                    v-for="chat in chatList" 
+                    :key="chat.userId" 
+                    class="chats__item chats-item"
+                    :class="{ active: selectedUserId === chat.userId }" 
+                    @click="selectChat(chat.userId)"
+                >
+                    <div class="user">
+                        <div class="user__avatar">
+                            {{ chat.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
+                        </div>
+                        <div class="user__details">
+                            <div class="user__name">{{ chat.user?.name || 'Unknown User' }}</div>
+                            <div class="user__id">ID: {{ chat.userId }}</div>
+                        </div>
                     </div>
-                    <div class="user-details">
-                        <div class="user-name">{{ chat.user?.name || 'Unknown User' }}</div>
-                        <div class="user-id">ID: {{ chat.userId }}</div>
+                    <div class="chats-item__message message">
+                        <div class="message__text">{{ chat.lastMessage }}</div>
                     </div>
                 </div>
-                <div class="last-message">
-                    <div class="message-text">{{ chat.lastMessage }}</div>
-                    <div class="message-time">{{ formatTime(chat.timestamp) }}</div>
-                </div>
+            </div> 
+            <div v-else-if="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading chat list...</p>
             </div>
-        </div>
 
-        <div v-else-if="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Loading chat list...</p>
-        </div>
+            <div v-else class="empty-state">
+                <p>No support chats found</p>
+            </div>
+        </UiScrollbar>
 
-        <div v-else class="empty-state">
-            <p>No support chats found</p>
-        </div>
 
         <div v-if="error" class="error">
             <p>{{ error }}</p>
@@ -102,20 +113,6 @@ const selectChat = (userId) => {
     emit('select-chat', userId)
 }
 
-const formatTime = (timestamp) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffInHours = (now - date) / (1000 * 60 * 60)
-
-    if (diffInHours < 1) {
-        return 'Just now'
-    } else if (diffInHours < 24) {
-        return `${Math.floor(diffInHours)}h ago`
-    } else {
-        return date.toLocaleDateString()
-    }
-}
-
 onMounted(() => {
     connectToChatList()
 })
@@ -128,116 +125,6 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.admin-chat-list {
-    max-width: 400px;
-    border-right: 1px solid #e2e8f0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.header {
-    padding: 20px;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f8fafc;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header h1 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.status {
-    font-size: 12px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    background: #ef4444;
-    color: white;
-
-    &.connected {
-        background: #10b981;
-    }
-}
-
-.chat-list {
-    flex: 1;
-    overflow-y: auto;
-}
-
-.chat-item {
-    padding: 16px 20px;
-    border-bottom: 1px solid #f1f5f9;
-    cursor: pointer;
-    transition: background-color 0.2s;
-
-    &:hover {
-        background: #f8fafc;
-    }
-
-    &.active {
-        background: #dbeafe;
-        border-left: 3px solid #3b82f6;
-    }
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #3b82f6;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 16px;
-    margin-right: 12px;
-}
-
-.user-details {
-    flex: 1;
-}
-
-.user-name {
-    font-weight: 500;
-    color: #1e293b;
-    margin-bottom: 2px;
-}
-
-.user-id {
-    font-size: 12px;
-    color: #64748b;
-}
-
-.last-message {
-    margin-left: 52px;
-}
-
-.message-text {
-    color: #475569;
-    font-size: 14px;
-    line-height: 1.4;
-    margin-bottom: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.message-time {
-    font-size: 11px;
-    color: #94a3b8;
-}
 
 .loading {
     flex: 1;
@@ -294,6 +181,126 @@ onUnmounted(() => {
         &:hover {
             background: #2563eb;
         }
+    }
+}
+
+.chats {
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+        margin-bottom: 16px;
+    }
+
+    &__scrollbar {
+        width: 100%;
+    }
+
+    &__item {
+        &:not(:last-child) {
+            margin-bottom: 8px;
+        }
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 13px;
+
+    &__status {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: #ef4444;
+        color: white;
+
+        &.connected {
+            background: #10b981;
+        }
+    }
+}
+
+.chats-item {
+    border-radius: 8px;
+    color: var(--label-tertiary);
+    padding: 16px;
+    position: relative;
+    transition: color .3s;
+    cursor: pointer;
+
+    &:after {
+        border: 1px solid var(--separator-secondary);
+        border-radius: 8px;
+        bottom: 0;
+        content: "";
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: border-color .3s;
+    }
+
+    &:hover:after {
+        border-color: var(--separator-primary);
+    }
+
+    &.active {
+        pointer-events: none;
+
+        &:after {
+            border-width: 2px;
+            border-color: var(--accent-primary);
+        }
+    }
+
+    &__message {
+        margin-top: 16px;
+    }
+}
+
+.user {
+    display: flex;
+    align-items: center;
+
+    &__avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--accent-primary);
+        color: var(--background-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 24px;
+    }
+
+    &__details {
+        flex: 1;
+    }
+
+    &__name {    
+        font-weight: 500;
+        color: var(--label-secondary);
+        margin-bottom: 8px;
+    }
+
+    &__id {     
+        font-size: 12px;
+        color: var(--label-tertiary);
+    }
+}
+
+.message {
+    &__text {
+        font-weight: 500;
+        color: var(--label-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
 </style>

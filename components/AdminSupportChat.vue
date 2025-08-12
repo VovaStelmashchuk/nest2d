@@ -178,7 +178,6 @@ onUnmounted(() => {
 .admin-support-chat {
     display: flex;
     flex-direction: column;
-    height: 100vh;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     background: white;
