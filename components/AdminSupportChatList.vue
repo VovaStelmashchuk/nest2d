@@ -5,12 +5,12 @@
                 label="Support Chat List"
                 class="header__title"
             />
-            <div 
-                :class="{ connected: isConnected }"
-                class="header__status"
-            >
-                {{ isConnected ? 'Connected' : 'Disconnected' }}
-            </div>
+            <MainButton 
+                :label="isConnected ? 'Connected' : 'Disconnected'"
+                tag="div"
+                isNotClickable
+                :theme="themeType.primary"
+            />
         </div>
         <UiScrollbar class="chats__scrollbar">
             <div class="chats__list" v-if="chatList.length > 0">
@@ -35,26 +35,34 @@
                     </div>
                 </div>
             </div> 
-            <div v-else-if="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Loading chat list...</p>
+            <div v-else-if="loading" class="chats__loading loading">
+                <MainLoader
+                    :size="sizeType.l"
+                    class="loading__loader"
+                />
+                <p class="loading__text">Loading chat list...</p>
             </div>
-
-            <div v-else class="empty-state">
-                <p>No support chats found</p>
+            <div v-else class="chats__empty empty">
+                <p class="empty__text">No support chats found</p>
+            </div>
+            <div v-if="error" class="chats__error error">
+                <p class="error__text">1231{{ error }}</p>
+                <MainButton 
+                    label="Retry"
+                    tag="button"
+                    :theme="themeType.primary"
+                    class="error__btn"
+                    @click="connectToChatList"
+                />
             </div>
         </UiScrollbar>
-
-
-        <div v-if="error" class="error">
-            <p>{{ error }}</p>
-            <button @click="connectToChatList">Retry</button>
-        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { sizeType } from "~~/constants/size.constants"
+import { themeType } from '~~/constants/theme.constants'
 
 const chatList = ref([])
 const loading = ref(true)
@@ -125,65 +133,6 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-
-.loading {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #64748b;
-}
-
-.spinner {
-    width: 24px;
-    height: 24px;
-    border: 2px solid #e2e8f0;
-    border-top: 2px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 12px;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-.empty-state {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #64748b;
-    font-style: italic;
-}
-
-.error {
-    padding: 20px;
-    text-align: center;
-    color: #ef4444;
-
-    button {
-        margin-top: 12px;
-        padding: 8px 16px;
-        background: #3b82f6;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-
-        &:hover {
-            background: #2563eb;
-        }
-    }
-}
-
 .chats {
     display: flex;
     flex-direction: column;
@@ -194,6 +143,14 @@ onUnmounted(() => {
 
     &__scrollbar {
         width: 100%;
+        height: 100%;
+    }
+
+    &__empty,
+    &__loading,
+    &__error {
+        width: 100%;
+        height: 100%;  
     }
 
     &__item {
@@ -208,18 +165,6 @@ onUnmounted(() => {
     justify-content: space-between;
     align-items: center;
     padding-right: 13px;
-
-    &__status {
-        font-size: 12px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        background: #ef4444;
-        color: white;
-
-        &.connected {
-            background: #10b981;
-        }
-    }
 }
 
 .chats-item {
@@ -301,6 +246,39 @@ onUnmounted(() => {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+}
+
+.empty {
+    text-align: center;
+    display: flex;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+}
+.loading  {
+    flex-direction: column;
+    text-align: center;
+    display: flex;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+
+    &__loader {
+        margin-bottom: 60px;
+    }
+}
+.error {
+    flex-direction: column;
+    text-align: center;
+    display: flex;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+
+    &__text {
+        color: #ef4444;
+        margin-bottom: 40px;
     }
 }
 </style>
