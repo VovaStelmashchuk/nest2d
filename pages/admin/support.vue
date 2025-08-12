@@ -37,15 +37,13 @@ const handleChatSelection = (userId) => {
 .support {
     display: flex;
     height: calc(100vh - 280px);
-    
+
     &__chats {
         width: 400px;
-        overflow-y: auto;
     }
     &__chat {
         flex: 1 1 0;
-        width: 100%;
-        overflow-y: auto;
+        margin-left: 40px;
     }
 }
 

@@ -182,7 +182,6 @@ $message: '.message';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-right: 13px;
 }
 
 .chats-item {
@@ -303,6 +302,7 @@ $message: '.message';
     padding: 16px;
     justify-content: center;
     align-items: center;
+    color: var(--label-secondary);
 }
 
 .loading  {
@@ -312,6 +312,7 @@ $message: '.message';
     padding: 16px;
     justify-content: center;
     align-items: center;
+    color: var(--label-secondary);
 
     &__loader {
         margin-bottom: 60px;
