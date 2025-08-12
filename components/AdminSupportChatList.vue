@@ -133,6 +133,8 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+$user: '.user';
+$message: '.message';
 .chats {
     display: flex;
     flex-direction: column;
@@ -188,8 +190,20 @@ onUnmounted(() => {
         transition: border-color .3s;
     }
 
-    &:hover:after {
-        border-color: var(--separator-primary);
+    &:hover {
+        &:after {
+            border-color: var(--separator-primary);
+        }
+
+        #{$user}__name {
+            color: var(--label-primary);
+        }
+        #{$user}__id {
+            color: var(--label-secondary);
+        }
+        #{$message}__text {
+            color: var(--label-primary);
+        }
     }
 
     &.active {
@@ -198,6 +212,16 @@ onUnmounted(() => {
         &:after {
             border-width: 2px;
             border-color: var(--accent-primary);
+        }
+
+        #{$user}__name {
+            color: var(--label-primary);
+        }
+        #{$user}__id {
+            color: var(--label-secondary);
+        }
+        #{$message}__text {
+            color: var(--label-primary);
         }
     }
 
@@ -228,12 +252,14 @@ onUnmounted(() => {
     }
 
     &__name {    
+        transition: color .3s;
         font-weight: 500;
         color: var(--label-secondary);
         margin-bottom: 8px;
     }
 
     &__id {     
+        transition: color .3s;
         font-size: 12px;
         color: var(--label-tertiary);
     }
@@ -241,6 +267,7 @@ onUnmounted(() => {
 
 .message {
     &__text {
+        transition: color .3s;
         font-weight: 500;
         color: var(--label-secondary);
         overflow: hidden;
