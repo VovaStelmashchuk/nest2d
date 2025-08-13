@@ -34,7 +34,7 @@
                 <MainButton
                     :theme="themeType.primary"
                     @click="sendMessage"
-                    :isDisable="!message.trim()"
+                    :isDisable="!message.trim() || isLoading"
                     label="Send"
                     class="bottom__btn"
                 />
@@ -53,11 +53,13 @@ const supportDialog = useSupportDialog()
 
 const message = ref('')
 const messages = ref([])
-const messagesContainer = ref(null)
+const isLoading = ref(false)
 const eventSource = ref(null)
 
 const sendMessage = async () => {
     if (!message.value.trim()) return
+    
+    isLoading.value = true
 
     try {
         await $fetch('/api/support/messages', {
@@ -67,6 +69,8 @@ const sendMessage = async () => {
         message.value = ''
     } catch (error) {
         console.error('Failed to send message:', error)
+    } finally {
+        isLoading.value = false
     }
 }
 
