@@ -159,7 +159,7 @@ const themeIcon = computed(() => {
     padding: 12px 8px;
     flex-direction: column;
 
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
         flex-direction: row;
         align-items: center;
         padding: 16px 10px;
@@ -175,12 +175,12 @@ const themeIcon = computed(() => {
         &>*:not(:first-child) {
             margin: 4px;
 
-            @media (min-width: 568px) {
+            @media (min-width: 567px) {
                 margin: 0 0 0 16px;
             }
         }
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             flex-direction: initial;
             margin-top: initial;
         }
@@ -189,13 +189,13 @@ const themeIcon = computed(() => {
             flex-direction: row-reverse;
             justify-content: space-between;
 
-            @media (min-width: 568px) {
+            @media (min-width: 567px) {
                 flex-direction: initial
             }
         }
     }
     &__theme {
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             margin-bottom: initial;
         }
     }
@@ -205,7 +205,7 @@ const themeIcon = computed(() => {
             top: 8px;
             right: 4px;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             position: initial;
             top: initial;
             right: initial;
@@ -249,7 +249,7 @@ const themeIcon = computed(() => {
             top: 8px;
             right: 4px;
 
-            @media (min-width: 568px) {
+            @media (min-width: 567px) {
                 position: initial;
                 top: initial;
                 right: initial;

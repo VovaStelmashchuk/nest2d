@@ -6,9 +6,26 @@
             class="main__header"
         />
         <main class="main__content content">
-            <UserProjects />   
+            <div class="content__controls controls">
+                <div :class="{'controls__bg--open': projectsIsOpen || resultsIsOpen}" @click="close" class="controls__bg"></div>
+                <MainButton
+                    @click="openProjects"
+                    class="controls__btn controls__btn--projects"
+                    :theme="themeType.primary"
+                    label="Open projects"
+                />
+                <MainButton
+                    @click="openResults"
+                    class="controls__btn controls__btn--results"
+                    :theme="themeType.primary"
+                    label="Open results"
+                />
+            </div>
+            <div :class="{'content__wrapper--open': projectsIsOpen}" class="content__wrapper content__wrapper--projects"></div>
+            <div :class="{'content__wrapper--open': resultsIsOpen}" class="content__wrapper content__wrapper--results"></div>
+            <UserProjects @close="close" :class="{'content__projects--open': projectsIsOpen}" class="content__projects"/>
             <slot />
-            <UserResults />
+            <UserResults :class="{'content__results--open': resultsIsOpen}" class="content__results" />
         </main>
         <ChatSupport v-if="supportDialog" />
         <button 
@@ -33,7 +50,18 @@
 import { themeType } from '~~/constants/theme.constants';
 const supportDialog = useSupportDialog();
 const buyCreditsDialog = useBuyCreditsDialog();
-
+const projectsIsOpen = ref(false);
+const resultsIsOpen = ref(false);
+const openProjects = () => {
+    projectsIsOpen.value = true;
+}
+const openResults = () => {
+    resultsIsOpen.value = true;
+}
+const close = () => {
+    projectsIsOpen.value = false;
+    resultsIsOpen.value = false;
+}
 </script>
 <style lang="scss" scoped>
 .main {
@@ -58,7 +86,6 @@ const buyCreditsDialog = useBuyCreditsDialog();
         position: relative;
         z-index: 2;
     }
-
     &__btn {
         position: fixed;
         bottom: 60px;
@@ -69,9 +96,118 @@ const buyCreditsDialog = useBuyCreditsDialog();
 .content {
     padding-left: 10px;
     padding-right: 10px;
-    display: grid;
-    grid-template-columns: 1fr 640px 1fr;
-    gap: 40px;
+    position: relative;
+    overflow: hidden;
+    
+    @media (min-width: 1319px) {
+        display: grid;
+        grid-template-columns: 1fr 640px 1fr;
+        gap: 40px;
+    }
+
+    &__controls {
+        margin-bottom: 16px;
+    }
+    &__projects {
+        z-index: 2;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 280px;
+        transform: translateX(-200%);
+
+        @media (min-width: 1319px) {
+            position: initial;
+            left: initial;
+            top: initial;
+            width: initial;
+            transform: initial;
+        }
+
+        &--open {
+            transform: translateX(10px);
+
+            @media (min-width: 1319px) {
+                transform: initial;
+            }
+        }
+    }
+    &__results {
+        z-index: 2;
+        top: 0;
+        right: 0;
+        position: absolute;
+        width: 280px;
+        transform: translateX(200%);
+
+        @media (min-width: 1319px) {
+            position: initial;
+            right: initial;
+            top: initial;
+            width: initial;
+            transform: initial;
+        }
+
+        &--open {
+            transform: translateX(-10px);
+
+            @media (min-width: 1319px) {
+                transform: initial;
+            }
+        }
+    }
+    &__wrapper {
+        z-index: 2;
+        background-color: var(--background-primary);
+        position: fixed;
+        top: 0;
+        height: 100vh;
+        width: 300px;
+        opacity: 0;
+        pointer-events: none;
+
+        &--results {
+            right: 0;
+        }
+        &--projects {
+            left: 0;
+        }
+
+        @media (min-width: 1319px) {
+            display: none;
+        }
+
+        &--open {
+            opacity: 1;
+            pointer-events: all;
+        }
+    }
+}
+.controls {
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+
+    @media (min-width: 1319px) {
+        display: none;
+    }
+
+    &__bg {
+        z-index: 2;    
+        position: fixed;
+        top: 0;
+        height: 100vh;
+        left: 0;
+        width: 100vw;
+        background-color: var(--label-tertiary);
+        opacity: 0;
+        pointer-events: none;
+
+        &--open {
+            opacity: 1;
+            pointer-events: all;
+        }
+    }
 }
 .btn {
     $self: &;

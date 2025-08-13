@@ -166,13 +166,13 @@ const updateActiveFaqList = (index) => {
     color: var(--label-secondary);
     font-size: 14px;
 
-    @media (min-width: 568px) {  
+    @media (min-width: 567px) {  
         font-size: 18px;
     }
     &>* {
         margin: 0.5rem;
 
-        @media (min-width: 568px) {  
+        @media (min-width: 567px) {  
             padding: 1rem;
             margin: 1rem;
         }
@@ -184,21 +184,21 @@ const updateActiveFaqList = (index) => {
     font-weight: 700;
     font-size: 16px;
 
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
         font-size: 20px;
     }
 
     &--medium {
         font-size: 1.5rem;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             font-size: 2rem;
         }
     }
     &--large {
         font-size: 1.75rem;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             font-size: 2.25rem;
         }
     }
@@ -226,7 +226,7 @@ const updateActiveFaqList = (index) => {
     grid-template-columns: repeat(1, 1fr);
     text-align: left;
 
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 24px;
     }
@@ -248,7 +248,7 @@ const updateActiveFaqList = (index) => {
     &__list {
         margin-top: 16px;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             margin-top: 32px;
         }
     }
@@ -258,7 +258,7 @@ const updateActiveFaqList = (index) => {
     gap: 16px;
     grid-template-columns: repeat(1, 1fr);
 
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 24px;
     }
@@ -283,7 +283,7 @@ const updateActiveFaqList = (index) => {
     &__list {
         margin-top: 16px;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             margin-top: 32px;
         }
     }
@@ -296,7 +296,7 @@ const updateActiveFaqList = (index) => {
     &__item {
         flex-basis: 100%;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             flex-basis: calc(100% / 2);
         }
         @media (min-width: 1199px) {
@@ -346,7 +346,7 @@ const updateActiveFaqList = (index) => {
     &__list {
         margin-top: 16px;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             margin-top: 32px;
         }
     }

@@ -296,7 +296,7 @@ onUnmounted(() => {
     &__back {
         margin-right: 10px;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             display: none;
         }
     }

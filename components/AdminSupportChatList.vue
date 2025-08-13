@@ -258,10 +258,10 @@ $message: '.message';
     display: flex;
     align-items: center;
 
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
         flex-direction: column;
     }
-    
+
     @media (min-width: 1199px) {
         flex-direction: row;
     }
@@ -273,7 +273,7 @@ $message: '.message';
         border-radius: 50%;
         margin-right: 24px;
         
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             margin-bottom: 8px;
             margin-right: initial;
         }

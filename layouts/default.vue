@@ -34,7 +34,7 @@ import { themeType } from '~~/constants/theme.constants';
         max-width: 1300px;
         width: 100%;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             margin-top: 40px;
             margin-bottom: 40px;
         }

@@ -63,7 +63,7 @@ const updateScreenshot = (value) => {
 .modal {
     padding: 48px 12px 12px;
 
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
         padding-left: 24px;
         padding-bottom: 24px;
         padding-right: 24px;
@@ -80,7 +80,7 @@ const updateScreenshot = (value) => {
         max-width: calc(90vw - 24px);
         max-height: calc(90vh - 36px);
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             max-width: calc(80vw - 48px);
             max-height: calc(80vh - 72px);  
         }

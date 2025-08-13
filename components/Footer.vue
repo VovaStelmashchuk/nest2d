@@ -48,7 +48,7 @@
     padding: 12px 8px;
     background-color: var(--main-black);
 
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
         padding: 16px 10px;
     }
     &__content {
@@ -71,7 +71,7 @@
     }
 }
 .content {
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
         padding-right: 10px;
         padding-left: 10px;
     }
@@ -84,16 +84,16 @@
 .list {
     display: flex;
     flex-wrap: wrap;
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
     }
     &__item {
         margin: 8px;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             margin: initial;
         }
         &:not(:last-child) {
-            @media (min-width: 568px) {
+            @media (min-width: 567px) {
                 margin-right: 40px;
                 margin-bottom: initial;
             }
@@ -107,7 +107,7 @@
         transition: opacity 0.3s;
         opacity: 0.7;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             text-align: initial;
         }
 

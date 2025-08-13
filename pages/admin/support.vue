@@ -46,13 +46,13 @@ const handleBack = () => {
     height: calc(100vh - 260px);
     min-height: 391px;
 
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
         height: calc(100vh - 280px);
     }
     &__chats {
         width: 100%;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             width: 200px;
         }
         @media (min-width: 1199px) {
@@ -62,7 +62,7 @@ const handleBack = () => {
         &--active {
             display: none;
 
-            @media (min-width: 568px) {
+            @media (min-width: 567px) {
                 display: block;
             }
         }
@@ -70,7 +70,7 @@ const handleBack = () => {
     &__chat {
         width: 100%;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             width: initial;
             flex: 1 1 0;
             margin-left: 8px;
@@ -81,7 +81,7 @@ const handleBack = () => {
 .placeholder {
     display: none;
 
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
         display: flex;
         align-items: center;
         justify-content: center;
