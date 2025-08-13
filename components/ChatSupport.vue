@@ -34,6 +34,7 @@
                 <MainButton
                     :theme="themeType.primary"
                     @click="sendMessage"
+                    :isDisable="!message.trim()"
                     label="Send"
                     class="bottom__btn"
                 />

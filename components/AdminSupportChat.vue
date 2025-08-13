@@ -29,8 +29,8 @@
         </UiScrollbar>
         <div class="chat__footer footer">
             <InputField placeholder="Type your message..." class="footer__input" v-model="newMessage"
-                @keyup.enter="sendMessage" :disabled="!isConnected" />
-            <MainButton :theme="themeType.primary" :disabled="!newMessage.trim() || !isConnected" @click="sendMessage"
+                @keyup.enter="sendMessage" :isDisable="!isConnected" />
+            <MainButton :theme="themeType.primary" :isDisable="!newMessage.trim() || !isConnected" @click="sendMessage"
                 label="Send" class="footer__btn" />
         </div>
 

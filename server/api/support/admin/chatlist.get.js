@@ -61,6 +61,7 @@ export default defineEventHandler(async (event) => {
             $project: {
                 userId: 1,
                 lastMessage: 1,
+                timestamp: 1,
                 'user.name': 1,
                 'user.id': 1,
             }

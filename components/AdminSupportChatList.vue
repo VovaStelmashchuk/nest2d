@@ -31,6 +31,7 @@
                     </div>
                     <div class="chats-item__message message">
                         <div class="message__text">{{ chat.lastMessage }}</div>
+                        <div class="message__time">{{ getTimeAgo(chat.timestamp) }}</div>
                     </div>
                 </div>
             </div> 
@@ -134,6 +135,20 @@ const letterToBg = (letter) => {
 
     return `#${hexValue.padStart(6, '0').substring(0, 6)}`
 }
+
+const getTimeAgo = (timestamp) => {
+    const now = new Date();
+    const diff = now - new Date(timestamp);
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days}d ago`;
+    if (hours > 0) return `${hours}h ago`;
+    if (minutes > 0) return `${minutes}m ago`;
+    return `${seconds}s ago`;
+}
 </script>
 
 <style lang="scss" scoped>
@@ -207,6 +222,9 @@ $message: '.message';
         #{$message}__text {
             color: var(--label-primary);
         }
+        #{$message}__time {
+            color: var(--label-secondary);
+        }
     }
 
     &.active {
@@ -225,6 +243,9 @@ $message: '.message';
         }
         #{$message}__text {
             color: var(--label-primary);
+        }
+        #{$message}__time {
+            color: var(--label-secondary);
         }
     }
 
@@ -281,6 +302,12 @@ $message: '.message';
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        margin-bottom: 8px;
+    }
+    &__time {
+        transition: color .3s;
+        font-size: 12px;
+        color: var(--label-tertiary);
     }
 }
 
