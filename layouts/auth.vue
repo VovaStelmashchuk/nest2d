@@ -116,7 +116,7 @@ const isHomePage = computed(() => {
         margin-bottom: 16px;
     }
     &__projects {
-        z-index: 2;
+        z-index: 4;
         position: absolute;
         left: 0;
         top: 0;
@@ -157,7 +157,7 @@ const isHomePage = computed(() => {
         }
     }
     &__results {
-        z-index: 2;
+        z-index: 4;
         top: 0;
         right: 0;
         position: absolute;
@@ -199,7 +199,6 @@ const isHomePage = computed(() => {
     }
 }
 .controls {
-    z-index: 1;
     display: flex;
     justify-content: space-between;
 
@@ -208,7 +207,7 @@ const isHomePage = computed(() => {
     }
 
     &__bg {
-        z-index: 2;    
+        z-index: 4;    
         position: fixed;
         top: 0;
         height: 100vh;
