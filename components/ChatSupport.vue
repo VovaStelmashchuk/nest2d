@@ -14,7 +14,7 @@
                     class="support__close"
                 />
             </div>
-            <UiScrollbar class="support__messages">
+            <UiScrollbar ref="messagesContainer" class="support__messages">
                 <p
                     v-for="msg in messages"
                     :key="msg._id"
@@ -55,6 +55,7 @@ const message = ref('')
 const messages = ref([])
 const isLoading = ref(false)
 const eventSource = ref(null)
+const messagesContainer = ref(null)
 
 const sendMessage = async () => {
     if (!message.value.trim()) return
@@ -77,7 +78,7 @@ const sendMessage = async () => {
 onMounted(() => {
     eventSource.value = new EventSource('/api/support/messages')
 
-    unref(eventSource).onmessage = (event) => {
+    unref(eventSource).onmessage = async (event) => {
         console.log('Received SSE message:', event.data)
         try {
             const parsed = JSON.parse(event.data)
@@ -88,6 +89,9 @@ onMounted(() => {
             }
         } catch (e) {
             console.error('Error parsing SSE message:', e)
+        } finally {
+            await nextTick()
+            scrollToBottom()
         }
     }
 
@@ -104,6 +108,18 @@ onBeforeUnmount(() => {
 const getMessageClasses = (sender) => ({
     'support__message--is-user': sender === 'user'
 })
+
+const scrollToBottom = async () => {
+    await nextTick()
+
+    if (messagesContainer.value) {
+        const element = messagesContainer.value.$el || messagesContainer.value
+
+        element.scrollTo({
+            top: element.scrollHeight,
+        })
+    }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -161,7 +177,7 @@ const getMessageClasses = (sender) => ({
         font-size: 14px;
         line-height: 1.4;
         width: max-content;
-        max-width: 100%;
+        max-width: 80%;
         margin-right: auto;
         text-align: left;
         background-color: var(--fill-secondary);
@@ -170,7 +186,6 @@ const getMessageClasses = (sender) => ({
         &--is-user {
             margin-left: auto;
             margin-right: initial;
-            text-align: right;
             background-color: var(--fill-tertiary);
             border-radius: 8px 0 8px 8px;
             color: var(--label-secondary);
