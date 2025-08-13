@@ -11,21 +11,19 @@
                 <MainButton
                     @click="openProjects"
                     class="controls__btn controls__btn--projects"
-                    :theme="themeType.primary"
+                    :theme="themeType.secondary"
                     label="Open projects"
                 />
                 <MainButton
                     @click="openResults"
                     class="controls__btn controls__btn--results"
-                    :theme="themeType.primary"
-                    label="Open results"
+                    :theme="themeType.secondary"
+                    :label="isHomePage ? 'Open all results' : 'Open results'"
                 />
             </div>
-            <div :class="{'content__wrapper--open': projectsIsOpen}" class="content__wrapper content__wrapper--projects"></div>
-            <div :class="{'content__wrapper--open': resultsIsOpen}" class="content__wrapper content__wrapper--results"></div>
-            <UserProjects @close="close" :class="{'content__projects--open': projectsIsOpen}" class="content__projects"/>
+            <UserProjects @closeAside="close" :class="{'content__projects--open': projectsIsOpen}" class="content__projects"/>
             <slot />
-            <UserResults :class="{'content__results--open': resultsIsOpen}" class="content__results" />
+            <UserResults @closeAside="close" :class="{'content__results--open': resultsIsOpen}" class="content__results" />
         </main>
         <ChatSupport v-if="supportDialog" />
         <button 
@@ -48,6 +46,7 @@
 </template>
 <script setup>
 import { themeType } from '~~/constants/theme.constants';
+const route = useRoute()
 const supportDialog = useSupportDialog();
 const buyCreditsDialog = useBuyCreditsDialog();
 const projectsIsOpen = ref(false);
@@ -62,9 +61,13 @@ const close = () => {
     projectsIsOpen.value = false;
     resultsIsOpen.value = false;
 }
+const isHomePage = computed(() => {
+    return route.path === '/home'
+})
 </script>
 <style lang="scss" scoped>
 .main {
+    overflow: hidden;
     background-color: var(--background-primary);
     flex-direction: column;
     display: flex;
@@ -88,16 +91,20 @@ const close = () => {
     }
     &__btn {
         position: fixed;
-        bottom: 60px;
-        right: 60px;
+        bottom: 120px;
+        right: 40px;
         z-index: 3;
+
+        @media (min-width: 1199px) {
+            bottom: 60px;
+            right: 60px;
+        }
     }
 }
 .content {
     padding-left: 10px;
     padding-right: 10px;
     position: relative;
-    overflow: hidden;
     
     @media (min-width: 1319px) {
         display: grid;
@@ -115,6 +122,7 @@ const close = () => {
         top: 0;
         width: 280px;
         transform: translateX(-200%);
+        transition: transform 0.3s ease;
 
         @media (min-width: 1319px) {
             position: initial;
@@ -131,6 +139,22 @@ const close = () => {
                 transform: initial;
             }
         }
+
+        &::after {
+            z-index: -1;
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 0 10px 10px 0;
+            background-color: var(--background-primary);
+
+            @media (min-width: 1319px) {
+                display: none;
+            }
+        }
     }
     &__results {
         z-index: 2;
@@ -139,6 +163,7 @@ const close = () => {
         position: absolute;
         width: 280px;
         transform: translateX(200%);
+        transition: transform 0.3s ease;
 
         @media (min-width: 1319px) {
             position: initial;
@@ -155,31 +180,21 @@ const close = () => {
                 transform: initial;
             }
         }
-    }
-    &__wrapper {
-        z-index: 2;
-        background-color: var(--background-primary);
-        position: fixed;
-        top: 0;
-        height: 100vh;
-        width: 300px;
-        opacity: 0;
-        pointer-events: none;
 
-        &--results {
-            right: 0;
-        }
-        &--projects {
-            left: 0;
-        }
+        &::after {
+            z-index: -1;
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 10px 0 0 10px;
+            background-color: var(--background-primary);
 
-        @media (min-width: 1319px) {
-            display: none;
-        }
-
-        &--open {
-            opacity: 1;
-            pointer-events: all;
+            @media (min-width: 1319px) {
+                display: none;
+            }
         }
     }
 }
@@ -202,6 +217,7 @@ const close = () => {
         background-color: var(--label-tertiary);
         opacity: 0;
         pointer-events: none;
+        transition: opacity 0.3s ease;
 
         &--open {
             opacity: 1;

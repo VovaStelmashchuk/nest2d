@@ -158,10 +158,14 @@ const scrollToBottom = async () => {
         z-index: 1;
         position: relative;
         background-color: var(--background-primary);
-        width: 400px;
+        width: 100%;
         padding: 15px;
         display: flex;
         flex-direction: column;
+
+        @media (min-width: 567px) {
+            width: 400px;
+        }
     }
 
     &__header {

@@ -1,6 +1,7 @@
 <template>
     <MainAside 
         label="Projects"
+        @closeAside="$emit('closeAside')"
         :btnLabel="btnLabelValue"
         @btnClick="createNewProject"
     >
@@ -9,7 +10,7 @@
             class="projects"
         >
             <UserProjectItem
-                @click="$emit('close')"
+                @click="$emit('closeAside')"
                 v-for="project in projectsList"
                 :key="project.slug"
                 :project="project"
@@ -46,10 +47,10 @@ const btnLabelValue = computed(() => {
     return route.name === 'home' ? '' : 'New project'
 }) 
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(["closeAside"]);
 
 const createNewProject = () => {
-    emit('close');
+    emit('closeAside');
     router.push({ name: 'home' })
 }
 </script>
