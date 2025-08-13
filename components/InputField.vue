@@ -6,11 +6,14 @@
         <span v-if="prefix" class="input__prefix">
             {{ prefix }}
         </span>
-        <input
+        <component
+            :is="tag"
+            ref="inputElement"
             :type="type"
             :placeholder="placeholder"
             :value="modelValue"
-            @input="$emit('update:modelValue', $event.target.value)"
+            @input="handleInput"
+            @keydown="$emit('keydown', $event)"
             class="input__value"
         />
         <span v-if="suffix" class="input__suffix">
@@ -20,9 +23,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 
-const { isDisable } = defineProps({
+const inputElement = ref(null)
+
+const { isDisable, tag, modelValue } = defineProps({
     prefix: { 
         type: String, 
         default: "" 
@@ -46,8 +50,35 @@ const { isDisable } = defineProps({
     isDisable: {
         type: Boolean,
         default: false
+    },
+    tag: {
+        type: String,
+        default: "input"
     }
 });
+
+const emit = defineEmits(['update:modelValue', 'keydown'])
+
+const handleInput = (event) => {
+    emit('update:modelValue', event.target.value)
+}
+
+const autoResize = (element) => {
+    element.style.height = '14.39px'
+
+    if (element.scrollHeight > 14.39) {
+        element.style.height = element.scrollHeight + 'px'
+    }
+}
+
+watch(() => modelValue, async () => {
+    if (tag === 'textarea') {
+        await nextTick()
+        if (inputElement.value) {
+            autoResize(inputElement.value)
+        }
+    }
+})
 
 const inputClasses = computed(() => ({
     'input--disable': isDisable
@@ -81,6 +112,15 @@ const inputClasses = computed(() => ({
         background-color: transparent;
         outline: none;
         min-width: 26px;
+        resize: none; 
+        overflow: hidden; 
+        line-height: 1.4;
+
+        &:is(textarea) {
+            min-height: 14.39px;
+            height: 14.39px; 
+            line-height: 1.2;
+        }
     }
 
     &__value,

@@ -26,10 +26,11 @@
             </UiScrollbar>
             <div class="support__bottom bottom">
                 <InputField
+                    tag="textarea"
                     placeholder="Type your message..."
                     class="bottom__input"
                     v-model="message"
-                    @keyup.enter="sendMessage"
+                    @keydown="handleKeyDown"
                 />
                 <MainButton
                     :theme="themeType.primary"
@@ -56,6 +57,17 @@ const messages = ref([])
 const isLoading = ref(false)
 const eventSource = ref(null)
 const messagesContainer = ref(null)
+
+const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+        if (event.shiftKey) {
+            return 
+        } else {
+            event.preventDefault()
+            sendMessage()
+        }
+    }
+}
 
 const sendMessage = async () => {
     if (!message.value.trim()) return
@@ -172,7 +184,6 @@ const scrollToBottom = async () => {
     &__message {
         padding: 6px 8px;
         border-radius: 0 8px 8px 8px;
-        margin-bottom: 10px;
         color: var(--label-primary);
         font-size: 14px;
         line-height: 1.4;
@@ -190,12 +201,15 @@ const scrollToBottom = async () => {
             border-radius: 8px 0 8px 8px;
             color: var(--label-secondary);
         }
+
+        &:not(:last-child) {
+            margin-bottom: 10px;
+        }
     }
 }
 .bottom {
     display: flex;
-    align-items: center;
-    align-items: center;
+    align-items: flex-end;
 
     &__btn {
         margin-left: 10px;

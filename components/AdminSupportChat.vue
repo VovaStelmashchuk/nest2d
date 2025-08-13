@@ -28,8 +28,8 @@
             </div>
         </UiScrollbar>
         <div class="chat__footer footer">
-            <InputField placeholder="Type your message..." class="footer__input" v-model="newMessage"
-                @keyup.enter="sendMessage" :isDisable="!isConnected" />
+            <InputField tag="textarea" placeholder="Type your message..." class="footer__input" v-model="newMessage"
+                @keydown="handleKeyDown" :isDisable="!isConnected" />
             <MainButton :theme="themeType.primary" :isDisable="!newMessage.trim() || !isConnected" @click="sendMessage"
                 label="Send" class="footer__btn" />
         </div>
@@ -60,6 +60,17 @@ const error = ref(null)
 const isConnected = ref(false)
 const messagesContainer = ref(null)
 let eventSource = null
+
+const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+        if (event.shiftKey) {
+            return 
+        } else {
+            event.preventDefault()
+            sendMessage()
+        }
+    }
+}
 
 const connectToChat = () => {
     try {
@@ -208,6 +219,10 @@ onUnmounted(() => {
 
     &__item {
         max-width: 70%;
+
+        &:not(:last-child) {
+            margin-bottom: 10px;
+        }
     }
 }
 
@@ -217,7 +232,6 @@ onUnmounted(() => {
     color: var(--label-secondary);
     font-size: 14px;
     line-height: 1.4;
-    margin-bottom: 10px;
     padding: 6px 8px;
     margin-left: auto;
 
@@ -263,7 +277,7 @@ onUnmounted(() => {
 
 .footer {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
 
     &__input {
