@@ -1,16 +1,16 @@
 <template>
     <div 
-        :class="prodjectClasses"
-        class="prodject"
+        :class="projectClasses"
+        class="project"
     >
         <NuxtLink 
             :to="`/project/${project.slug}`"
             @click="getProject(API_ROUTES.PROJECT(project.slug))"
-            class="prodject__label"
+            class="project__label"
         >
             {{ project.name }}
         </NuxtLink>
-        <div class="prodject__info info">
+        <div class="project__info info">
             <p class="info__time">
                 {{ timeAgo }}
             </p>
@@ -21,7 +21,7 @@
                 {{ resultsLabel }}
             </p>
         </div>
-        <!-- <div class="prodject__btn">
+        <!-- <div class="project__btn">
             <MainButton 
                 :label="`delete ${project.name}`"
                 :size="sizeType.s"
@@ -52,8 +52,8 @@ const now = ref(new Date())
 const { actions } = filesStore;
 const { getProject } = actions;
 
-const prodjectClasses = computed(() => ({
-    'prodject--active': unref(project).slug === route.params.slug
+const projectClasses = computed(() => ({
+    'project--active': unref(project).slug === route.params.slug
 }))
 const timeAgo = computed(() => {
     const past = new Date(project.createdAt);
@@ -97,7 +97,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-.prodject {
+.project {
     $self: &;
 
     color: var(--label-tertiary);
