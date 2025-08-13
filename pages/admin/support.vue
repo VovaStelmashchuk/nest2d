@@ -68,7 +68,10 @@ const handleBack = () => {
         }
     }
     &__chat {
+        width: 100%;
+
         @media (min-width: 568px) {
+            width: initial;
             flex: 1 1 0;
             margin-left: 8px;
         }
