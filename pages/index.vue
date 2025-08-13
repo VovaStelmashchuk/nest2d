@@ -61,15 +61,15 @@
                 <div 
                     v-for="(howItWorksItem, howItWorksIdex) in howItWorks.list" 
                     :key="howItWorksItem.title"
-                    class="works-list__item"
+                    class="works-list__item works-list-item"
                 >
-                    <span class="works-list__number">
+                    <span class="works-list-item__number">
                         {{ ++howItWorksIdex }}
                     </span>
-                    <h4 class="works-list__title title">
+                    <h4 class="works-list-item__title title">
                         {{ howItWorksItem.title }}
                     </h4>
-                    <p class="works-list__text">
+                    <p class="works-list-item__text">
                         {{ howItWorksItem.text }}
                     </p>
                 </div>
@@ -99,13 +99,14 @@
             <div class="faq__list faq-list">
                 <div 
                     :key="faqItem.title"
-                    v-for="faqItem in faq.list" 
+                    v-for="(faqItem, index) in faq.list" 
                     class="faq-list__item"
+                    @click="updateActiveFaqList(index)"
                 >
-                    <h4 class="faq-list__title title">
+                    <h4 :class="{'faq-list__title--active': activeFaqList === index}" class="faq-list__title title">
                         {{ faqItem.title }}
                     </h4>
-                    <p>
+                    <p :class="{'faq-list__text--active': activeFaqList === index}" class="faq-list__text">
                         {{ faqItem.firstPart }}
                         <a  
                             v-if="faqItem.link"
@@ -147,6 +148,11 @@ const openModal = (screenshot) => {
     setModalScreenshotData(screenshot)
     screenshotDialog.value = true
 }
+const activeFaqList = ref(0)
+
+const updateActiveFaqList = (index) => {
+    activeFaqList.value = index
+}
 </script>
 <style lang="scss" scoped>
 
@@ -158,24 +164,43 @@ const openModal = (screenshot) => {
     line-height: 1.4;
     text-align: center;
     color: var(--label-secondary);
-    font-size: 18px;
+    font-size: 14px;
 
+    @media (min-width: 568px) {  
+        font-size: 18px;
+    }
     &>* {
-        padding: 1rem;
-        margin: 1rem;
+        margin: 0.5rem;
+
+        @media (min-width: 568px) {  
+            padding: 1rem;
+            margin: 1rem;
+        }
     }
 }
 
 .title {
     color: var(--accent-primary);
     font-weight: 700;
-    font-size: 20px;
+    font-size: 16px;
+
+    @media (min-width: 568px) {
+        font-size: 20px;
+    }
 
     &--medium {
-        font-size: 2rem;
+        font-size: 1.5rem;
+
+        @media (min-width: 568px) {
+            font-size: 2rem;
+        }
     }
     &--large {
-        font-size: 2.25rem;
+        font-size: 1.75rem;
+
+        @media (min-width: 568px) {
+            font-size: 2.25rem;
+        }
     }
 }
 
@@ -197,9 +222,18 @@ const openModal = (screenshot) => {
 
 .features-list {
     display: grid;
-    gap: 32px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    grid-template-columns: repeat(1, 1fr);
     text-align: left;
+
+    @media (min-width: 568px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+    @media (min-width: 1199px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 32px;
+    }
 
     &__card {
         border: 1px solid var(--separator-secondary); 
@@ -212,14 +246,26 @@ const openModal = (screenshot) => {
 }
 .screenshots {
     &__list {
-        margin-top: 32px;
+        margin-top: 16px;
+
+        @media (min-width: 568px) {
+            margin-top: 32px;
+        }
     }
 }
 .screenshots-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     display: grid;
-    gap: 32px;
+    gap: 16px;
+    grid-template-columns: repeat(1, 1fr);
 
+    @media (min-width: 568px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+    @media (min-width: 1199px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 32px;
+    }
     &__btn {
         border-radius: 16px;
         overflow: hidden;
@@ -235,15 +281,33 @@ const openModal = (screenshot) => {
 }
 .works {
     &__list {
-        margin-top: 32px;
+        margin-top: 16px;
+
+        @media (min-width: 568px) {
+            margin-top: 32px;
+        }
     }
 }
 .works-list {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     
     &__item {
-        flex-basis: calc(100% / 3);
+        flex-basis: 100%;
+
+        @media (min-width: 568px) {
+            flex-basis: calc(100% / 2);
+        }
+        @media (min-width: 1199px) {
+            flex-basis: calc(100% / 3);
+        }
     }
+    
+}
+
+.works-list-item {
+    padding: 10px;
     &__number {
         color: var(--accent-primary);
         width: 64px;
@@ -280,7 +344,11 @@ const openModal = (screenshot) => {
         margin-top: 2px;
     }
     &__list {
-        margin-top: 32px;
+        margin-top: 16px;
+
+        @media (min-width: 568px) {
+            margin-top: 32px;
+        }
     }
 }
 .faq-list {
@@ -292,6 +360,25 @@ const openModal = (screenshot) => {
     &__link {
         color: var(--accent-primary);
         text-decoration: underline;
+    }
+    &__title {
+        cursor: pointer;
+        
+        &--active {
+            pointer-events: none;
+            
+            &::before {
+                content: '• ';
+            }
+        }
+    }
+    &__text {
+        margin-top: 8px;
+        display: none;
+
+        &--active {
+            display: block;
+        }
     }
 }
 </style>

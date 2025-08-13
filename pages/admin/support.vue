@@ -43,7 +43,7 @@ const handleBack = () => {
 <style lang="scss" scoped>
 .support {
     display: flex;
-    height: calc(100vh - 290px);
+    height: calc(100vh - 260px);
     min-height: 391px;
 
     @media (min-width: 568px) {
