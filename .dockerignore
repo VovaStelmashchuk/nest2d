@@ -26,3 +26,5 @@ logs
 .secret.json
 
 workers
+
+.mongo-data
