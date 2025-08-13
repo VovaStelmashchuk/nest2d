@@ -156,16 +156,17 @@ const themeIcon = computed(() => {
 .header {
     display: flex;
     justify-content: space-between;
-    padding: 16px 10px;
+    padding: 12px 8px;
 
     @media (min-width: 568px) {
         align-items: center;
+        padding: 16px 10px;
     }
 
     &__wrapper {
         display: flex;
         align-items: flex-end;
-        flex-direction: column-reverse;
+        flex-direction: column;
 
         &>*:not(:first-child) {
             margin-bottom: 8px;
@@ -182,10 +183,17 @@ const themeIcon = computed(() => {
         }
     }
     &__theme {
-        display: flex;
+        margin-bottom: 8px;
+        @media (min-width: 568px) {
+            margin-bottom: initial;
+        }
+    }
 
-        &>*:not(:first-child) {
-            margin-left: 2px;
+    &__avatar {
+        order: -1;
+
+        @media (min-width: 568px) {
+            order: initial;
         }
     }
     &__nav {

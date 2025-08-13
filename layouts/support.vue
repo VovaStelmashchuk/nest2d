@@ -31,9 +31,14 @@ const supportDialog = useSupportDialog();
     }
     &__content {
         flex-grow: 1;
-        margin: 40px auto;
+        margin: 8px auto;
         max-width: 1300px;
         width: 100%;
+
+        @media (min-width: 568px) {
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
     }
     &__line {
         position: relative;

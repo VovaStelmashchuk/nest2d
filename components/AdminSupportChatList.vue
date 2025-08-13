@@ -258,10 +258,30 @@ $message: '.message';
     display: flex;
     align-items: center;
 
+    @media (min-width: 568px) {
+        flex-direction: column;
+    }
+    
+    @media (min-width: 1199px) {
+        flex-direction: row;
+    }
+
     &__avatar {
+        flex-shrink: 0;
         width: 40px;
         height: 40px;
         border-radius: 50%;
+        margin-right: 24px;
+        
+        @media (min-width: 568px) {
+            margin-bottom: 8px;
+            margin-right: initial;
+        }
+
+        @media (min-width: 1199px) {
+            margin-bottom: initial;
+            margin-right: 24px;
+        }
     }
 
     &__details {
@@ -275,7 +295,8 @@ $message: '.message';
         margin-bottom: 8px;
     }
 
-    &__id {     
+    &__id {
+        word-break: break-word;
         transition: color .3s;
         font-size: 12px;
         color: var(--label-tertiary);
@@ -284,7 +305,6 @@ $message: '.message';
 
 .avatar {
     font-weight: 600;
-    margin-right: 24px;
     display: flex;
     align-items: center;
     justify-content: center;

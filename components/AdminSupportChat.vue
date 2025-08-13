@@ -1,10 +1,8 @@
 <template>
     <div class="chat">
         <div class="chat__header header">
-            <div class="header__wrapper">
-                <MainTitle label="Support Chat" class="header__title" />
-                <span class="header__id">User ID: {{ userId }}</span>
-            </div>
+            <MainTitle label="Support Chat" class="header__title" />
+            <span class="header__id">User ID: {{ userId }}</span>
         </div>
         <UiScrollbar ref="messagesContainer" class="chat__messages messages">
             <div v-if="loading" class="chat__loading loading">
@@ -28,6 +26,14 @@
             </div>
         </UiScrollbar>
         <div class="chat__footer footer">
+            <MainButton
+                :theme="themeType.primary"
+                :icon="iconType.arrowPrev"
+                :isLabelShow="false"
+                @click="$emit('back')"
+                label="Send" 
+                class="footer__back" 
+            />
             <InputField tag="textarea" placeholder="Type your message..." class="footer__input" v-model="newMessage"
                 @keydown="handleKeyDown" :isDisable="!isConnected" />
             <MainButton :theme="themeType.primary" :isDisable="!newMessage.trim() || !isConnected" @click="sendMessage"
@@ -43,6 +49,7 @@
 
 <script setup>
 import { themeType } from '~~/constants/theme.constants'
+import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from "~~/constants/size.constants"
 import { nextTick } from 'vue';
 
@@ -201,15 +208,13 @@ onUnmounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    &__wrapper {
-        display: flex;
-        align-items: center;
-    }
+    flex-wrap: wrap;
 
     &__id {
         color: var(--label-primary);
-        margin-left: 100px;
+    }
+    &__title {
+        margin-right: 20px;
     }
 }
 
@@ -286,6 +291,14 @@ onUnmounted(() => {
 
     &__btn {
         margin-left: 10px;
+    }
+
+    &__back {
+        margin-right: 10px;
+
+        @media (min-width: 568px) {
+            display: none;
+        }
     }
 }
 </style>
