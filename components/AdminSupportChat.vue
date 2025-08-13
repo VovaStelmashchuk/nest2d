@@ -20,7 +20,7 @@
             >
                 <div v-for="message in messages" :key="message._id"
                     class="message-list__item message"
-                    :class="[message.sender === 'admin' ? '' : 'message--is-user']"
+                    :class="[message.sender === 'support' ? '' : 'message--is-user']"
                 >
                     <p>{{ message.message }}</p>
                     <span class="message__time">{{ formatTime(message.timestamp) }}</span>
@@ -219,7 +219,6 @@ onUnmounted(() => {
     line-height: 1.4;
     margin-bottom: 10px;
     padding: 6px 8px;
-    text-align: right;
     margin-left: auto;
 
     &--is-user {

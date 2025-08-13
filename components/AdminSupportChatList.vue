@@ -59,7 +59,6 @@
 </template>
 
 <script setup>
-// import { NuxtIslandSlotResponse } from 'nuxt/dist/core/runtime/nitro/utils/renderer/islands'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { sizeType } from "~~/constants/size.constants"
 import { themeType } from '~~/constants/theme.constants'
@@ -75,8 +74,6 @@ const emit = defineEmits(['select-chat'])
 const connectToChatList = () => {
     try {
         loading.value = true
-        // error.value = NuxtIslandSlotResponse
-
         eventSource = new EventSource('/api/support/admin/chatlist')
         eventSource.onopen = () => {
             
