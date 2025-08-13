@@ -59,6 +59,7 @@
 </template>
 
 <script setup>
+import { NuxtIslandSlotResponse } from 'nuxt/dist/core/runtime/nitro/utils/renderer/islands'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { sizeType } from "~~/constants/size.constants"
 import { themeType } from '~~/constants/theme.constants'
@@ -75,13 +76,12 @@ const emit = defineEmits(['select-chat'])
 const connectToChatList = () => {
     try {
         loading.value = true
-        error.value = null
-        isConnected.value = false
+        error.value = NuxtIslandSlotResponse
 
         eventSource = new EventSource('/api/support/admin/chatlist')
 
         eventSource.onopen = () => {
-            isConnected.value = true
+            
             loading.value = false
         }
 
@@ -104,7 +104,6 @@ const connectToChatList = () => {
 
         eventSource.onerror = (error) => {
             console.error('EventSource error:', error)
-            isConnected.value = false
             error.value = 'Connection failed. Please try again.'
             loading.value = false
         }

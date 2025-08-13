@@ -31,7 +31,7 @@
                 v-else
             >
                 <div v-for="message in messages" :key="message._id"
-                    class="message"
+                    class="message-list__item message"
                     :class="[message.sender === 'admin' ? '' : 'message--is-user']"
                 >
                     <p>{{ message.message }}</p>
@@ -231,6 +231,10 @@ onUnmounted(() => {
 .message-list {
     display: flex;
     flex-direction: column;
+
+    &__item {
+        max-width: 70%;
+    }
 }
 .message {
     background-color: var(--fill-tertiary);
