@@ -1,14 +1,16 @@
 <template>
     <MainAside 
         label="Projects"
+        @closeAside="$emit('closeAside')"
         :btnLabel="btnLabelValue"
-        @btnClick="createNewProdject"
+        @btnClick="createNewProject"
     >
         <div  
             v-if="projectsList.length"
             class="projects"
         >
             <UserProjectItem
+                @click="$emit('closeAside')"
                 v-for="project in projectsList"
                 :key="project.slug"
                 :project="project"
@@ -45,7 +47,12 @@ const btnLabelValue = computed(() => {
     return route.name === 'home' ? '' : 'New project'
 }) 
 
-const createNewProdject = () => router.push({ name: 'home' })
+const emit = defineEmits(["closeAside"]);
+
+const createNewProject = () => {
+    emit('closeAside');
+    router.push({ name: 'home' })
+}
 </script>
     
 <style lang="scss" scoped>

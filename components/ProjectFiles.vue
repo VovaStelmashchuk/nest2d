@@ -58,8 +58,13 @@ const openModal = (file) => {
 <style lang="scss" scoped>
 .files {
     display: grid;
-    grid-template-columns: repeat(3, calc(100% / 3 - 8px));
-    gap: 8px;
+    grid-template-columns: repeat(2, calc(100% / 2 - 4px));
+    gap: 4px;
+
+    @media (min-width: 567px) {
+        grid-template-columns: repeat(3, calc(100% / 3 - 8px));
+        gap: 8px;
+    }
 }
 .file {
     position: relative;

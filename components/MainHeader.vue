@@ -34,7 +34,7 @@
                 class="nav__background"
             />
         </nav>
-        <div class="header__wrapper">
+        <div :class="{'header__wrapper--is-primary': isPrimaryTheme}" class="header__wrapper">
             <div class="header__theme">
                 <MainButton 
                     :theme="themeType.primary"
@@ -52,22 +52,21 @@
                 class="header__btn"
                 v-if="isSecondaryTheme"
             />
-            <UserBalance class="header__btn" v-if="!isSecondaryTheme" />
+            <UserBalance class="header__btn" v-if="isPrimaryTheme" />
             <MainButton
                 v-if="isSecondaryTheme"
                 :theme="themeType.primary"
                 @click="loginDialog = true"
                 label="Login / Sign Up"
-                class="header__btn"
+                class="header__btn header__btn--login"
             />
             <Avatar
                 v-if="isPrimaryTheme"
                 :size="sizeType.s"
                 class="header__avatar"
             />
-            <div class="header__toggler">
+            <div v-if="isSecondaryTheme" class="header__toggler">
                 <MainButton 
-                    v-if="isSecondaryTheme"
                     :theme="themeType.secondary"
                     :icon="iconType.menu"
                     :isLabelShow=false
@@ -154,38 +153,62 @@ const themeIcon = computed(() => {
 </script>
 <style lang="scss" scoped>
 .header {
+    position: relative;
     display: flex;
     justify-content: space-between;
-    padding: 16px 10px;
+    padding: 12px 8px;
+    flex-direction: column;
 
-    @media (min-width: 568px) {
+    @media (min-width: 567px) {
+        flex-direction: row;
         align-items: center;
+        padding: 16px 10px;
     }
 
     &__wrapper {
+        margin-top: 16px;
         display: flex;
-        align-items: flex-end;
-        flex-direction: column-reverse;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        align-items: center;
 
         &>*:not(:first-child) {
-            margin-bottom: 8px;
+            margin: 4px;
 
-            @media (min-width: 568px) {
-                margin-left: 16px;
-                margin-bottom: initial
+            @media (min-width: 567px) {
+                margin: 0 0 0 16px;
             }
         }
 
-        @media (min-width: 568px) {
-            align-items: center;
-            flex-direction: initial
+        @media (min-width: 567px) {
+            flex-direction: initial;
+            margin-top: initial;
+        }
+
+        &--is-primary {
+            flex-direction: row-reverse;
+            justify-content: space-between;
+
+            @media (min-width: 567px) {
+                flex-direction: initial
+            }
         }
     }
     &__theme {
-        display: flex;
+        @media (min-width: 567px) {
+            margin-bottom: initial;
+        }
+    }
 
-        &>*:not(:first-child) {
-            margin-left: 2px;
+    &__avatar {
+        position: absolute;
+            top: 8px;
+            right: 4px;
+
+        @media (min-width: 567px) {
+            position: initial;
+            top: initial;
+            right: initial;
         }
     }
     &__nav {
@@ -218,6 +241,19 @@ const themeIcon = computed(() => {
     &__toggler {
         @media (min-width: 1199px) {
             display: none;
+        }
+    }
+    &__btn {
+        &--login {
+            position: absolute;
+            top: 8px;
+            right: 4px;
+
+            @media (min-width: 567px) {
+                position: initial;
+                top: initial;
+                right: initial;
+            }
         }
     }
 }

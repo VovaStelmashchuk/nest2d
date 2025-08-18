@@ -18,8 +18,12 @@ logs
 .fleet
 .idea
 
-# Secrets
+# Local env files
 .env
+.env.*
+!.env.example
+
+.mongo-data
 
 .secret.json
 .prod-secret.json

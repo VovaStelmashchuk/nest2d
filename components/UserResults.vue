@@ -1,5 +1,5 @@
 <template>
-    <MainAside label="Results">
+    <MainAside @closeAside="$emit('closeAside')" :label="isHomePage ? 'All results' : 'Results'">
         <div 
             v-if="getters.resultsList.length"    
             class="results"
@@ -64,6 +64,10 @@ const openModal = (result) => {
     setModalResultData(result)
     resultDialog.value = true
 }
+
+const isHomePage = computed(() => {
+    return route.path === '/home'
+})
 
 onBeforeUnmount(() => {
     if (unref(eventSource)) {

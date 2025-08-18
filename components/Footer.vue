@@ -45,11 +45,12 @@
 
 <style lang="scss" scoped>
 .footer {
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 16px;
-    padding-bottom: 16px;
+    padding: 12px 8px;
     background-color: var(--main-black);
+
+    @media (min-width: 567px) {
+        padding: 16px 10px;
+    }
     &__content {
         max-width: 1300px;
         margin-right: auto;
@@ -70,8 +71,10 @@
     }
 }
 .content {
-    padding-right: 10px;
-    padding-left: 10px;
+    @media (min-width: 567px) {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
     @media (min-width: 1199px) {
         display: flex;
         align-items: center;
@@ -79,14 +82,18 @@
     }
 }
 .list {
-    @media (min-width: 568px) {
-        display: flex;
+    display: flex;
+    flex-wrap: wrap;
+    @media (min-width: 567px) {
     }
     &__item {
-        &:not(:last-child) {
-            margin-bottom: 10px;
+        margin: 8px;
 
-            @media (min-width: 568px) {
+        @media (min-width: 567px) {
+            margin: initial;
+        }
+        &:not(:last-child) {
+            @media (min-width: 567px) {
                 margin-right: 40px;
                 margin-bottom: initial;
             }
@@ -100,7 +107,7 @@
         transition: opacity 0.3s;
         opacity: 0.7;
 
-        @media (min-width: 568px) {
+        @media (min-width: 567px) {
             text-align: initial;
         }
 

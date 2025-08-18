@@ -31,6 +31,7 @@
                     </div>
                     <div class="chats-item__message message">
                         <div class="message__text">{{ chat.lastMessage }}</div>
+                        <div class="message__time">{{ getTimeAgo(chat.timestamp) }}</div>
                     </div>
                 </div>
             </div> 
@@ -66,7 +67,6 @@ import { themeType } from '~~/constants/theme.constants'
 const chatList = ref([])
 const loading = ref(true)
 const error = ref(null)
-const isConnected = ref(false)
 const selectedUserId = ref(null)
 let eventSource = null
 
@@ -75,13 +75,9 @@ const emit = defineEmits(['select-chat'])
 const connectToChatList = () => {
     try {
         loading.value = true
-        error.value = null
-        isConnected.value = false
-
         eventSource = new EventSource('/api/support/admin/chatlist')
-
         eventSource.onopen = () => {
-            isConnected.value = true
+            
             loading.value = false
         }
 
@@ -104,7 +100,6 @@ const connectToChatList = () => {
 
         eventSource.onerror = (error) => {
             console.error('EventSource error:', error)
-            isConnected.value = false
             error.value = 'Connection failed. Please try again.'
             loading.value = false
         }
@@ -139,6 +134,20 @@ const letterToBg = (letter) => {
     const hexValue = parseInt(value).toString(16)
 
     return `#${hexValue.padStart(6, '0').substring(0, 6)}`
+}
+
+const getTimeAgo = (timestamp) => {
+    const now = new Date();
+    const diff = now - new Date(timestamp);
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days}d ago`;
+    if (hours > 0) return `${hours}h ago`;
+    if (minutes > 0) return `${minutes}m ago`;
+    return `${seconds}s ago`;
 }
 </script>
 
@@ -213,6 +222,9 @@ $message: '.message';
         #{$message}__text {
             color: var(--label-primary);
         }
+        #{$message}__time {
+            color: var(--label-secondary);
+        }
     }
 
     &.active {
@@ -232,6 +244,9 @@ $message: '.message';
         #{$message}__text {
             color: var(--label-primary);
         }
+        #{$message}__time {
+            color: var(--label-secondary);
+        }
     }
 
     &__message {
@@ -243,10 +258,30 @@ $message: '.message';
     display: flex;
     align-items: center;
 
+    @media (min-width: 567px) {
+        flex-direction: column;
+    }
+
+    @media (min-width: 1199px) {
+        flex-direction: row;
+    }
+
     &__avatar {
+        flex-shrink: 0;
         width: 40px;
         height: 40px;
         border-radius: 50%;
+        margin-right: 24px;
+        
+        @media (min-width: 567px) {
+            margin-bottom: 8px;
+            margin-right: initial;
+        }
+
+        @media (min-width: 1199px) {
+            margin-bottom: initial;
+            margin-right: 24px;
+        }
     }
 
     &__details {
@@ -260,7 +295,8 @@ $message: '.message';
         margin-bottom: 8px;
     }
 
-    &__id {     
+    &__id {
+        word-break: break-word;
         transition: color .3s;
         font-size: 12px;
         color: var(--label-tertiary);
@@ -269,7 +305,6 @@ $message: '.message';
 
 .avatar {
     font-weight: 600;
-    margin-right: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -287,6 +322,12 @@ $message: '.message';
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        margin-bottom: 8px;
+    }
+    &__time {
+        transition: color .3s;
+        font-size: 12px;
+        color: var(--label-tertiary);
     }
 }
 

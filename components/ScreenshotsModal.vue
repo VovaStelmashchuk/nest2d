@@ -61,7 +61,13 @@ const updateScreenshot = (value) => {
 
 <style lang="scss" scoped>
 .modal {
-    padding: 48px 24px 24px;
+    padding: 48px 12px 12px;
+
+    @media (min-width: 567px) {
+        padding-left: 24px;
+        padding-bottom: 24px;
+        padding-right: 24px;
+    }
     &__wrapper {
         position: relative;
         border: 1px solid var(--separator-secondary);
@@ -71,8 +77,13 @@ const updateScreenshot = (value) => {
     &__display {
         object-fit: contain;
         width: 100%;
-        max-width: calc(80vw - 48px);
-        max-height: calc(80vh - 72px);
+        max-width: calc(90vw - 24px);
+        max-height: calc(90vh - 36px);
+
+        @media (min-width: 567px) {
+            max-width: calc(80vw - 48px);
+            max-height: calc(80vh - 72px);  
+        }
     }
 
     &__controls {

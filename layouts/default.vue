@@ -30,9 +30,14 @@ import { themeType } from '~~/constants/theme.constants';
     }
     &__content {
         flex-grow: 1;
-        margin: 40px auto;
+        margin: 20px auto;
         max-width: 1300px;
         width: 100%;
+
+        @media (min-width: 567px) {
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
     }
     &__line {
         position: relative;
