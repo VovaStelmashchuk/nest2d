@@ -63,7 +63,7 @@ const handleBack = () => {
             display: none;
 
             @media (min-width: 567px) {
-                display: block;
+                display: flex;
             }
         }
     }

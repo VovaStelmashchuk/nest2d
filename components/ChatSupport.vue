@@ -61,8 +61,6 @@ const messagesContainer = ref(null)
 const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
         if (event.shiftKey) {
-            return 
-        } else {
             event.preventDefault()
             sendMessage()
         }
