@@ -1,0 +1,5 @@
+ezdxf==1.4.0
+pymongo==4.11.1
+python-dotenv==1.1.1
+Pillow==10.4.0
+matplotlib==3.10.5

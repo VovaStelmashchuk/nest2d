@@ -13,18 +13,30 @@ export default defineNitroPlugin(async (nitroApp) => {
 
       const thresholdTime = new Date(Date.now() - interval);
 
-      const updateResult = await db.collection("user_dxf_files").updateMany(
+      await db.collection("user_dxf_files").updateMany(
         {
           processingStatus: "processing",
           update_ts: { $lte: thresholdTime }
         },
         {
-          $set: { processingStatus: "pending" }
+          $set: {
+            processingStatus: "pending"
+          }
         }
       );
-      logger.info("Status controller plugin updated", {
-        updateResult
-      });
+
+      await db.collection("nesting_jobs").updateMany(
+        {
+          processingStatus: "processing",
+          update_ts: { $lte: thresholdTime }
+        },
+        {
+          $set: {
+            processingStatus: "pending"
+          }
+        }
+      );
+
     } catch (error) {
       logger.error('Error in nest-notify plugin:', error);
     }
