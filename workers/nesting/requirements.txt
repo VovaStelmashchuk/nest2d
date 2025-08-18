@@ -1,5 +1,7 @@
 ezdxf==1.4.0
 pymongo==4.11.1
+shapely==2.0.7
 python-dotenv==1.1.1
 Pillow==10.4.0
 matplotlib==3.10.5
+numpy>=1.21.0

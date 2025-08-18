@@ -1,0 +1,100 @@
+{
+  "basic_examples": {
+    "Project A": {
+      "problem_type": "strip_packing",
+      "strip_width": 600.0,
+      "tolerance": 0.1,
+      "space": 2.0,
+      "parts_count": 3,
+      "solution": {
+        "placed_parts": [
+          {
+            "id": "gear_1",
+            "x": 0.0,
+            "y": 0.0,
+            "rotation": 0.0,
+            "width": 50,
+            "height": 50
+          },
+          {
+            "id": "bracket_1",
+            "x": 52.0,
+            "y": 0.0,
+            "rotation": 0.0,
+            "width": 80,
+            "height": 30
+          },
+          {
+            "id": "plate_1",
+            "x": 134.0,
+            "y": 0.0,
+            "rotation": 0.0,
+            "width": 100,
+            "height": 20
+          }
+        ],
+        "total_length": 50,
+        "utilization": 0.23
+      }
+    },
+    "Project B": {
+      "problem_type": "bin_packing",
+      "bin_width": 600.0,
+      "bin_height": 400.0,
+      "tolerance": 0.1,
+      "space": 3.0,
+      "parts_count": 3,
+      "solution": {
+        "placed_parts": [
+          {
+            "id": "panel_a",
+            "x": 0.0,
+            "y": 0.0,
+            "rotation": 0.0,
+            "width": 200,
+            "height": 150
+          },
+          {
+            "id": "panel_b",
+            "x": 203.0,
+            "y": 0.0,
+            "rotation": 0.0,
+            "width": 180,
+            "height": 120
+          },
+          {
+            "id": "small_part",
+            "x": 386.0,
+            "y": 0.0,
+            "rotation": 0.0,
+            "width": 60,
+            "height": 40
+          }
+        ],
+        "bins_used": 1,
+        "utilization": 0.225
+      }
+    }
+  },
+  "complex_example": {
+    "problem_type": "strip_packing",
+    "strip_width": 200.0,
+    "tolerance": 0.01,
+    "space": 1.0,
+    "parts_count": 1,
+    "solution": {
+      "placed_parts": [
+        {
+          "id": "complex_shape",
+          "x": 0.0,
+          "y": 0.0,
+          "rotation": 0.0,
+          "width": 100,
+          "height": 80
+        }
+      ],
+      "total_length": 80,
+      "utilization": 0.5
+    }
+  }
+}
