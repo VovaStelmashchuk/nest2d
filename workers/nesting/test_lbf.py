@@ -71,7 +71,7 @@ def test_lbf():
                 "shape": {
                   "type": "polygon",
                   "data": {
-                  "outer": [
+                    "outer": [
                       [0.0, 0.0],
                       [100.0, 0.0],
                       [100.0, 100.0],

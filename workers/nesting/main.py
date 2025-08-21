@@ -3,7 +3,7 @@ import traceback
 import threading
 import signal
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from utils.logger import setup_logger
 from utils.mongo import db
 from pymongo import ReturnDocument
@@ -30,7 +30,7 @@ def signal_handler(signum, frame):
             logger.info(f"Resetting current job {current_doc_id} to pending status")
             nesting_jobs.update_one(
                 {"_id": current_doc_id},
-                {"$set": {"processingStatus": "pending"}}
+                {"$set": {"status": "pending"}}
             )
             logger.info(f"Successfully reset job {current_doc_id} to pending")
         except Exception as e:
@@ -75,8 +75,8 @@ keepalive_thread.start()
 while not shutdown_requested:
     logger.info("Worker nesting try to find new files to process")
     doc = nesting_jobs.find_one_and_update(
-        {"processingStatus": "pending"},
-        {"$set": {"processingStatus": "processing"}},
+        {"status": "pending"},
+        {"$set": {"status": "processing"}},
         return_document=ReturnDocument.AFTER
     )
     
@@ -87,22 +87,44 @@ while not shutdown_requested:
     current_doc_id = doc["_id"]
     
     try:
+        start_at = datetime.now()
         nesting_jobs.update_one(
             {"_id": current_doc_id },
-            {"$set": {"update_ts": datetime.now()}}
+            {
+                "$set": {
+                    "update_ts": datetime.now(),
+                    "startAt": start_at,
+                },
+            },
         )
+        
         nesting_process(doc)
+        
+        time_taken = datetime.now() - start_at
+        import math
+        time_taken_minutes = math.ceil(time_taken.total_seconds() / 60)
         
         nesting_jobs.update_one(
             {"_id": current_doc_id},
-            {"$set": {"processingStatus": "done"}}
+            {
+                "$set": {
+                    "status": "done",
+                    "finishedAt": datetime.now(),
+                    "update_ts": datetime.now(),
+                    "timeTaken": time_taken_minutes
+                }
+            }
         )
     except Exception as e:
         logger.error("Error in project processing", extra={"error": str(e), "traceback": traceback.format_exc()})
         nesting_jobs.update_one(
             {"_id": current_doc_id},
-            {"$set": {"processingStatus": "error",
-                      "processingError": str(e)}}
+            {"$set": {
+                "status": "error",
+                "error": str(e),
+                "update_ts": datetime.now(),
+                "finishedAt": datetime.now()
+            }}
         )
     finally:
         current_doc_id = None

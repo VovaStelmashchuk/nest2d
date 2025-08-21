@@ -26,3 +26,7 @@ valid_dxf_bucket = gridfs.GridFSBucket(db, bucket_name="validDxf")
 
 user_dxf_files_svg_bucket = gridfs.GridFSBucket(db, bucket_name="userDxfFilesSvg")
 
+
+svg_result_bucket = gridfs.GridFSBucket(db, bucket_name="nestSvg")
+dxf_result_bucket = gridfs.GridFSBucket(db, bucket_name="nestDxf")
+
