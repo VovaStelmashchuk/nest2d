@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   app:
-    image: ghcr.io/${MAIN_APP_IMAGE_NAME}:${GIT_COMMIT_HASH:-latest}
+    image: ghcr.io/vovastelmashchuk/main-app:${GIT_COMMIT_HASH:-latest}
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -27,7 +27,18 @@ services:
       - infra_mongo
 
   user-file-processing-worker:
-    image: ghcr.io/${USER_FILE_PROCESSING_WORKER_IMAGE_NAME}:${GIT_COMMIT_HASH:-latest}
+    image: ghcr.io/vovastelmashchuk/user-file-processing-worker:${GIT_COMMIT_HASH:-latest}
+    environment:
+      - MONGO_URI=${MONGO_URI}
+    deploy:
+      replicas: ${WORKERS_REPLICAS}
+      update_config:
+        order: start-first
+    networks:
+      - infra_mongo
+
+  nesting-worker:
+    image: ghcr.io/vovastelmashchuk/nesting-worker:${GIT_COMMIT_HASH:-latest}
     environment:
       - MONGO_URI=${MONGO_URI}
     deploy:
@@ -44,6 +55,7 @@ secrets:
     external: true
   nest2d_github_client_secret:
     external: true
+
 networks:
   infra_reverse-proxy:
     external: true

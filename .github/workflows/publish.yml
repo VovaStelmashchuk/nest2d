@@ -9,8 +9,6 @@ env:
   REGISTRY: ghcr.io
   DOCKER_STACKE_NAME: nest2d
   DEPLOY_USER: deploy
-  MAIN_APP_IMAGE_NAME: vovastelmashchuk/main-app
-  USER_FILE_PROCESSING_WORKER_IMAGE_NAME: vovastelmashchuk/user-file-processing-worker
   HOST: 167.235.52.168
 
 jobs:
@@ -25,6 +23,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: "true"
 
       - name: Log in to the Container registry
         uses: docker/login-action@v2
@@ -39,8 +39,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.MAIN_APP_IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.MAIN_APP_IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/vovastelmashchuk/main-app:latest
+            ${{ env.REGISTRY }}/vovastelmashchuk/main-app:${{ github.sha }}
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
 
@@ -50,8 +50,19 @@ jobs:
           context: ./workers/fileprocessing
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.USER_FILE_PROCESSING_WORKER_IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.USER_FILE_PROCESSING_WORKER_IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/vovastelmashchuk/user-file-processing-worker:latest
+            ${{ env.REGISTRY }}/vovastelmashchuk/user-file-processing-worker:${{ github.sha }}
+          build-args: |
+            GIT_COMMIT_SHA=${{ github.sha }}
+      
+      - name: Build and push nesting jagua-rs image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./workers/nesting/jagua-rs
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/vovastelmashchuk/nesting-worker:latest
+            ${{ env.REGISTRY }}/vovastelmashchuk/nesting-worker:${{ github.sha }}
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
 
@@ -66,8 +77,6 @@ jobs:
       - name: Create env file
         run: |
           echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
-          echo "MAIN_APP_IMAGE_NAME=${{ env.MAIN_APP_IMAGE_NAME }}" >> ./envfile
-          echo "USER_FILE_PROCESSING_WORKER_IMAGE_NAME=${{ env.USER_FILE_PROCESSING_WORKER_IMAGE_NAME }}" >> ./envfile
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> ./envfile
           echo "WORKERS_REPLICAS=${{ vars.WORKERS_REPLICAS }}" >> ./envfile
 
