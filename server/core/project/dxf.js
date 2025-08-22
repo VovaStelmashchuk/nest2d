@@ -46,6 +46,7 @@ export async function saveFilesToProject(event, projectSlug, userId) {
       ownerId: userId,
       uploadAt: new Date(),
       flattening: 0.01,
+      worker_tag: "normal",
     };
 
     file_records.push(file_record);

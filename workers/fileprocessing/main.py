@@ -1,3 +1,4 @@
+import os
 import time
 import traceback
 import threading
@@ -72,10 +73,14 @@ def keep_alive_worker():
 keepalive_thread = threading.Thread(target=keep_alive_worker, daemon=True)
 keepalive_thread.start()
 
+woker_tag = os.environ.get("WORKER_TAG", "normal")
+
+logger.info("Worker file processing started with tag", extra={"tag": woker_tag})
+
 while not shutdown_requested:
     logger.info("Worker file processing try to find new files to process")
     doc = user_dxf_files.find_one_and_update(
-        {"processingStatus": "pending"},
+        {"processingStatus": "pending", "worker_tag": woker_tag },
         {"$set": {"processingStatus": "processing"}},
         return_document=ReturnDocument.AFTER
     )
@@ -91,12 +96,19 @@ while not shutdown_requested:
             {"_id": current_doc_id },
             {"$set": {"update_ts": datetime.now()}}
         )
-        process_file(doc)
+        result = process_file(doc)
         
-        user_dxf_files.update_one(
-            {"_id": current_doc_id},
-            {"$set": {"processingStatus": "completed"}}
-        )
+        if result:
+            user_dxf_files.update_one(
+                {"_id": current_doc_id},
+                {"$set": {"processingStatus": "completed"}}
+            )
+        else:
+            user_dxf_files.update_one(
+                {"_id": current_doc_id},
+                {"$set": {"processingStatus": "pending"}}
+            )
+            
     except Exception as e:
         logger.error("Error in project processing", extra={"error": str(e), "traceback": traceback.format_exc()})
         user_dxf_files.update_one(

@@ -37,12 +37,27 @@ services:
     networks:
       - infra_mongo
 
-  nesting-worker:
+  nesting-worker-normal:
     image: ghcr.io/vovastelmashchuk/nesting-worker:${GIT_COMMIT_HASH:-latest}
     environment:
       - MONGO_URI=${MONGO_URI}
+      - WORKER_TAG=normal
+      - MAX_ENTITY_LIMIT=999
     deploy:
       replicas: ${WORKERS_REPLICAS}
+      update_config:
+        order: start-first
+    networks:
+      - infra_mongo
+
+  nesting-worker-1k-entity-count:
+    image: ghcr.io/vovastelmashchuk/nesting-worker:${GIT_COMMIT_HASH:-latest}
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - WORKER_TAG=1k_entity_count
+      - MAX_ENTITY_LIMIT=999999
+    deploy:
+      replicas: 1
       update_config:
         order: start-first
     networks:

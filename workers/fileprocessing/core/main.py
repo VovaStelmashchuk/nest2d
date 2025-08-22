@@ -1,4 +1,5 @@
 import io
+import os
 from utils.logger import setup_logger
 from utils.mongo import user_dxf_bucket, valid_dxf_bucket, user_dxf_files_svg_bucket
 from dxf_utils import read_dxf
@@ -145,10 +146,13 @@ def _set_valid_entity_count(doc):
         }
     )
     
-    if entity_count > 5000:
-        raise Exception("Entity count is too high")
+    return entity_count
+
+max_entity_limit = int(os.environ.get("MAX_ENTITY_LIMIT", '999'))
 
 def process_file(doc):
+    _drawing_cache.clear()
+    
     start_time = time.time()
     logger = setup_logger("core_fileprocessing")
     logger.info("Processing file", extra={"doc": doc["slug"]})
@@ -156,7 +160,14 @@ def process_file(doc):
     _make_dxf_copy(doc)
     _make_svg_file(doc)
     
-    _set_valid_entity_count(doc)
+    entity_count = _set_valid_entity_count(doc)
+    
+    if entity_count > max_entity_limit:
+        db["user_dxf_files"].update_one(
+            {"_id": doc["_id"]},
+            {"$set": {"worker_tag": "1k_entity_count"}}
+        )
+        return False
     
     _close_polygon_from_dxf(doc, "dxf_polygonizer") 
     
@@ -174,8 +185,5 @@ def process_file(doc):
         }
     )
     
-    slug = doc["slug"]
-    
-    if slug in _drawing_cache:
-        del _drawing_cache[slug]
+    return True
     
