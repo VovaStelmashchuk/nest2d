@@ -30,7 +30,7 @@ class ClosedPolygon:
             'handles': self.handles
         }
 
-def merge_dxf_entities_into_polygons(dxf_entities: Iterable[DxfEntityGeometry], tolerance: float = 0.01) -> List[ClosedPolygon]:
+def merge_dxf_entities_into_polygons(dxf_entities: Iterable[DxfEntityGeometry], tolerance: float) -> List[ClosedPolygon]:
     result = []
     for dxf_entity in dxf_entities:
         area = dxf_entity.geometry.area
@@ -61,7 +61,7 @@ def merge_dxf_entities_into_polygons(dxf_entities: Iterable[DxfEntityGeometry], 
     return result
 
 
-def build_geometry(drawing: Drawing, tolerance: float = 0.01) -> List[ClosedPolygon]:
+def build_geometry(drawing: Drawing, tolerance: float) -> List[ClosedPolygon]:
     """
     Build geometry from DXF drawing with simple buffering.
     """

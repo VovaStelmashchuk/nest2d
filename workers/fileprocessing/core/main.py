@@ -140,6 +140,9 @@ def _set_valid_entity_count(doc):
             }
         }
     )
+    
+    if entity_count > 5000:
+        raise Exception("Entity count is too high")
 
 def process_file(doc):
     start_time = time.time()

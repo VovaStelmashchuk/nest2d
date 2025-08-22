@@ -64,7 +64,7 @@ def _flatten_entity(entity, tol: float):
 
     return pts, h
 
-def convert_entity_to_shapely(entity, tol: float = 0.01) -> DxfEntityGeometry | None:
+def convert_entity_to_shapely(entity, tol) -> DxfEntityGeometry | None:
     """
     Converts a single DXF entity to a Shapely geometry object.
     
@@ -95,5 +95,5 @@ def convert_entity_to_shapely(entity, tol: float = 0.01) -> DxfEntityGeometry | 
         else:
             shapely_geom = LineString(points)
     
-    return DxfEntityGeometry(geometry=shapely_geom.buffer(tol), handle=h)
+    return DxfEntityGeometry(geometry=shapely_geom, handle=h)
     

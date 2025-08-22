@@ -1,23 +1,11 @@
 <template>
     <teleport to="body">
-        <div
-            v-if="isModalOpen"
-            class="modal"
-        >
-            <div 
-                class="modal__background"
-                @click="closeModal"
-            ></div>
+        <div v-if="isModalOpen" class="modal">
+            <div class="modal__background" @click="closeModal"></div>
 
             <div class="modal__body modal-body">
-                <MainButton 
-                    label="close modal"
-                    :isLabelShow=false
-                    :size="sizeType.s"
-                    :icon="iconType.close"
-                    @click="closeModal"
-                    class="modal-body__close"
-                />
+                <MainButton label="close modal" :isLabelShow=false :size="sizeType.s" :icon="iconType.close"
+                    @click="closeModal" class="modal-body__close" />
                 <slot />
             </div>
         </div>
@@ -27,6 +15,7 @@
 <script setup>
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
+import { onMounted, onUnmounted } from 'vue';
 
 const { isModalOpen } = defineProps({
     isModalOpen: {
@@ -40,6 +29,20 @@ const emit = defineEmits(["update:isModalOpen"]);
 const closeModal = () => {
     emit("update:isModalOpen", false);
 }
+
+const handleKeydown = (event) => {
+    if (event.key === 'Escape' && isModalOpen) {
+        closeModal();
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeydown);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -65,6 +68,7 @@ const closeModal = () => {
         left: 0;
         background-color: var(--label-tertiary);
     }
+
     &__body {
         position: relative;
         z-index: 1;
@@ -74,6 +78,7 @@ const closeModal = () => {
         max-width: 94vw;
     }
 }
+
 .modal-body {
     &__close {
         position: absolute;

@@ -16,6 +16,7 @@ from ezdxf import xref
 import math
 import io
 from ezdxf.math import Matrix44
+from shapely.geometry import Polygon
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -42,7 +43,7 @@ class ResultContainer:
     def __str__(self) -> str:
         return f"ResultContainer -> Container(ID): {self.container_id}, Transforms: {self.transforms}"
     
-def convert_files_to_input_items(files):
+def convert_files_to_input_items(files, space):
     input_items = []
     id = 0
     for file in files:
@@ -55,10 +56,14 @@ def convert_files_to_input_items(files):
             coords = part.get("coordinates")
             handles = part.get("handles")
             
+            shapely_polygon = Polygon(coords)
+            buffered_polygon = shapely_polygon.buffer(space)
+            buffered_polygon_coords = list(buffered_polygon.exterior.coords)
+            
             item = {
                 'id': id,
                 'file_slug': file_slug,
-                'coords': coords,
+                'coords': buffered_polygon_coords,
                 'handles': handles,
                 'count': count
             }
@@ -123,7 +128,6 @@ def build_part(transforms):
     Creates a single new DXF drawing by fetching, transforming, and combining
     entities from a list of transform operations.
     """
-    # Create a new, empty drawing that will hold the combined result.
     new_doc = ezdxf.new()
     new_msp = new_doc.modelspace()
 
@@ -165,18 +169,25 @@ def build_part(transforms):
    
     return new_doc
 
+dxf_document_cache = {}
+
 def get_entities_from_dxf_file(dxf_file_slug, handles):
     """
     Opens a DXF file and returns the doc object and a list of entities 
     matching the given handles.
     """
-    entities = []
-    dxf_file = valid_dxf_bucket.open_download_stream_by_name(filename=dxf_file_slug)
-    doc = read_dxf(dxf_file)
+    if dxf_file_slug in dxf_document_cache:
+        doc = dxf_document_cache[dxf_file_slug]
+    else:
+        dxf_file = valid_dxf_bucket.open_download_stream_by_name(filename=dxf_file_slug)
+        doc = read_dxf(dxf_file)
+        dxf_document_cache[dxf_file_slug] = doc
+        
     msp = doc.modelspace()
     
     handle_set = set(handles)
     
+    entities = []
     for entity in msp:
         if entity.dxf.handle in handle_set:
             entities.append(entity)
@@ -185,6 +196,7 @@ def get_entities_from_dxf_file(dxf_file_slug, handles):
 
 def nesting_process(doc):
     logger.info("Processing nesting", extra={"doc": doc["slug"]})
+    dxf_document_cache.clear()
     
     slug = doc.get("slug")
     files = doc.get("files")
@@ -195,7 +207,7 @@ def nesting_process(doc):
     bin_count = params.get("sheetCount")
     owner_id = doc.get("ownerId")
    
-    input_items = convert_files_to_input_items(files)
+    input_items = convert_files_to_input_items(files, space)
     jaguar_items = []
    
     total_requested_count = 0
@@ -267,9 +279,11 @@ def nesting_process(doc):
             total_placed_count += 1
         
         result_containers.append(ResultContainer(container_id, transforms))
+        
+    is_all_placed = total_placed_count == total_requested_count
     
     db["nesting_jobs"].update_one(
-        {"slug": slug},
+        { "slug": slug },
         {
             "$set": {
                 "placed": total_placed_count,
@@ -278,5 +292,19 @@ def nesting_process(doc):
             },
         }
     )
+    
+    if not is_all_placed:
+        db["nesting_jobs"].update_one(
+            { "slug": slug },
+            { 
+                "$set": { 
+                    "status": "error",
+                    "finishedAt": datetime.now(),
+                    "update_ts": datetime.now(),
+                    "information": "Not all items could be placed in the nesting job"
+                } 
+            },
+        )
+        raise Exception("Not all items could be placed in the nesting job")
     
     build_result_dxf_files(owner_id, slug, result_containers)
