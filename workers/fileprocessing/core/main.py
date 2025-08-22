@@ -56,7 +56,8 @@ def _make_dxf_copy(doc) -> Drawing:
     dxf_copy_text_stream.close()
     
     dxf_copy_bytes = dxf_copy_text.encode('utf-8')
-    
+   
+    valid_dxf_bucket.delete_by_name(filename=dxf_file_slug)
     valid_dxf_bucket.upload_from_stream(filename=dxf_file_slug, source=dxf_copy_bytes, metadata={"ownerId": user_id})
     
     db["user_dxf_files"].update_one(
@@ -119,7 +120,6 @@ def _close_polygon_from_dxf(doc, logger_tag: str):
         {"_id": doc["_id"]},
         {
             "$set": {
-                "isPolygonPartsExist": True,
                 "polygonParts": [part.to_mongo_dict() for part in closed_parts]
             }
         }
