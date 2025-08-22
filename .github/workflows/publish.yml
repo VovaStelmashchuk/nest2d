@@ -55,10 +55,10 @@ jobs:
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
       
-      - name: Build and push nesting jagua-rs image
+      - name: Build and push nesting worker image
         uses: docker/build-push-action@v6
         with:
-          context: ./workers/nesting/jagua-rs
+          context: ./workers/nesting
           push: true
           tags: |
             ${{ env.REGISTRY }}/vovastelmashchuk/nesting-worker:latest
