@@ -13,11 +13,23 @@ env:
 
 jobs:
   build-and-push-image:
+    strategy:
+      matrix:
+        include:
+          - name: main-app
+            context: .
+            image: main-app
+          - name: user-file-processing-worker
+            context: ./workers/fileprocessing
+            image: user-file-processing-worker
+          - name: nesting-worker
+            context: ./workers/nesting
+            image: nesting-worker
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-      attestations: write
       id-token: write
 
     steps:
@@ -36,33 +48,11 @@ jobs:
       - name: Build and push main app image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ matrix.context }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/vovastelmashchuk/main-app:latest
-            ${{ env.REGISTRY }}/vovastelmashchuk/main-app:${{ github.sha }}
-          build-args: |
-            GIT_COMMIT_SHA=${{ github.sha }}
-
-      - name: Build and push user file processing worker image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./workers/fileprocessing
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/vovastelmashchuk/user-file-processing-worker:latest
-            ${{ env.REGISTRY }}/vovastelmashchuk/user-file-processing-worker:${{ github.sha }}
-          build-args: |
-            GIT_COMMIT_SHA=${{ github.sha }}
-      
-      - name: Build and push nesting worker image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./workers/nesting
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/vovastelmashchuk/nesting-worker:latest
-            ${{ env.REGISTRY }}/vovastelmashchuk/nesting-worker:${{ github.sha }}
+            ${{ env.REGISTRY }}/vovastelmashchuk/${{ matrix.image }}:latest
+            ${{ env.REGISTRY }}/vovastelmashchuk/${{ matrix.image }}:${{ github.sha }}
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
 
