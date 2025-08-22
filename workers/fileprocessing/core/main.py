@@ -56,8 +56,12 @@ def _make_dxf_copy(doc) -> Drawing:
     dxf_copy_text_stream.close()
     
     dxf_copy_bytes = dxf_copy_text.encode('utf-8')
-   
-    valid_dxf_bucket.delete_by_name(filename=dxf_file_slug)
+ 
+    try:
+        valid_dxf_bucket.delete_by_name(filename=dxf_file_slug)
+    except Exception as e:
+        logger.info("Error deleting dxf file", extra={"error": e})
+        
     valid_dxf_bucket.upload_from_stream(filename=dxf_file_slug, source=dxf_copy_bytes, metadata={"ownerId": user_id})
     
     db["user_dxf_files"].update_one(
