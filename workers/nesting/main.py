@@ -115,6 +115,16 @@ while not shutdown_requested:
                 }
             }
         )
+        
+        db["users"].update_one(
+            {"id": doc["ownerId"]},
+            {
+                "$inc": {
+                    "nesting_count": 1,
+                    "balance": -10
+                }
+            }
+        )
     except Exception as e:
         logger.error("Error in project processing", extra={"error": str(e), "traceback": traceback.format_exc()})
         nesting_jobs.update_one(
