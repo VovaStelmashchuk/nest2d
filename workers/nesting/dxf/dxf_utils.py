@@ -43,7 +43,6 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
         The modified ezdxf Drawing object, or None if the file cannot be loaded.
     """
     try:
-        # 1. Load the document. ezdxf will attempt to fix minor errors on load.
         doc, auditor = recover.readfile(dxf_path)
     except IOError:
         logger.error(f"Could not find or read file: {dxf_path}")
@@ -52,38 +51,4 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
         logger.error(f"File '{dxf_path}' is severely corrupt and cannot be loaded.")
         return None
 
-    if auditor.has_errors:
-        logger.warning("Auditor found and fixed errors in document.", extra={"count": len(auditor.errors)})
-
-    msp = doc.modelspace()
-
-    text_entities = msp.query("TEXT MTEXT")
-    if text_entities:
-        for text_entity in text_entities:
-            msp.delete_entity(text_entity)
-        logger.info(f"Removed {len(text_entities)} TEXT/MTEXT entities.")
-
-    hatches = msp.query("HATCH")
-    if hatches:
-        logger.info(f"Found {len(hatches)} HATCH entities to convert to lines.")
-        for hatch in hatches:
-            try:
-                for line in hatch_entity(hatch):
-                    msp.add_line(line.start, line.end, dxfattribs=hatch.graphic_properties())
-                msp.delete_entity(hatch)
-            except Exception as e:
-                logger.error(f"Failed to convert HATCH (handle #{hatch.dxf.handle}): {e}")
-
-    entities_to_explode = msp.query("INSERT DIMENSION LEADER")
-    if entities_to_explode:
-        logger.info("Found complex entities to explode.", extra={"count": len(entities_to_explode)})
-        for entity in entities_to_explode:
-            try:
-                exploded_entities = explode_entity(entity)
-                msp.add_entities(exploded_entities)
-                msp.delete_entity(entity)
-            except Exception as e:
-                logger.error("Failed to explode entity", extra={"entity_type": entity.dxftype(), "handle": entity.dxf.handle, "error": e})
-
-    logger.info(f"Successfully processed '{dxf_path}'.")
     return doc

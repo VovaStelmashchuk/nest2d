@@ -43,3 +43,5 @@ __pycache__
 # test data 
 .test-data
 
+.mongo-data
+
