@@ -35,7 +35,7 @@ export async function createOrUpdateUser({
         },
         $setOnInsert: {
             createdAt: new Date(),
-            balance: 3
+            balance: 30,
         },
         $push: {
             sessions: session
