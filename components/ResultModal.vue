@@ -6,14 +6,31 @@
                 class="modal__list-sheets list-sheets"
             >
                 <MainButton 
-                    v-for="(part, partIndex) in resultModalData.dxfs"
-                    :key="partIndex"
-                    :label="`Part ${partIndex + 1}`" 
+                    :theme="themeType.primary"
+                    :icon="iconType.arrowPrev"
+                    :isLabelShow=false
+                    :size="sizeType.s"
+                    @click="updatePartPage(activePart - 1)"
+                    :isDisable="activePart === 0"
+                    label="prev"
+                    class="controls__prev"
+                />
+                <MainButton 
+                    :label="`Part ${activePart + 1} / ${resultModalData.dxfs.length}`" 
                     :size="sizeType.s"
                     :theme="themeType.primary"
-                    :isDisable="partIndex == acitvePart"
-                    @click="updatePartPage(partIndex)"
+                    isNotClickable
                     class="list-sheets__item"
+                />
+                <MainButton 
+                    :theme="themeType.primary"
+                    :icon="iconType.arrowNext"
+                    :size="sizeType.s"
+                    :isLabelShow=false
+                    :isDisable="activePart === resultModalData.dxfs.length - 1"
+                    @click="updatePartPage(activePart + 1)"
+                    label="next"
+                    class="controls__next"
                 />
             </div>
             <div class="modal__wrapper">
@@ -22,7 +39,7 @@
                 </div>
                 <template v-else-if="resultModalData.isMultiSheet">
                     <SvgDisplay
-                        :src="resultModalData.svgs[acitvePart]" 
+                        :src="resultModalData.svgs[activePart]" 
                         :class="displayClasses" 
                         @click="updateFullScreen"
                         class="modal__display"
@@ -30,8 +47,8 @@
                     <MainButton
                         class="modal__part-download"
                         v-if="resultModalData.isMultiSheet" 
-                        :href="resultModalData.dxfs[acitvePart]"
-                        :label="`Download part ${acitvePart + 1}`" 
+                        :href="resultModalData.dxfs[activePart]"
+                        :label="`Download part ${activePart + 1}`" 
                         tag="a" 
                         :isDisable="isHaveError" 
                         :size="sizeType.s"
@@ -144,25 +161,34 @@ const name = computed(() => {
     const endPart = unref(resultModalData).isMultiSheet ? `.zip` : `.dxf ` 
     return unref(resultModalData).slug + endPart
 })
-const acitvePart = ref(0)
+const activePart = ref(0)
 const updatePartPage = (partIndex) => {
-    acitvePart.value = partIndex
+    if (partIndex < 0 || partIndex >= unref(resultModalData).dxfs.length) return
+    activePart.value = partIndex
 }
 </script>
 
 <style lang="scss" scoped>
 .modal {
     padding: 48px 24px 24px;
-    min-width: 368px;
+
+    @media (min-width: 567px) {
+        min-width: 368px;
+    }
 
     &__wrapper {
         position: relative;
     }
 
     &__fullscreen {
-        position: absolute;
-        top: 8px;
-        right: 8px;
+        display: none;
+
+        @media (min-width: 567px) {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: block;
+        }
     }
 
     &__display {
@@ -172,13 +198,18 @@ const updatePartPage = (partIndex) => {
     &__display,
     &__placeholder {
         max-width: 100%;
-        width: 320px;
-        height: 320px;
         max-height: 100%;
 
+        @media (min-width: 567px) {
+            width: 320px;
+            height: 320px;
+        }
+
         &--is-fullscreen {
-            width: calc(80vw - 48px);
-            height: calc(80vh - 148px);
+            @media (min-width: 567px) {
+                width: calc(80vw - 48px);
+                height: calc(80vh - 148px);
+            }
         }
     }
 
@@ -226,10 +257,13 @@ const updatePartPage = (partIndex) => {
         margin-bottom: 10px;
         min-height: 42px;
         color: var(--label-primary);
-        max-width: 320px;
         margin-left: auto;
         margin-right: auto;
         word-break: break-all;
+
+        @media (min-width: 567px) {
+            max-width: 320px;
+        }
     }
 
     &__info {
@@ -246,7 +280,10 @@ const updatePartPage = (partIndex) => {
 
     &__list-sheets {
         margin: -42px auto 5px;
-        max-width: 300px;
+
+        @media (min-width: 567px) {
+            max-width: 300px;
+        }
     }
 
     &__part-download {
@@ -260,9 +297,11 @@ const updatePartPage = (partIndex) => {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
 
     &__item {
-        margin: 4px;
+        margin-left: 10px;
+        margin-right: 10px;
     }
 }
 .controls {
