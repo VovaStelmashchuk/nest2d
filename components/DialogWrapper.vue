@@ -32,6 +32,7 @@ const closeModal = () => {
 
 const handleKeydown = (event) => {
     if (event.key === 'Escape' && isModalOpen) {
+        event.preventDefault()
         closeModal();
     }
 }
