@@ -6,6 +6,8 @@
             <div class="modal__body modal-body">
                 <MainButton label="close modal" :isLabelShow=false :size="sizeType.s" :icon="iconType.close"
                     @click="closeModal" class="modal-body__close" />
+
+                
                 <slot />
             </div>
         </div>
@@ -81,6 +83,8 @@ onUnmounted(() => {
 }
 
 .modal-body {
+    overflow: auto;
+
     &__close {
         position: absolute;
         top: 8.5px;
