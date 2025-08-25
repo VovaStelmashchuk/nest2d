@@ -83,7 +83,7 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
                 msp.add_entities(exploded_entities)
                 msp.delete_entity(entity)
             except Exception as e:
-                logger.error("Failed to explode entity", extra={"entity_type": entity.dxftype(), "handle": entity.dxf.handle, "error": e})
+                logger.error("Failed to explode entity", extra={"entity_type": entity.dxftype(), "error": e})
 
     logger.info(f"Successfully processed '{dxf_path}'.")
     return doc
