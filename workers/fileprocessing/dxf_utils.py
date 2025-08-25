@@ -8,6 +8,8 @@ from ezdxf.explode import explode_entity
 from ezdxf import recover
 from utils.logger import setup_logger
 from ezdxf.render.hatching import hatch_entity 
+from ezdxf.disassemble import recursive_decompose
+from ezdxf.entities import DXFGraphic
 
 logger = setup_logger("dxf_utils")
 
@@ -62,41 +64,33 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
         for text_entity in text_entities:
             msp.delete_entity(text_entity)
         logger.info(f"Removed {len(text_entities)} TEXT/MTEXT/IMAGE entities.")
-
-    # Loop until there are no INSERT or HATCH entities left in the modelspace
-    insert_hatch_loop_iterations = 0
-    while True:
-        insert_hatch_loop_iterations += 1
-        logger.info(f"Insert/Hatch loop iteration {insert_hatch_loop_iterations}.")
         
-        inserts = msp.query("INSERT")
-        hatches = msp.query("HATCH")
-        if not inserts and not hatches:
-            break
-
-        if inserts:
-            logger.info("Found complex INSERT entities to explode.", extra={"count": len(inserts)})
-            for entity in list(inserts):  # list() to avoid issues if msp changes during iteration
-                try:
-                    exploded_entities = explode_entity(entity)
-                    for new_entity in exploded_entities:
-                        msp.add_entity(new_entity)
-                    msp.delete_entity(entity)
-                except Exception as e:
-                    logger.error("Failed to explode entity", extra={"entity_type": entity.dxftype(), "error": e})
-                    raise e
-
-        if hatches:
-            logger.info(f"Found {len(hatches)} HATCH entities to convert to lines.")
-            for hatch in list(hatches):  # list() to avoid issues if msp changes during iteration
-                try:
-                    for line in hatch_entity(hatch):
-                        msp.add_line(line.start, line.end, dxfattribs=hatch.graphic_properties())
-                    msp.delete_entity(hatch)
-                except Exception as e:
-                    logger.error(f"Failed to convert HATCH (handle #{hatch.dxf.handle}): {e}")
-                    raise e
-
-
+    new_doc = ezdxf.new()
+    new_msp = new_doc.modelspace()
+    
+    flattened_entities = list(recursive_decompose(msp))
+    
+    for entity in flattened_entities:
+        if isinstance(entity, DXFGraphic):
+            new_entity = entity.copy()
+            new_msp.add_entity(new_entity)
+                
+    logger.info(f"Successfully processed.")
+    
+    hatches = new_msp.query("HATCH")
+    if hatches:
+        logger.info(f"Found {len(hatches)} HATCH entities to convert to lines.")
+        for hatch in hatches:  
+            try:
+                for line in hatch_entity(hatch):
+                    new_msp.add_line(line.start, line.end, dxfattribs=hatch.graphic_properties())
+                new_msp.delete_entity(hatch)
+            except Exception as e:
+                logger.error(f"Failed to convert HATCH (handle #{hatch.dxf.handle}): {e}")
+                raise e
+            
+    exist_hatches = new_msp.query("HATCH")
+    logger.info(f"After for loop, there are {len(exist_hatches)} HATCH entities to convert to lines.")
     logger.info(f"Successfully processed '{dxf_path}'.")
-    return doc
+    
+    return new_doc
