@@ -63,6 +63,18 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
             msp.delete_entity(text_entity)
         logger.info(f"Removed {len(text_entities)} TEXT/MTEXT entities.")
 
+    entities_to_explode = msp.query("INSERT DIMENSION LEADER")
+    if entities_to_explode:
+        logger.info("Found complex entities to explode.", extra={"count": len(entities_to_explode)})
+        for entity in entities_to_explode:
+            try:
+                exploded_entities = explode_entity(entity)
+                for new_entity in exploded_entities:
+                    msp.add_entity(new_entity)
+                msp.delete_entity(entity)
+            except Exception as e:
+                logger.error("Failed to explode entity", extra={"entity_type": entity.dxftype(), "error": e})
+                
     hatches = msp.query("HATCH")
     if hatches:
         logger.info(f"Found {len(hatches)} HATCH entities to convert to lines.")
@@ -74,16 +86,6 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
             except Exception as e:
                 logger.error(f"Failed to convert HATCH (handle #{hatch.dxf.handle}): {e}")
 
-    entities_to_explode = msp.query("INSERT DIMENSION LEADER")
-    if entities_to_explode:
-        logger.info("Found complex entities to explode.", extra={"count": len(entities_to_explode)})
-        for entity in entities_to_explode:
-            try:
-                exploded_entities = explode_entity(entity)
-                msp.add_entities(exploded_entities)
-                msp.delete_entity(entity)
-            except Exception as e:
-                logger.error("Failed to explode entity", extra={"entity_type": entity.dxftype(), "error": e})
 
     logger.info(f"Successfully processed '{dxf_path}'.")
     return doc
