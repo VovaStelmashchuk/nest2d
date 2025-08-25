@@ -16,24 +16,23 @@
                 class="message-list" 
                 v-else
             >
-            <template 
-                :key="message.id"
-                v-for="message in messagesList"
-            >
-               <div v-if="message.day" class="message-list__day day">
-                    <span class="day__label">
-                        {{ message.day }}
-                    </span>
-               </div>
-                <div 
-                    class="message-list__item message"
-                    :class="[message.sender === 'support' ? '' : 'message--is-user']"
+                <template 
+                    :key="message._id"
+                    v-for="message in messagesList"
                 >
-                    <p>{{ message.message }}</p>
-                    <span class="message__time">{{ formatTime(message.timestamp) }}</span>
-                </div>
-            </template>
- 
+                    <div v-if="message.day" class="message-list__day day">
+                            <span class="day__label">
+                                {{ message.day }}
+                            </span>
+                    </div>
+                    <div 
+                        class="message-list__item message"
+                        :class="[message.sender === 'support' ? '' : 'message--is-user']"
+                    >
+                        <p>{{ message.message }}</p>
+                        <span class="message__time">{{ formatTime(message.timestamp) }}</span>
+                    </div>
+                </template>
             </div>
         </UiScrollbar>
         <div class="chat__footer footer">
@@ -264,6 +263,32 @@ onUnmounted(() => {
     }
 }
 
+.message {
+    background-color: var(--fill-tertiary);
+    border-radius: 8px 0 8px 8px;
+    color: var(--label-secondary);
+    font-size: 14px;
+    line-height: 1.4;
+    padding: 6px 8px;
+    margin-left: auto;
+
+    &--is-user {
+        background-color: var(--fill-secondary);
+        border-radius: 0 8px 8px;
+        color: var(--label-primary);
+        text-align: left;
+        margin-right: auto;
+        margin-left: initial;
+    }
+
+    &__time {
+        color: var(--label-tertiary);
+        font-size: 12px;
+        margin-top: 8px;
+        display: block;
+    }
+}
+
 .day {
     position: relative;
     display: flex;
@@ -292,32 +317,6 @@ onUnmounted(() => {
     }
     &::after {
         top: calc(100% + 4px);
-    }
-}
-
-.message {
-    background-color: var(--fill-tertiary);
-    border-radius: 8px 0 8px 8px;
-    color: var(--label-secondary);
-    font-size: 14px;
-    line-height: 1.4;
-    padding: 6px 8px;
-    margin-left: auto;
-
-    &--is-user {
-        background-color: var(--fill-secondary);
-        border-radius: 0 8px 8px;
-        color: var(--label-primary);
-        text-align: left;
-        margin-right: auto;
-        margin-left: initial;
-    }
-
-    &__time {
-        color: var(--label-tertiary);
-        font-size: 12px;
-        margin-top: 8px;
-        display: block;
     }
 }
 

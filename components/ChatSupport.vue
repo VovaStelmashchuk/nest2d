@@ -14,15 +14,24 @@
                     class="support__close"
                 />
             </div>
-            <UiScrollbar ref="messagesContainer" class="support__messages">
-                <p
-                    v-for="msg in messages"
-                    :key="msg._id"
-                    :class="getMessageClasses(msg.sender)"
-                    class="support__message"
+            <UiScrollbar ref="messagesContainer" class="support__messages message-list">
+                <template
+                    v-for="message in messagesList"
+                    :key="message._id"
                 >
-                    {{ msg.message }}
-                </p>
+                    <div v-if="message.day" class="message-list__day day">
+                        <span class="day__label">
+                            {{ message.day }}
+                        </span>
+                    </div>
+                    <div 
+                        class="message-list__item message"
+                        :class="getMessageClasses(message.sender)"
+                    >
+                        <p>{{ message.message }}</p>
+                        <span class="message__time">{{ formatTime(message.timestamp) }}</span>
+                    </div>
+                </template>
             </UiScrollbar>
             <div class="support__bottom bottom">
                 <InputField
@@ -116,9 +125,34 @@ onBeforeUnmount(() => {
 })
 
 const getMessageClasses = (sender) => ({
-    'support__message--is-user': sender === 'user'
+    'message--is-user': sender === 'user'
 })
 
+const formatTime = (timestamp, withoutTime) => {
+    const date = new Date(timestamp)
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    return withoutTime ? `${day}.${month}.${year}` : `${time}`
+}
+const messagesList = computed(() => {
+    const usedDates = []
+    const getDay = (timestamp) => {
+        const date = new Date(timestamp)
+        if(usedDates.includes(formatTime(date, true))) {
+            return
+        }
+        usedDates.push(formatTime(date, true))
+        return formatTime(date, true)
+    }
+    return messages.value.map(message => {
+        return {
+            ...message,
+            day: getDay(message.timestamp)
+        }
+    })
+})
 const scrollToBottom = async () => {
     await nextTick()
 
@@ -173,42 +207,98 @@ const scrollToBottom = async () => {
     }
 
     &__messages {
-        border-radius: 8px;
-        border: 1px solid var(--separator-secondary);
         flex-grow: 1;
-        padding: 12px;
         margin-top: 10px;
         margin-bottom: 10px;
         overflow: auto;
         margin-right: 0;
     }
 
-    &__message {
-        padding: 6px 8px;
-        border-radius: 0 8px 8px 8px;
-        color: var(--label-primary);
-        font-size: 14px;
-        line-height: 1.4;
-        width: max-content;
-        max-width: 80%;
-        margin-right: auto;
-        text-align: left;
-        background-color: var(--fill-secondary);
-        color: var(--label-primary);
-
-        &--is-user {
-            margin-left: auto;
-            margin-right: initial;
-            background-color: var(--fill-tertiary);
-            border-radius: 8px 0 8px 8px;
-            color: var(--label-secondary);
-        }
+    &__item  {
+        max-width: 70%;
 
         &:not(:last-child) {
             margin-bottom: 10px;
         }
     }
 }
+.message-list {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--separator-secondary);
+    display: flex;
+    flex-direction: column;
+
+    &__day {
+        margin-bottom: 20px;
+        margin-top: 10px;
+    }
+    &__item {
+        max-width: 70%;
+
+        &:not(:last-child) {
+            margin-bottom: 10px;
+        }
+    }
+}
+.message {
+    background-color: var(--fill-tertiary);
+    border-radius: 8px 0 8px 8px;
+    color: var(--label-secondary);
+    font-size: 14px;
+    line-height: 1.4;
+    padding: 6px 8px;
+    margin-left: auto;
+
+    &--is-user {
+        background-color: var(--fill-secondary);
+        border-radius: 0 8px 8px;
+        color: var(--label-primary);
+        text-align: left;
+        margin-right: auto;
+        margin-left: initial;
+    }
+
+    &__time {
+        color: var(--label-tertiary);
+        font-size: 12px;
+        margin-top: 8px;
+        display: block;
+    }
+}
+
+.day {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    justify-content: center;
+
+    &__label {
+        margin-left: auto;
+        margin-right: auto;
+        background-color: var(--fill-tertiary);
+        border-radius: 8px;
+        padding: 6px 8px;
+        color: var(--label-primary);
+    }
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        left: 2%;
+        right: 2%;
+        height: 1px;
+        border: dashed 1px var(--fill-tertiary);
+    }
+    &::before {
+        bottom: calc(100% + 4px);
+    }
+    &::after {
+        top: calc(100% + 4px);
+    }
+}
+
+
 .bottom {
     display: flex;
     align-items: flex-end;
