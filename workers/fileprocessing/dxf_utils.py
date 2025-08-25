@@ -59,7 +59,7 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
 
     msp = doc.modelspace()
 
-    text_entities = msp.query("TEXT MTEXT IMAGE")
+    text_entities = msp.query("TEXT MTEXT IMAGE SOLID")
     if text_entities:
         for text_entity in text_entities:
             msp.delete_entity(text_entity)
