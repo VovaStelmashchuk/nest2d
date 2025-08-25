@@ -63,28 +63,37 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
             msp.delete_entity(text_entity)
         logger.info(f"Removed {len(text_entities)} TEXT/MTEXT entities.")
 
-    entities_to_explode = msp.query("INSERT DIMENSION LEADER")
-    if entities_to_explode:
-        logger.info("Found complex entities to explode.", extra={"count": len(entities_to_explode)})
-        for entity in entities_to_explode:
-            try:
-                exploded_entities = explode_entity(entity)
-                for new_entity in exploded_entities:
-                    msp.add_entity(new_entity)
-                msp.delete_entity(entity)
-            except Exception as e:
-                logger.error("Failed to explode entity", extra={"entity_type": entity.dxftype(), "error": e})
-                
-    hatches = msp.query("HATCH")
-    if hatches:
-        logger.info(f"Found {len(hatches)} HATCH entities to convert to lines.")
-        for hatch in hatches:
-            try:
-                for line in hatch_entity(hatch):
-                    msp.add_line(line.start, line.end, dxfattribs=hatch.graphic_properties())
-                msp.delete_entity(hatch)
-            except Exception as e:
-                logger.error(f"Failed to convert HATCH (handle #{hatch.dxf.handle}): {e}")
+    # Loop until there are no INSERT or HATCH entities left in the modelspace
+    insert_hatch_loop_iterations = 0
+    while True:
+        insert_hatch_loop_iterations += 1
+        logger.info(f"Insert/Hatch loop iteration {insert_hatch_loop_iterations}.")
+        
+        inserts = msp.query("INSERT")
+        hatches = msp.query("HATCH")
+        if not inserts and not hatches:
+            break
+
+        if inserts:
+            logger.info("Found complex INSERT entities to explode.", extra={"count": len(inserts)})
+            for entity in list(inserts):  # list() to avoid issues if msp changes during iteration
+                try:
+                    exploded_entities = explode_entity(entity)
+                    for new_entity in exploded_entities:
+                        msp.add_entity(new_entity)
+                    msp.delete_entity(entity)
+                except Exception as e:
+                    logger.error("Failed to explode entity", extra={"entity_type": entity.dxftype(), "error": e})
+
+        if hatches:
+            logger.info(f"Found {len(hatches)} HATCH entities to convert to lines.")
+            for hatch in list(hatches):  # list() to avoid issues if msp changes during iteration
+                try:
+                    for line in hatch_entity(hatch):
+                        msp.add_line(line.start, line.end, dxfattribs=hatch.graphic_properties())
+                    msp.delete_entity(hatch)
+                except Exception as e:
+                    logger.error(f"Failed to convert HATCH (handle #{hatch.dxf.handle}): {e}")
 
 
     logger.info(f"Successfully processed '{dxf_path}'.")
