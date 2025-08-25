@@ -16,13 +16,24 @@
                 class="message-list" 
                 v-else
             >
-                <div v-for="message in messages" :key="message._id"
+            <template 
+                :key="message.id"
+                v-for="message in messagesList"
+            >
+               <div v-if="message.day" class="message-list__day day">
+                    <span class="day__label">
+                        {{ message.day }}
+                    </span>
+               </div>
+                <div 
                     class="message-list__item message"
                     :class="[message.sender === 'support' ? '' : 'message--is-user']"
                 >
                     <p>{{ message.message }}</p>
                     <span class="message__time">{{ formatTime(message.timestamp) }}</span>
                 </div>
+            </template>
+ 
             </div>
         </UiScrollbar>
         <div class="chat__footer footer">
@@ -51,7 +62,7 @@
 import { themeType } from '~~/constants/theme.constants'
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from "~~/constants/size.constants"
-import { nextTick } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     userId: {
@@ -67,7 +78,6 @@ const error = ref(null)
 const isConnected = ref(false)
 const messagesContainer = ref(null)
 let eventSource = null
-
 const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
         if (event.shiftKey) {
@@ -77,6 +87,31 @@ const handleKeyDown = (event) => {
     }
 }
 
+const formatTime = (timestamp, withoutTime) => {
+    const date = new Date(timestamp)
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    return withoutTime ? `${day}.${month}.${year}` : `${time}`
+}
+const messagesList = computed(() => {
+    const usedDates = []
+    const getDay = (timestamp) => {
+        const date = new Date(timestamp)
+        if(usedDates.includes(formatTime(date, true))) {
+            return
+        }
+        usedDates.push(formatTime(date, true))
+        return formatTime(date, true)
+    }
+    return messages.value.map(message => {
+        return {
+            ...message,
+            day: getDay(message.timestamp)
+        }
+    })
+})
 const connectToChat = () => {
     try {
         loading.value = true
@@ -159,10 +194,6 @@ const scrollToBottom = async () => {
     }
 }
 
-const formatTime = (timestamp) => {
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
 
 onMounted(() => {
     if (props.userId) {
@@ -220,12 +251,47 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
 
+    &__day {
+        margin-bottom: 20px;
+        margin-top: 10px;
+    }
     &__item {
         max-width: 70%;
 
         &:not(:last-child) {
             margin-bottom: 10px;
         }
+    }
+}
+
+.day {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    justify-content: center;
+
+    &__label {
+        margin-left: auto;
+        margin-right: auto;
+        background-color: var(--fill-tertiary);
+        border-radius: 8px;
+        padding: 6px 8px;
+        color: var(--label-primary);
+    }
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        left: 2%;
+        right: 2%;
+        height: 1px;
+        border: dashed 1px var(--fill-tertiary);
+    }
+    &::before {
+        bottom: calc(100% + 4px);
+    }
+    &::after {
+        top: calc(100% + 4px);
     }
 }
 
