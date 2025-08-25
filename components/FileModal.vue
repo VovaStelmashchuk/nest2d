@@ -51,24 +51,39 @@ const displayClasses = computed(() => ({
 <style lang="scss" scoped>
 .modal {
     padding: 48px 24px 24px;
-    min-width: 368px;
+
+    max-width: 368px;
+    @media (min-width: 567px) {
+        max-width: initial;
+        min-width: 368px;
+    }
+
     &__wrapper {
         position: relative;
     }
     &__fullscreen {
-        position: absolute;
-        top: 8px;
-        right: 8px;
+        display: none;
+
+        @media (min-width: 567px) {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: block;
+        }
     }
     &__display {
         cursor: pointer;
         max-width: 100%;
+        max-height: 100%;
+
         width: 320px;
         height: 320px;
 
         &--is-fullscreen {
-            width: calc(80vw - 48px);
-            height: calc(80vh - 72px);
+            @media (min-width: 567px) {
+                width: calc(80vw - 48px);
+                height: calc(80vh - 148px);
+            }
         }
     }
     &__name {
@@ -80,9 +95,12 @@ const displayClasses = computed(() => ({
         margin-bottom: 10px;
         min-height: 42px;
         color: var(--label-primary);
-        max-width: 320px;
         margin-left: auto;
         margin-right: auto;
+
+        @media (min-width: 567px) {
+            max-width: 320px;
+        }
     }
 }
 </style>

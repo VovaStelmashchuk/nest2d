@@ -150,9 +150,6 @@ onMounted(() => {
 const displayClasses = computed(() => ({
     'modal__display--is-fullscreen': unref(isFullScreen) && !unref(isHaveError)
 }))
-const rowClasses = computed(() => ({
-    'modal__row--is-fullscreen': unref(isFullScreen) && !unref(isHaveError)
-}))
 const placeholderClasses = computed(() => ({
     'modal__placeholder--is-fullscreen':
         unref(isFullScreen) && !unref(isHaveError)
@@ -172,7 +169,9 @@ const updatePartPage = (partIndex) => {
 .modal {
     padding: 48px 24px 24px;
 
+    max-width: 368px;
     @media (min-width: 567px) {
+        max-width: initial;
         min-width: 368px;
     }
 
@@ -200,10 +199,8 @@ const updatePartPage = (partIndex) => {
         max-width: 100%;
         max-height: 100%;
 
-        @media (min-width: 567px) {
-            width: 320px;
-            height: 320px;
-        }
+        width: 320px;
+        height: 320px;
 
         &--is-fullscreen {
             @media (min-width: 567px) {
@@ -211,30 +208,6 @@ const updatePartPage = (partIndex) => {
                 height: calc(80vh - 148px);
             }
         }
-    }
-
-    &__row {
-        display: flex;
-
-        &--is-fullscreen {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        }
-    }
-
-    &__col {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        &:not(:last-child) {
-            margin-right: 12px;
-        }
-    }
-
-    &__download {
-        margin-top: 8px;
-        width: 100%;
     }
 
     &__placeholder {
