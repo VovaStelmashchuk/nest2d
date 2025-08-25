@@ -84,6 +84,7 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
                     msp.delete_entity(entity)
                 except Exception as e:
                     logger.error("Failed to explode entity", extra={"entity_type": entity.dxftype(), "error": e})
+                    raise e
 
         if hatches:
             logger.info(f"Found {len(hatches)} HATCH entities to convert to lines.")
@@ -94,6 +95,7 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
                     msp.delete_entity(hatch)
                 except Exception as e:
                     logger.error(f"Failed to convert HATCH (handle #{hatch.dxf.handle}): {e}")
+                    raise e
 
 
     logger.info(f"Successfully processed '{dxf_path}'.")
