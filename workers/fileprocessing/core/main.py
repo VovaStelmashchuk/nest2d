@@ -51,6 +51,8 @@ def _make_dxf_copy(doc) -> Drawing:
     
     dxf_copy = read_dxf(grid_out)
     
+    logger.info("Make a copy Drawing info", extra={"entity_count": len(dxf_copy.modelspace())})
+    
     dxf_copy_text_stream = io.StringIO()
     dxf_copy.write(dxf_copy_text_stream)
     dxf_copy_text = dxf_copy_text_stream.getvalue()

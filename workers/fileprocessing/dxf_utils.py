@@ -57,11 +57,11 @@ def read_dxf_file(dxf_path: str) -> Drawing | None:
 
     msp = doc.modelspace()
 
-    text_entities = msp.query("TEXT MTEXT")
+    text_entities = msp.query("TEXT MTEXT IMAGE")
     if text_entities:
         for text_entity in text_entities:
             msp.delete_entity(text_entity)
-        logger.info(f"Removed {len(text_entities)} TEXT/MTEXT entities.")
+        logger.info(f"Removed {len(text_entities)} TEXT/MTEXT/IMAGE entities.")
 
     # Loop until there are no INSERT or HATCH entities left in the modelspace
     insert_hatch_loop_iterations = 0
