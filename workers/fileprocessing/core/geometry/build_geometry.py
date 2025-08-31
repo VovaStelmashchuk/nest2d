@@ -32,10 +32,14 @@ class ClosedPolygon:
 
 def merge_dxf_entities_into_polygons(dxf_entities: Iterable[DxfEntityGeometry], tolerance: float) -> List[ClosedPolygon]:
     result = []
+    logger.info("Merging polygons started", extra={"len": len(dxf_entities)})
     for dxf_entity in dxf_entities:
-        area = dxf_entity.geometry.area
-        if area > 1e-6:
-            result.append(ClosedPolygon(geometry=make_valid(dxf_entity.geometry.convex_hull.buffer(tolerance)), handles=[dxf_entity.handle]))
+        shapelly_geom = dxf_entity.geometry.convex_hull.buffer(tolerance)
+        area = shapelly_geom.area
+        if area > 1e-10:
+            result.append(ClosedPolygon(geometry=make_valid(shapelly_geom), handles=[dxf_entity.handle]))
+            
+    logger.info("Merging polygons after filter by area", extra={"len": len(result)})
         
     while True:
         logger.info("Merging polygons", extra={"len": len(result)})

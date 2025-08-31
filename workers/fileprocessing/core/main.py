@@ -123,6 +123,9 @@ def _close_polygon_from_dxf(doc, logger_tag: str):
         "closed_parts": len(closed_parts),
     })
     
+    if len(closed_parts) == 0:
+        raise Exception("Closed parts is 0")
+    
     db["user_dxf_files"].update_one(
         {"_id": doc["_id"]},
         {
@@ -138,6 +141,9 @@ def _close_polygon_from_dxf(doc, logger_tag: str):
 def _set_valid_entity_count(doc):
     drawing = _getting_drawing(doc)
     entity_count = len(drawing.modelspace())
+    
+    if entity_count == 0:
+        raise Exception("Entity count is 0")
     
     db["user_dxf_files"].update_one(
         {"_id": doc["_id"]},
@@ -160,9 +166,10 @@ def process_file(doc):
     logger.info("Processing file", extra={"doc": doc["slug"]})
     
     _make_dxf_copy(doc)
+    entity_count = _set_valid_entity_count(doc)
+    
     _make_svg_file(doc)
     
-    entity_count = _set_valid_entity_count(doc)
     
     if entity_count > max_entity_limit:
         db["user_dxf_files"].update_one(
