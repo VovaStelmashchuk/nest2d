@@ -7,6 +7,7 @@ import {
   generateEntityName,
 } from "~~/server/utils/strings";
 import standardSlugify from "standard-slugify";
+import { track } from "~~/server/utils/tracking";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -18,6 +19,11 @@ export default defineEventHandler(async (event) => {
   const projectSlug = `${standardSlugify(projectName, {
     keepCase: false,
   })}-${generateRandomString(6)}`;
+
+  track("create_project", userId, {
+    projectName: projectName,
+    projectSlug: projectSlug,
+  })
 
   await db.collection("projects").insertOne({
     slug: projectSlug,

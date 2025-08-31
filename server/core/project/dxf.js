@@ -52,6 +52,14 @@ export async function saveFilesToProject(event, projectSlug, userId) {
     file_records.push(file_record);
   });
 
+  file_records.forEach((file_record) => {
+    track("create_project_dxf_file", userId, {
+      fileName: file_record.name,
+      fileSlug: file_record.slug,
+      projectSlug: projectSlug,
+    })
+  });
+
   const db = await connectDB();
 
   await db.collection("user_dxf_files").insertMany(file_records);

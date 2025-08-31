@@ -1,4 +1,5 @@
 import { connectDB } from "~~/server/db/mongo";
+import { track } from "~~/server/utils/tracking";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId || "anonymous";
@@ -16,6 +17,8 @@ export default defineEventHandler(async (event) => {
   const user = await db.collection("users").findOne({ id: userId });
 
   let commitSha = "init unknown";
+
+  track("service_index_get", userId)
 
   try {
     commitSha = useRuntimeConfig().public.gitCommitSha;
