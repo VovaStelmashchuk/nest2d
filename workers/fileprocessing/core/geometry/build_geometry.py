@@ -25,9 +25,16 @@ class ClosedPolygon:
 
         exterior_coords = list(zip(*self.geometry.exterior.coords.xy))
         
+        bounding_box = self.geometry.bounds
+        
+        width = bounding_box[2] - bounding_box[0]
+        height = bounding_box[3] - bounding_box[1]
+        
         return {
             'coordinates': exterior_coords,
-            'handles': self.handles
+            'handles': self.handles,
+            'width': width,
+            'height': height
         }
 
 def merge_dxf_entities_into_polygons(dxf_entities: Iterable[DxfEntityGeometry], tolerance: float) -> List[ClosedPolygon]:

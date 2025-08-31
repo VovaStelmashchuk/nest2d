@@ -178,7 +178,7 @@ def process_file(doc):
         )
         return False
     
-    _close_polygon_from_dxf(doc, "dxf_polygonizer") 
+    _close_polygon_from_dxf(doc, "dxf_polygonizer")
     
     end_time = time.time()
     logger.info("time taken", extra={"time": end_time - start_time})
