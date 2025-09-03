@@ -5,10 +5,10 @@ export default defineNuxtConfig({
     devtools: { enabled: true },
     modules: ["@nuxtjs/tailwindcss"],
     runtimeConfig: {
-        gmailAppPassword: "",
         mongoUri: '',
         stripeSecretKey: '',
         githubClientSecret: '',
+        resendToken: '',
         public: {
             baseUrl: "http://localhost:3000",
             gitCommitSha: "",

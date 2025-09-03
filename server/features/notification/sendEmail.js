@@ -1,50 +1,23 @@
-import nodemailer from 'nodemailer';
 import logger from '~~/server/utils/logger';
 import { connectDB } from '~~/server/db/mongo';
 
-const GMAIL_USER = 'vovochkastelmashchuk@gmail.com';
-const APP_PASSWORD = useRuntimeConfig().gmailAppPassword;
-
-if (!GMAIL_USER || !APP_PASSWORD) {
-  logger.error("ERROR: Missing EMAIL_USER or APP_PASSWORD in your .env file.");
-  logger.error("Please ensure you have configured them correctly.");
-  process.exit(1);
-}
-
-logger.info('GMAIL_USER: ' + GMAIL_USER);
-logger.error('APP_PASSWORD: ' + APP_PASSWORD);
-
-async function sendEmailWithAppPassword(to, subject, htmlBody) {
+async function sendEmail(to, subject, htmlBody) {
   try {
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: {
-        user: GMAIL_USER,
-        pass: APP_PASSWORD,
+    const response = await $fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${useRuntimeConfig().resendToken}`,
       },
-      logger: logger,
-      debug: true
+      body: {
+        from: 'nest2d@stelmashchuk.dev',
+        to: to,
+        subject: subject,
+        html: htmlBody,
+      },
     });
-
-    const mailOptions = {
-      from: `Nest2d <${GMAIL_USER}>`,
-      to: to,
-      subject: subject,
-      html: htmlBody,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-
     logger.info('Email sent successfully!');
-    logger.info('Message info: %s', info);
-    if (nodemailer.getTestMessageUrl(info)) {
-      logger.info('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-    }
-    return info;
-
+    logger.info('Response:', response);
   } catch (error) {
     logger.error('Failed to send email:', error);
     throw error;
@@ -70,7 +43,7 @@ export async function sendNestFinishEmail(nestingJob) {
       <p>You can view the project <a href="${useRuntimeConfig().public.baseUrl}/project/${project.slug}">here</a></p>
     `;
 
-    await sendEmailWithAppPassword(recipient, emailSubject, emailBody);
+    await sendEmail(recipient, emailSubject, emailBody);
     logger.info('Email sending process completed.');
   } catch (err) {
     logger.error('Failed to send email:', err);

@@ -12,9 +12,8 @@ services:
       - NUXT_PUBLIC_GOOGLE_CLIENT_ID=476104126469-bv13u3dlpooq1j3jglcgj7sup6dt26nk.apps.googleusercontent.com
       - NUXT_PUBLIC_GITHUB_CLIENT_ID=Ov23limwK0oEIzSCUExe
       - NUXT_MONGO_URI=${MONGO_URI}
+      - NUXT_RESEND_TOKEN=${RESEND_TOKEN}
     secrets:
-      - source: nest2d_gmail_app_password
-        target: gmail_app_password
       - source: nest2d_stripe_secret_key
         target: stripe_secret_key
       - source: nest2d_github_client_secret
@@ -64,8 +63,6 @@ services:
       - infra_mongo
 
 secrets:
-  nest2d_gmail_app_password:
-    external: true
   nest2d_stripe_secret_key:
     external: true
   nest2d_github_client_secret:
