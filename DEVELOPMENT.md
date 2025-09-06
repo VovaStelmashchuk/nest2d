@@ -35,3 +35,11 @@ rm -rf .mongo-data
 
 The Mongo is the only one storage need for run project localy, all files (dxf, svg, and user avatars) saved by Mongo GridFS. 
 It's implement in purpuse to make the developer life easier.
+
+### Run the workers
+
+```sh
+docker stack deploy -c docker-stack-external.yml nest2d
+```
+
+The command runs the two workers user file processing and the nesting one. Each workes will have the replication equals to **one**. 

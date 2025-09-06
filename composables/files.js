@@ -12,7 +12,6 @@ const state = reactive({
     params: {
         widthPlate: '400',
         heightPlate: '560',
-        tolerance: '0.01',
         space: '0.1',
         sheetCount: 100
     },

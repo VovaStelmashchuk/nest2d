@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
   }
   const body = await readBody(event);
   /**
-   * @type {{originFiles: {name: string, count: int}[], params: {height: float, width: float, tolerance: float, space: float}}}
+   * @type {{originFiles: {name: string, count: int}[], params: {height: float, width: float, space: float}}}
    **/
   const { files, params } = body;
 
@@ -68,7 +68,6 @@ export default defineEventHandler(async (event) => {
   const dbParams = {
     height: params.height,
     width: params.width,
-    tolerance: params.tolerance,
     space: params.space,
     sheetCount: params.sheetCount,
   }
