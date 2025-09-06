@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const projectFiles = await db.collection("user_dxf_files")
-    .find({ 
+    .find({
       projectSlug: slug,
       ownerId: userId,
     })
@@ -54,10 +54,18 @@ const mapFileToUi = (file) => {
     status = file.processingStatus;
   }
 
+  const parts = file.polygonParts.map((part) => {
+    return {
+      width: part.width,
+      height: part.height,
+    };
+  });
+
   return {
     slug: file.slug,
     name: file.name,
     svgUrl: svgUrl,
     processingStatus: status,
+    parts: parts,
   };
 };

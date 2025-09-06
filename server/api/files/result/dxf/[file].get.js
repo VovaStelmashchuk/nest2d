@@ -1,4 +1,5 @@
-import { connectDB, getDxfResultBucket } from "~/server/db/mongo";
+import { getDxfResultBucket } from "~/server/db/mongo";
+import { track } from "~~/server/utils/tracking";
 
 export default defineEventHandler(async (event) => {
     const userId = event.context?.auth?.userId;
@@ -24,6 +25,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const readStream = resultDxfBucket.openDownloadStreamByName(fileName);
+
+    track("download_nested_result_dxf_file", userId, {
+        fileName: fileName,
+    })
 
     setResponseHeaders(event, {
         "Content-Type": "application/octet-stream",
