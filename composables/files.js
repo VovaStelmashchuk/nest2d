@@ -62,6 +62,7 @@ async function getProject(path) {
         setProjectName(data.name)
     } catch (error) {
         console.error('Error fetching project:', error)
+        navigateTo("/home");
     }
 }
 function setProjectName(name) {

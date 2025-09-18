@@ -38,7 +38,7 @@ const { label, icon, target, href, size, theme, isDisable, isLabelShow, isNotCli
         default: defaultThemeType
     },
     tag: {
-        type: String,
+        type: [String, Object],
         default: 'button'
     },
     isDisable: {

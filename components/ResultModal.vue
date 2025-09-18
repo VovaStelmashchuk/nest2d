@@ -2,7 +2,7 @@
     <DialogWrapper>
         <div class="modal">
             <div
-                v-if="resultModalData.isMultiSheet"
+                v-if="resultModalData.isMultiSheet && !isHaveError"
                 class="modal__list-sheets list-sheets"
             >
                 <MainButton 

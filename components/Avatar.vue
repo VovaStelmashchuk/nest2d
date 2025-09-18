@@ -1,21 +1,31 @@
 <template>
-    <component
-        :is="avatarTag"
-        v-bind="avatarHref"
-        class="avatar"
-    >
-        <img 
-            :class="avatarClasses"
-            :src="user.avatar"
-            :alt="user.name"
-            class="avatar__img"
+    <div class="avatar__wrapper">
+        <MainButton
+            v-if="size === sizeType.s && user?.isAdmin"
+            label="Support"
+            href="/admin/support"
+            :tag="NuxtLink"
+            :theme="themeType.primary"
+            class="upload__btn"
         />
-    </component>
+        <component
+            :is="avatarTag"
+            v-bind="avatarHref"
+            class="avatar"
+        >
+            <img 
+                :class="avatarClasses"
+                :src="user.avatar"
+                :alt="user.name"
+                class="avatar__img"
+            />
+        </component>
+    </div>
 </template>
 <script setup>
+import { themeType } from '~~/constants/theme.constants';
 import { NuxtLink } from '#components';
-import { computed, onBeforeMount, unref } from 'vue';
-import { defaultSizeType } from "~~/constants/size.constants";
+import { defaultSizeType, sizeType } from "~~/constants/size.constants";
 
 const { size } = defineProps({
     size: {
@@ -23,7 +33,6 @@ const { size } = defineProps({
         default: defaultSizeType,
     },
 }) 
-
 
 const route = useRoute()
 
@@ -61,6 +70,12 @@ onBeforeMount(() => {
             width: 140px;
             height: 140px;
         }
+    }
+
+    &__wrapper {
+        display: flex;
+        align-items: center;
+        gap: 16px;
     }
 }
 </style>
