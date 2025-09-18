@@ -58,8 +58,8 @@ const mapFileToUi = (file) => {
 
   const uiParts = parts.map((part) => {
     return {
-      width: part.width,
-      height: part.height,
+      width: Math.round(part.width * 10) / 10,
+      height: Math.round(part.height * 10) / 10,
     };
   });
 
