@@ -54,7 +54,9 @@ const mapFileToUi = (file) => {
     status = file.processingStatus;
   }
 
-  const parts = file.polygonParts.map((part) => {
+  const parts = file.polygonParts || [];
+
+  const uiParts = parts.map((part) => {
     return {
       width: part.width,
       height: part.height,
@@ -66,6 +68,6 @@ const mapFileToUi = (file) => {
     name: file.name,
     svgUrl: svgUrl,
     processingStatus: status,
-    parts: parts,
+    parts: uiParts,
   };
 };
