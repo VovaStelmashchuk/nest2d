@@ -3,26 +3,31 @@ services:
   user-file-processing-worker-normal:
     image: ghcr.io/vovastelmashchuk/user-file-processing-worker:latest
     environment:
-      - MONGO_URI=mongodb://host.docker.internal:27017/nest2d-v2
+      - MONGO_URI=mongodb://mongo:27017/nest2d
       - WORKER_TAG=normal
       - MAX_ENTITY_LIMIT=999
     deploy:
       replicas: 1
       update_config:
         order: start-first
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   nesting-worker:
     image: ghcr.io/vovastelmashchuk/nesting-worker:latest
     environment:
-      - MONGO_URI=mongodb://host.docker.internal:27017/nest2d-v2
+      - MONGO_URI=mongodb://mongo:27017/nest2d
     deploy:
       replicas: 1
       update_config:
         order: start-first
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+
+  mongo:
+    image: mongo:latest
+    container_name: nest2d_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: always
 
 volumes:
-  mongo:
+  mongo-data:

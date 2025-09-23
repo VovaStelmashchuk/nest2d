@@ -43,3 +43,10 @@ docker stack deploy -c docker-stack-external.yml nest2d
 ```
 
 The command runs the two workers user file processing and the nesting one. Each workes will have the replication equals to **one**. 
+
+
+### Rfor windows
+
+```sh
+docker compose -f docker-stack-external.yml up
+```
