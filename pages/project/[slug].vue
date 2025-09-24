@@ -27,7 +27,7 @@
             v-if="!sizesIsAvailable && !nestRequestError"
             class="content__error"
         >
-            Need more plate size to fit the biggest part ({{ biggestPartSizes.width }} x {{ biggestPartSizes.height }} mm). Current plate size is {{ params.widthPlate }} x {{ params.heightPlate }} mm.
+            The plate size needs to be at least {{ biggestPartSizes.width }} x {{ biggestPartSizes.height }} mm. The current plate size is {{ params.widthPlate }} x {{ params.heightPlate }} mm, which is too small
         </div>
         <div 
             v-if="!isNewParams"
@@ -75,7 +75,10 @@ const biggestPartSizes = computed(() => {
             height: part.width > part.height ? part.height : part.width
         }))
     
-    return parts.reduce((max, part) => part.width > max.width ? part : max, parts[0])
+    return {
+        width: Math.max(...parts.map(part => part.width), 0),
+        height: Math.max(...parts.map(part => part.height), 0)
+    }
 })
 const currentSizes = computed(() => {
     const { widthPlate, heightPlate } = unref(params);
