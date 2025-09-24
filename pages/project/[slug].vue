@@ -14,7 +14,7 @@
             :theme="themeType.primary"
             :label="btnLabel"
             :isDisable="btnIsDisable"
-            @click="nest(slug)"
+            @click="startsNest"
             class="content__btn" 
         />
         <div
@@ -22,6 +22,12 @@
             class="content__error"
         >
             {{ nestRequestError }}
+        </div>
+        <div
+            v-if="!sizesIsAvailable && !nestRequestError"
+            class="content__error"
+        >
+            Need more plate size to fit the biggest part ({{ biggestPartSizes.width }} x {{ biggestPartSizes.height }} mm). Current plate size is {{ currentSizes.width }} x {{ currentSizes.height }} mm.
         </div>
         <div 
             v-if="!isNewParams"
@@ -46,41 +52,62 @@ const headers = useRequestHeaders(['cookie']);
 
 const { getters } = globalStore;
 const resultsList = computed(() => getters.resultsList);
-
-const { getters:filesgetters, actions } = filesStore;
-
+const { getters:filesGetters, actions } = filesStore;
+const params = computed(() => filesGetters.params);
 const { setProjectFiles, setProjectName, nest } = actions;
-
-const filesCount = computed(() => filesgetters.filesCount);
-const isNewParams = computed(() => filesgetters.isNewParams);
-const nestRequestError = computed(() => filesgetters.nestRequestError);
-
+const filesCount = computed(() => filesGetters.filesCount);
+const isNewParams = computed(() => filesGetters.isNewParams);
+const nestRequestError = computed(() => filesGetters.nestRequestError);
 const route = useRoute();
 const slug = route.params.slug;
 const apiPath = API_ROUTES.PROJECT(slug);
+const data = filesGetters.projectFiles || await $fetch(apiPath, { headers });
 
-const data = filesgetters.projectFiles || await $fetch(apiPath, { headers });
 
 const projectFiles = computed(() => {
-    return filesgetters.projectFiles || data.files.map(file => ({...file, count: 1}))
+    return filesGetters.projectFiles || data.files.map(file => ({...file, count: 1}))
 })
-
+const biggestPartSizes = computed(() => {
+    const parts = projectFiles.value
+        .reduce((acc, file) => [...acc, ...file.parts], [])
+        .map(part => ({
+            width: part.width > part.height ? part.width : part.height,
+            height: part.width > part.height ? part.height : part.width
+        }))
+    
+    return parts.reduce((max, part) => part.width > max.width ? part : max, parts[0])
+})
+const currentSizes = computed(() => {
+    const { widthPlate, heightPlate } = unref(params);
+    return { 
+        width: widthPlate > heightPlate ? widthPlate : heightPlate, 
+        height: widthPlate > heightPlate ? heightPlate : widthPlate
+    };
+})
+const sizesIsAvailable = computed(() => {
+    const { width, height } = unref(currentSizes);
+    const { width: partWidth, height: partHeight } = unref(biggestPartSizes);
+    return width >= partWidth && height >= partHeight;
+})
 onMounted(() => {
-    if (!filesgetters.projectFiles) {
+    if (!filesGetters.projectFiles) {
         setProjectFiles(data.files, apiPath)
         setProjectName(data.name)
     }
 })
-
 const btnLabel = computed(() => {
     return `Nest ${unref(filesCount)} files`
 })
 const btnIsDisable = computed(() => {
-    return Boolean(unref(nestRequestError)) || !unref(isNewParams) || !unref(resultsList)
+    return Boolean(unref(nestRequestError)) || !unref(isNewParams) || !unref(resultsList) || !unref(sizesIsAvailable)
 })
-
 const addFiles = (files) => {
     actions.addFiles(files, slug)
+}
+
+const startsNest = () => {
+    if(btnIsDisable.value) return;
+    nest(slug);
 }
 </script>
 

@@ -113,8 +113,6 @@ const partsClasses = computed(() => ({
         width: 100px;
         height: 320px;
         margin-right: 16px;
-        position: relative;
-        z-index: 1;
 
         &--is-fullscreen {
             @media (min-width: 567px) {
