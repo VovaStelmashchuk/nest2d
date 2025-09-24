@@ -5,6 +5,22 @@
             :src="file.svgUrl"
             class="file__display"
         />
+        <div class="file__parts parts">
+            <h4 class="parts__title">
+                {{ getPartsTitle(file.parts.length) }}
+            </h4>
+            <UiScrollbar class="parts__scrollbar">
+                <ul class="parts__list">
+                    <li
+                        v-for="(part, index) in file.parts"
+                        :key="index"
+                        class="parts__item"
+                    >
+                        {{ part.width }} x {{ part.height }}
+                    </li>
+                </ul>
+            </UiScrollbar>
+        </div>
         <p class="file__name">
             {{ file.name }}
         </p>
@@ -75,100 +91,135 @@
 
     const { actions } = filesStore
     const { increment, decrement, updateCount } = actions
-
+    const getPartsTitle = (length) => {
+        return length === 1 ? 'Part: ' : `${length} parts: `
+    }
     const openModal = () => {
         emit('openModal')
     }
 </script>
 
 <style lang="scss" scoped>
-    .file {
+.file {
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+    $self: &;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--separator-secondary);
+    transition: border-color 0.3s;
+
+    &__parts {
+        width: calc(100% - 72px);
+        margin-left: 16px;
+        height: 56px;
         position: relative;
-        $self: &;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid var(--separator-secondary);
-        transition: border-color 0.3s;
+        z-index: 1;
+    }
+    &__display {
+        width: 56px;
+        height: 56px;
+    }
 
-        &__display {
-            width: 56px;
-            height: 56px;
-        }
+    &__name {
+        width: 100%;
+        margin-top: 16px;
+        margin-bottom: 16px;
+        color: var(--label-secondary);
+        transition: color 0.3s;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-        &__name {
-            margin-top: 16px;
-            margin-bottom: 16px;
-            color: var(--label-secondary);
-            transition: color 0.3s;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    &__btn {
+        opacity: 0;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        transition: opacity 0.3s;
+    }
 
-        &__btn {
-            opacity: 0;
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            transition: opacity 0.3s;
-        }
+    &__area {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        cursor: pointer;
+    }
 
-        &__area {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            cursor: pointer;
-        }
+    &__counter {
+        position: relative;
+        z-index: 1;
 
-        &__counter {
-            position: relative;
-            z-index: 1;
+    }
 
-        }
+    @media (hover: hover) {
+        &:hover {
+            border-color: var(--separator-primary);
 
-        @media (hover: hover) {
-            &:hover {
-                border-color: var(--separator-primary);
+            #{$self}__name {
+                color: var(--label-primary);
+            }
 
-                #{$self}__name {
-                    color: var(--label-primary);
-                }
-
-                #{$self}__btn {
-                    opacity: 1;
-                }
+            #{$self}__btn {
+                opacity: 1;
             }
         }
     }
+}
 
-    .counter {
-        display: flex;
-        align-items: center;
+.counter {
+    display: flex;
+    align-items: center;
 
-        &__value {
-            padding-left: 4px;
-            padding-right: 4px;
-            color: var(--label-secondary);
-            margin-left: 8px;
-            margin-right: 8px;
-            text-align: center;
-            width: 36px;
-            height: 30px;
-            border: solid 1px var(--separator-secondary);
-            border-radius: 4px;
-            color: var(--accent-primary);
-            outline: none;
-            background-color: transparent;
-            font-family: $sf_mono;
+    &__value {
+        padding-left: 4px;
+        padding-right: 4px;
+        color: var(--label-secondary);
+        margin-left: 8px;
+        margin-right: 8px;
+        text-align: center;
+        width: 36px;
+        height: 30px;
+        border: solid 1px var(--separator-secondary);
+        border-radius: 4px;
+        color: var(--accent-primary);
+        outline: none;
+        background-color: transparent;
+        font-family: $sf_mono;
 
-            &::-webkit-outer-spin-button,
-            &::-webkit-inner-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-            }
-            -moz-appearance: textfield;
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        -moz-appearance: textfield;
+    }
+}
+
+.parts {
+    color: var(--label-secondary);
+    transition: color 0.3s;
+    text-align: left;
+
+    &__scrollbar {
+        height: calc(100% - 19px);
+    }
+    &__title {
+        margin-bottom: 4px;
+    }
+
+    @media (hover: hover) {
+        &:hover {
+            color: var(--label-primary);
         }
     }
+
+    &__item {
+        font-size: 12px;
+    }
+}
 </style>

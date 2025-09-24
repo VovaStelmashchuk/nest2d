@@ -4,6 +4,22 @@
             <!-- {{ fileModalData.svgUrl }} -->
            
             <div class="modal__wrapper">
+                <div :class="partsClasses" class="modal__parts parts">
+                    <h4 class="parts__title">
+                        {{ getPartsTitle(fileModalData.parts.length) }}
+                    </h4>
+                    <UiScrollbar class="parts__scrollbar">
+                        <ul class="parts__list">
+                            <li
+                                v-for="(part, index) in fileModalData.parts"
+                                :key="index"
+                                class="parts__item"
+                            >
+                                {{ part.width }} x {{ part.height }}
+                            </li>
+                        </ul>
+                    </UiScrollbar>
+                </div>
                 <SvgDisplay 
                     :src="fileModalData.svgUrl"
                     :class="displayClasses"
@@ -46,6 +62,12 @@ onMounted(() => {
 const displayClasses = computed(() => ({
     'modal__display--is-fullscreen': unref(isFullScreen)
 }))
+const partsClasses = computed(() => ({
+    'modal__parts--is-fullscreen': unref(isFullScreen)
+}))
+const getPartsTitle = (length) => {
+    return length === 1 ? 'Part: ' : `${length} parts: `
+}
 </script>
     
 <style lang="scss" scoped>
@@ -60,6 +82,7 @@ const displayClasses = computed(() => ({
 
     &__wrapper {
         position: relative;
+        display: flex;
     }
     &__fullscreen {
         display: none;
@@ -101,6 +124,45 @@ const displayClasses = computed(() => ({
         @media (min-width: 567px) {
             max-width: 320px;
         }
+    }
+
+    &__parts {
+        flex-shrink: 0;
+        width: 100px;
+        height: 320px;
+        margin-right: 16px;
+        position: relative;
+        z-index: 1;
+
+        &--is-fullscreen {
+            @media (min-width: 567px) {
+                height: calc(80vh - 148px);
+            }
+        }
+    }
+}
+
+
+.parts {
+    color: var(--label-secondary);
+    transition: color 0.3s;
+    text-align: left;
+
+    &__scrollbar {
+        height: calc(100% - 19px);
+    }
+    &__title {
+        margin-bottom: 4px;
+    }
+
+    @media (hover: hover) {
+        &:hover {
+            color: var(--label-primary);
+        }
+    }
+
+    &__item {
+        font-size: 12px;
     }
 }
 </style>
