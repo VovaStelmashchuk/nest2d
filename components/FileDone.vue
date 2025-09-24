@@ -5,22 +5,7 @@
             :src="file.svgUrl"
             class="file__display"
         />
-        <div class="file__parts parts">
-            <h4 class="parts__title">
-                {{ getPartsTitle(file.parts.length) }}
-            </h4>
-            <UiScrollbar class="parts__scrollbar">
-                <ul class="parts__list">
-                    <li
-                        v-for="(part, index) in file.parts"
-                        :key="index"
-                        class="parts__item"
-                    >
-                        {{ part.width }} x {{ part.height }}
-                    </li>
-                </ul>
-            </UiScrollbar>
-        </div>
+        <FileParts :parts="file.parts" class="file__parts"/>
         <p class="file__name">
             {{ file.name }}
         </p>
@@ -91,9 +76,7 @@
 
     const { actions } = filesStore
     const { increment, decrement, updateCount } = actions
-    const getPartsTitle = (length) => {
-        return length === 1 ? 'Part: ' : `${length} parts: `
-    }
+
     const openModal = () => {
         emit('openModal')
     }
@@ -197,29 +180,6 @@
             margin: 0;
         }
         -moz-appearance: textfield;
-    }
-}
-
-.parts {
-    color: var(--label-secondary);
-    transition: color 0.3s;
-    text-align: left;
-
-    &__scrollbar {
-        height: calc(100% - 19px);
-    }
-    &__title {
-        margin-bottom: 4px;
-    }
-
-    @media (hover: hover) {
-        &:hover {
-            color: var(--label-primary);
-        }
-    }
-
-    &__item {
-        font-size: 12px;
     }
 }
 </style>

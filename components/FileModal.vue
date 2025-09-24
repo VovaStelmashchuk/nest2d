@@ -4,22 +4,7 @@
             <!-- {{ fileModalData.svgUrl }} -->
            
             <div class="modal__wrapper">
-                <div :class="partsClasses" class="modal__parts parts">
-                    <h4 class="parts__title">
-                        {{ getPartsTitle(fileModalData.parts.length) }}
-                    </h4>
-                    <UiScrollbar class="parts__scrollbar">
-                        <ul class="parts__list">
-                            <li
-                                v-for="(part, index) in fileModalData.parts"
-                                :key="index"
-                                class="parts__item"
-                            >
-                                {{ part.width }} x {{ part.height }}
-                            </li>
-                        </ul>
-                    </UiScrollbar>
-                </div>
+                <FileParts :class="partsClasses" :parts="fileModalData.parts" class="modal__parts"/>
                 <SvgDisplay 
                     :src="fileModalData.svgUrl"
                     :class="displayClasses"
@@ -65,9 +50,6 @@ const displayClasses = computed(() => ({
 const partsClasses = computed(() => ({
     'modal__parts--is-fullscreen': unref(isFullScreen)
 }))
-const getPartsTitle = (length) => {
-    return length === 1 ? 'Part: ' : `${length} parts: `
-}
 </script>
     
 <style lang="scss" scoped>
@@ -139,30 +121,6 @@ const getPartsTitle = (length) => {
                 height: calc(80vh - 148px);
             }
         }
-    }
-}
-
-
-.parts {
-    color: var(--label-secondary);
-    transition: color 0.3s;
-    text-align: left;
-
-    &__scrollbar {
-        height: calc(100% - 19px);
-    }
-    &__title {
-        margin-bottom: 4px;
-    }
-
-    @media (hover: hover) {
-        &:hover {
-            color: var(--label-primary);
-        }
-    }
-
-    &__item {
-        font-size: 12px;
     }
 }
 </style>
