@@ -27,7 +27,7 @@
             v-if="!sizesIsAvailable && !nestRequestError"
             class="content__error"
         >
-            Need more plate size to fit the biggest part ({{ biggestPartSizes.width }} x {{ biggestPartSizes.height }} mm). Current plate size is {{ currentSizes.width }} x {{ currentSizes.height }} mm.
+            Need more plate size to fit the biggest part ({{ biggestPartSizes.width }} x {{ biggestPartSizes.height }} mm). Current plate size is {{ params.widthPlate }} x {{ params.heightPlate }} mm.
         </div>
         <div 
             v-if="!isNewParams"
