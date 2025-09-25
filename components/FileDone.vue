@@ -5,7 +5,7 @@
             :src="file.svgUrl"
             class="file__display"
         />
-        <FileParts :parts="file.parts" class="file__parts"/>
+        <FileParts @click="openModal()" :parts="file.parts" class="file__parts"/>
         <p class="file__name">
             {{ file.name }}
         </p>
