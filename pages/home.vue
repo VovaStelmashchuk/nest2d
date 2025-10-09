@@ -20,6 +20,7 @@ definePageMeta({
 const router = useRouter();
 
 onMounted(async () => {
+    trackEvent('page_view', { page: 'home' })
     const checkoutInternalId = useRoute().query.checkoutInternalId
     if (checkoutInternalId) {
         const { status } = await $fetch('/api/payment/check?checkoutInternalId=' + checkoutInternalId, {

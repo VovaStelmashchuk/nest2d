@@ -23,11 +23,13 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "@types/node": "^22.10.2",
     "kickstart-scripts": "^1.0.1",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
     "prettier": "3.5.3",
     "sass": "1.77.6",
-    "sass-loader": "^16.0.2"
+    "sass-loader": "^16.0.2",
+    "typescript": "^5.7.2"
   }
 }

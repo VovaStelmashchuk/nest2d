@@ -10,7 +10,7 @@
             <MainButton
                 :theme="themeType.primary"
                 label="Get Started for Free"
-                @click="loginDialog = true"
+                @click="onGetForFreeClick"
                 class="header__btn"
             />
         </section>
@@ -130,8 +130,17 @@
 definePageMeta({
     middleware: 'auth'
 })
+onMounted(() => {
+    trackEvent('page_view', { page: 'landing' })
+})
 import { header, features, screenshots, howItWorks, started, faq } from '~~/data/index'
 import { defaultThemeType, themeType } from '~~/constants/theme.constants'
+
+function onGetForFreeClick() {
+    loginDialog.value = true
+    trackEvent('click_get_started_for_free', { page: 'landing' })
+}
+
 const loginDialog = useLoginDialog()
 const screenshotDialog = useScreenshotDialog();
 

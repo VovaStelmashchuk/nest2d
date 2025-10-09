@@ -5,20 +5,19 @@ import { downloadAndStoreAvatar } from './avatar'
 import logger from './logger'
 
 export async function createOrUpdateUser({
-    provider,
+    sessionId,
     providerId,
     email,
     name,
     avatarUrl,
 }) {
-    if (!provider || !providerId || !email || !name) {
+    if (!providerId || !email || !name) {
         logger.error('Missing required user data', {
-            provider,
             providerId,
             email,
             name
         })
-        throw new Error('Missing required user data: provider and providerId are required')
+        throw new Error('Missing required user data')
     }
 
     const session = generateSession()
@@ -28,7 +27,7 @@ export async function createOrUpdateUser({
 
     const updateData = {
         $set: {
-            provider,
+            provider: 'google',
             email,
             name,
             avatarFileName: avatarKey,
@@ -42,21 +41,27 @@ export async function createOrUpdateUser({
         }
     }
 
-    const isUserExists = await db.collection('users').findOne({ id: `${provider}:${providerId}` })
+    const userId = `google:${providerId}`
+    const isUserExists = await db.collection('users').findOne({ id: userId })
 
     await db.collection('users').updateOne(
-        { id: `${provider}:${providerId}` },
+        { id: userId },
         updateData,
         { upsert: true }
     )
 
     if (!isUserExists) {
         try {
-            await sendWelcomeMessage(`${provider}:${providerId}`)
+            await sendWelcomeMessage(userId)
         } catch (err) {
             logger.warn('Error sending welcome message', err)
         }
     }
+
+    await db.collection('tracking').updateMany(
+        { sessionKey: sessionId },
+        { $set: { userId: userId } }
+    )
 
     return session
 }

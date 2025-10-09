@@ -1,3 +1,8 @@
+import { TRACKING_COOKIE_NAME } from '~~/server/tracking/const'
+import { getCookie } from 'h3'
+import { createOrUpdateUser } from '~~/server/utils/user'
+import { setSessionCookie } from '~~/server/utils/user'
+
 export default defineEventHandler(async (event) => {
     const { googleAccessToken } = await readBody(event)
 
@@ -18,8 +23,10 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    const sessionId = getCookie(event, TRACKING_COOKIE_NAME)
+
     const session = await createOrUpdateUser({
-        provider: 'google',
+        sessionId: sessionId,
         providerId: sub,
         email: email,
         name: name,

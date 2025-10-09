@@ -7,19 +7,6 @@
             />
             <div class="modal__item item">
                 <img
-                    src="/github-logo.svg"
-                    loading="lazy"
-                    alt="github logo"
-                    class="item__img"
-                />
-                <MainButton 
-                    :theme="themeType.secondary"
-                    @click="doAuth('github')"
-                    label="Login with Github"
-                />
-            </div>
-            <div class="modal__item item">
-                <img
                     src="/google-logo.svg"
                     loading="lazy"
                     alt="google logo"
