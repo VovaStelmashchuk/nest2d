@@ -56,7 +56,7 @@
             <MainButton
                 v-if="isSecondaryTheme"
                 :theme="themeType.primary"
-                @click="loginDialog = true"
+                @click="onLoginClick"
                 label="Login / Sign Up"
                 class="header__btn header__btn--login"
             />
@@ -83,6 +83,11 @@ import { NuxtLink } from '#components';
 import { defaultThemeType, themeType } from "~~/constants/theme.constants";
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
+
+function onLoginClick() {
+    loginDialog.value = true
+    trackEvent('click_login', { page: 'main_header' })
+}
 
 const { theme } = defineProps({
     theme: {
