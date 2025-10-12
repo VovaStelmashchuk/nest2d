@@ -3,6 +3,7 @@ import { connectDB } from "~~/server/db/mongo";
 import { generateRandomString } from "~~/server/utils/strings";
 import standardSlugify from "standard-slugify";
 import logger from "~~/server/utils/logger";
+import { trackEvent } from "~~/server/tracking/add";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -21,14 +22,18 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const projectSlug = getRouterParam(event, "slug");
+
+  trackEvent(event, "request_nesting", {
+    projectSlug: projectSlug,
+  });
+
   if (user.balance < 1) {
     throw createError({
       statusCode: 402,
       statusMessage: "Not enough credits",
     });
   }
-
-  const projectSlug = getRouterParam(event, "slug");
   const project = await db.collection("projects").findOne({ slug: projectSlug, ownerId: userId })
   if (!project) {
     throw createError({

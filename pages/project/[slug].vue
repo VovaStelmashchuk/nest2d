@@ -1,38 +1,18 @@
 <template>
     <div class="content">
-        <MainTitle 
-            :label="`Files: ${filesCount}`"
-            class="content__title" 
-        />
-        <ProjectFiles 
-            :projectFiles="projectFiles"
-            @addFiles="addFiles"
-            class="content__files" 
-        />
+        <MainTitle :label="`Files: ${filesCount}`" class="content__title" />
+        <ProjectFiles :projectFiles="projectFiles" @addFiles="addFiles" class="content__files" />
         <MainSettings />
-        <MainButton 
-            :theme="themeType.primary"
-            :label="btnLabel"
-            :isDisable="btnIsDisable"
-            @click="startsNest"
-            class="content__btn" 
-        />
-        <div
-            v-if="nestRequestError"
-            class="content__error"
-        >
+        <MainButton :theme="themeType.primary" :label="btnLabel" :isDisable="btnIsDisable" @click="startsNest"
+            class="content__btn" />
+        <div v-if="nestRequestError" class="content__error">
             {{ nestRequestError }}
         </div>
-        <div
-            v-if="!sizesIsAvailable && !nestRequestError"
-            class="content__error"
-        >
-            The plate size needs to be at least {{ biggestPartSizes.width }} x {{ biggestPartSizes.height }} mm. The current plate size is {{ params.widthPlate }} x {{ params.heightPlate }} mm, which is too small
+        <div v-if="!sizesIsAvailable && !nestRequestError" class="content__error">
+            The plate size needs to be at least {{ biggestPartSizes.width }} x {{ biggestPartSizes.height }} mm. The
+            current plate size is {{ params.widthPlate }} x {{ params.heightPlate }} mm, which is too small
         </div>
-        <div 
-            v-if="!isNewParams"
-            class="content__text"
-        >
+        <div v-if="!isNewParams" class="content__text">
             Change settings or files to generate again
         </div>
     </div>
@@ -52,7 +32,7 @@ const headers = useRequestHeaders(['cookie']);
 
 const { getters } = globalStore;
 const resultsList = computed(() => getters.resultsList);
-const { getters:filesGetters, actions } = filesStore;
+const { getters: filesGetters, actions } = filesStore;
 const params = computed(() => filesGetters.params);
 const { setProjectFiles, setProjectName, nest } = actions;
 const filesCount = computed(() => filesGetters.filesCount);
@@ -65,7 +45,7 @@ const data = filesGetters.projectFiles || await $fetch(apiPath, { headers });
 
 
 const projectFiles = computed(() => {
-    return filesGetters.projectFiles || data.files.map(file => ({...file, count: 1}))
+    return filesGetters.projectFiles || data.files.map(file => ({ ...file, count: 1 }))
 })
 const biggestPartSizes = computed(() => {
     const parts = projectFiles.value
@@ -74,7 +54,7 @@ const biggestPartSizes = computed(() => {
             width: part.width > part.height ? part.width : part.height,
             height: part.width > part.height ? part.height : part.width
         }))
-    
+
     return {
         width: Math.max(...parts.map(part => part.width), 0),
         height: Math.max(...parts.map(part => part.height), 0)
@@ -82,8 +62,8 @@ const biggestPartSizes = computed(() => {
 })
 const currentSizes = computed(() => {
     const { widthPlate, heightPlate } = unref(params);
-    return { 
-        width: widthPlate > heightPlate ? widthPlate : heightPlate, 
+    return {
+        width: widthPlate > heightPlate ? widthPlate : heightPlate,
         height: widthPlate > heightPlate ? heightPlate : widthPlate
     };
 })
@@ -97,6 +77,11 @@ onMounted(() => {
         setProjectFiles(data.files, apiPath)
         setProjectName(data.name)
     }
+
+    trackEvent("page_view", {
+        page: "project",
+        projectSlug: slug,
+    });
 })
 const btnLabel = computed(() => {
     return `Nest ${unref(filesCount)} files`
@@ -109,7 +94,7 @@ const addFiles = (files) => {
 }
 
 const startsNest = () => {
-    if(btnIsDisable.value) return;
+    if (btnIsDisable.value) return;
     nest(slug);
 }
 </script>
@@ -120,15 +105,18 @@ const startsNest = () => {
         margin-bottom: 40px;
     }
 }
+
 .content {
     text-align: center;
 
     &__title {
         margin-bottom: 16px;
     }
+
     &__files {
         margin-bottom: 40px;
     }
+
     &__error {
         margin-top: 16px;
         padding: 12px;
@@ -137,10 +125,12 @@ const startsNest = () => {
         color: var(--label-secondary);
         border-radius: 8px;
     }
+
     &__text {
         color: var(--label-secondary);
         margin-top: 16px;
     }
+
     &__btn {
         margin-top: 40px;
         margin-right: auto;
