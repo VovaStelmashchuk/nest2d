@@ -2,6 +2,9 @@ ARG NODE_VERSION=20.18.0
 
 FROM node:${NODE_VERSION}-slim as base
 
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 ARG PORT=3000
 ARG GIT_COMMIT_SHA
 
