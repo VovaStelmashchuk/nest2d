@@ -1,81 +1,36 @@
 <template>
     <header class="header">
-        <component 
-            :is="logoTag"
-            v-bind="logoHref"
-            class="header__logo logo"
-        >
-           <span class="logo__label">
+        <component :is="logoTag" v-bind="logoHref" class="header__logo logo">
+            <span class="logo__label">
                 Nest2D
-           </span> 
+            </span>
         </component>
-        <nav 
-            v-if="isSecondaryTheme"
-            :class="navClasses"
-            class="header__nav nav"
-        >
+        <nav v-if="isSecondaryTheme" :class="navClasses" class="header__nav nav">
             <ul class="nav__list">
-                <li
-                    v-for="(navItem, navIndex) in nav" 
-                    :key="navIndex"
-                    @click="toggleMenu"          
-                    class="nav__item"
-                >
-                    <NuxtLink
-                        :to="navItem.href"
-                        class="nav__link"
-                    >
+                <li v-for="(navItem, navIndex) in nav" :key="navIndex" @click="toggleMenu" class="nav__item">
+                    <NuxtLink :to="navItem.href" class="nav__link">
                         {{ navItem.label }}
                     </NuxtLink>
                 </li>
             </ul>
-            <div 
-                @click="toggleMenu"
-                class="nav__background"
-            />
+            <div @click="toggleMenu" class="nav__background" />
         </nav>
-        <div :class="{'header__wrapper--is-primary': isPrimaryTheme}" class="header__wrapper">
+        <div :class="{ 'header__wrapper--is-primary': isPrimaryTheme }" class="header__wrapper">
             <div class="header__theme">
-                <MainButton 
-                    :theme="themeType.primary"
-                    :icon="themeIcon"
-                    :isLabelShow=false
-                    @click="updateTheme"
-                    label="toogle theme"
-                />
+                <MainButton :theme="themeType.primary" :icon="themeIcon" :isLabelShow=false @click="updateTheme"
+                    label="toogle theme" />
             </div>
-            <MainButton 
-                href="https://github.com/VovaStelmashchuk/nest2d/issues/new"
-                target="_blank"
-                label="Report a problem"
-                tag="a"
-                class="header__btn"
-                v-if="isSecondaryTheme"
-            />
+            <MainButton href="https://github.com/VovaStelmashchuk/nest2d/issues/new" target="_blank"
+                label="Report a problem" tag="a" class="header__btn" v-if="isSecondaryTheme" />
             <UserBalance class="header__btn" v-if="isPrimaryTheme" />
-            <MainButton
-                v-if="isSecondaryTheme"
-                :theme="themeType.primary"
-                @click="onLoginClick"
-                label="Login / Sign Up"
-                class="header__btn header__btn--login"
-            />
-            <Avatar
-                v-if="isPrimaryTheme"
-                :size="sizeType.s"
-                class="header__avatar"
-            />
+            <MainButton v-if="isSecondaryTheme" :theme="themeType.primary" @click="onLoginClick" label="Login / Sign Up"
+                class="header__btn header__btn--login" />
+            <Avatar v-if="isPrimaryTheme" :size="sizeType.s" class="header__avatar" />
             <div v-if="isSecondaryTheme" class="header__toggler">
-                <MainButton 
-                    :theme="themeType.secondary"
-                    :icon="iconType.menu"
-                    :isLabelShow=false
-                    @click="toggleMenu"
-                    label="menu toggler"
-                />
+                <MainButton :theme="themeType.secondary" :icon="iconType.menu" :isLabelShow=false @click="toggleMenu"
+                    label="menu toggler" />
             </div>
         </div>
-        <LoginView v-model:isModalOpen="loginDialog"/>
     </header>
 </template>
 <script setup>
@@ -84,9 +39,16 @@ import { defaultThemeType, themeType } from "~~/constants/theme.constants";
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
 
-function onLoginClick() {
-    loginDialog.value = true
+const response = await $fetch(API_ROUTES.AUTH('google'), {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+async function onLoginClick() {
     trackEvent('click_login', { page: 'main_header' })
+    navigateTo(response.url, { external: true });
 }
 
 const { theme } = defineProps({
@@ -99,7 +61,6 @@ const { theme } = defineProps({
 const route = useRoute()
 
 const menuIsOpen = ref(false);
-const loginDialog = useLoginDialog();
 const nav = [
     {
         label: 'Features',
@@ -149,7 +110,7 @@ const { updateTheme } = actions;
 
 const themeCookie = useCookie('theme');
 const themeGlobal = computed(() => {
-    return  themeCookie.value || defaultThemeType
+    return themeCookie.value || defaultThemeType
 })
 const themeIcon = computed(() => {
     return unref(themeGlobal) === themeType.primary ? iconType.light : iconType.dark
@@ -199,6 +160,7 @@ const themeIcon = computed(() => {
             }
         }
     }
+
     &__theme {
         @media (min-width: 567px) {
             margin-bottom: initial;
@@ -207,8 +169,8 @@ const themeIcon = computed(() => {
 
     &__avatar {
         position: absolute;
-            top: 8px;
-            right: 4px;
+        top: 8px;
+        right: 4px;
 
         @media (min-width: 567px) {
             position: initial;
@@ -216,6 +178,7 @@ const themeIcon = computed(() => {
             right: initial;
         }
     }
+
     &__nav {
         z-index: 1;
         position: fixed;
@@ -243,11 +206,13 @@ const themeIcon = computed(() => {
             }
         }
     }
+
     &__toggler {
         @media (min-width: 1199px) {
             display: none;
         }
     }
+
     &__btn {
         &--login {
             position: absolute;
@@ -262,6 +227,7 @@ const themeIcon = computed(() => {
         }
     }
 }
+
 .logo {
     &__label {
         display: block;
@@ -270,11 +236,14 @@ const themeIcon = computed(() => {
         color: var(--accent-primary);
     }
 }
+
 .nav {
     padding-top: 80px;
+
     @media (min-width: 1199px) {
         padding-top: initial;
     }
+
     &__list {
         position: relative;
         z-index: 1;
@@ -282,7 +251,7 @@ const themeIcon = computed(() => {
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        
+
         @media (min-width: 1199px) {
             position: initial;
             z-index: initial;
@@ -290,6 +259,7 @@ const themeIcon = computed(() => {
             flex-direction: initial;
         }
     }
+
     &__item {
         width: 100%;
 
@@ -307,6 +277,7 @@ const themeIcon = computed(() => {
             }
         }
     }
+
     &__link {
         text-align: center;
         border-radius: 6px;
@@ -343,5 +314,4 @@ const themeIcon = computed(() => {
         }
     }
 }
-
 </style>

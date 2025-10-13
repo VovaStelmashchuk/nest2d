@@ -85,7 +85,7 @@
             <MainButton
                 :theme="themeType.primary"
                 label="Login / Sign Up"
-                @click="loginDialog = true"
+                @click="onBottomLoginClick"
                 class="started__btn"
             />
         </section>
@@ -136,12 +136,23 @@ onMounted(() => {
 import { header, features, screenshots, howItWorks, started, faq } from '~~/data/index'
 import { defaultThemeType, themeType } from '~~/constants/theme.constants'
 
+const response = await $fetch(API_ROUTES.AUTH('google'), {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
 function onGetForFreeClick() {
-    loginDialog.value = true
     trackEvent('click_get_started_for_free', { page: 'landing' })
+    navigateTo(response.url, { external: true });
 }
 
-const loginDialog = useLoginDialog()
+function onBottomLoginClick() {
+    trackEvent('click_login_bottom', { page: 'landing' })
+    navigateTo(response.url, { external: true });
+}
+
 const screenshotDialog = useScreenshotDialog();
 
 const { actions } = globalStore;
