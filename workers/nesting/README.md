@@ -18,7 +18,7 @@ To build and run the nesting worker in a Docker container, follow these steps:
 
 1. **Build the Docker image:**
 ```sh
-docker build -t nesting-worker .
+docker build -t nesting-worker:local .
 ```
 
 This will:
@@ -34,4 +34,9 @@ docker run --rm -it nesting-worker
 You can mount a local directory for input/output if needed:
 ```sh
 docker run --rm -it -v $(pwd)/data:/app/data nesting-worker
+```
+
+With network 
+```sh
+docker run --network host -it -v "$(pwd):/app" -w /app nesting-worker:local bash
 ```

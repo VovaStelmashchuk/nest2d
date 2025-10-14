@@ -77,21 +77,18 @@ def _make_dxf_copy(doc) -> Drawing:
 
 def _make_svg_file(doc):
     logger = setup_logger("svg_file_maker")
-    if doc.get("isSvgFileExist", False):
-        logger.info("Svg file already exists", extra={"slug": doc["slug"]})
-        return
+    #if doc.get("isSvgFileExist", False):
+    #    logger.info("Svg file already exists", extra={"slug": doc["slug"]})
+    #    return
     
     drawing = _getting_drawing(doc)
     
-    flattening = doc["flattening"]
+    slug = doc["slug"]
+    closed_parts = doc.get("polygonParts")
+    svg_slug = slug.removesuffix('.dxf') + '-origin.svg'
     owner_id = doc["ownerId"]
     
-    slug = doc["slug"]
-    svg_slug = slug.removesuffix('.dxf') + '-origin.svg'
-    
-    logger.info("Making svg file", extra={"flattening": flattening, "file_slug": doc["slug"]})
-    
-    svg_string = create_svg_from_doc(drawing, flattening)
+    svg_string = create_svg_from_doc(drawing, closed_parts)
     svg_bytes = io.BytesIO(svg_string.encode("utf-8"))
     
     user_dxf_files_svg_bucket.upload_from_stream(filename=svg_slug, source=svg_bytes, metadata={"ownerId": owner_id})
@@ -111,7 +108,6 @@ def _close_polygon_from_dxf(doc, logger_tag: str):
      
     if doc.get("polygonParts"):
         logger.info("polygon_parts_already_exist", extra={"slug": doc["slug"]})
-        return
      
     tolerance = doc["flattening"]
  
@@ -126,14 +122,22 @@ def _close_polygon_from_dxf(doc, logger_tag: str):
     if len(closed_parts) == 0:
         raise Exception("Closed parts is 0")
     
+    polygon_parts = []
+    for part in closed_parts:
+        mongo_dict = part.to_mongo_dict()
+        if mongo_dict is not None:
+            polygon_parts.append(mongo_dict)
+    
     db["user_dxf_files"].update_one(
         {"_id": doc["_id"]},
         {
             "$set": {
-                "polygonParts": [part.to_mongo_dict() for part in closed_parts]
+                "polygonParts": polygon_parts
             }
         }
     )
+    
+    doc["polygonParts"] = polygon_parts
     
     end_time = time.time()
     logger.info("time taken", extra={"time": end_time - start_time})
@@ -158,6 +162,9 @@ def _set_valid_entity_count(doc):
 
 max_entity_limit = int(os.environ.get("MAX_ENTITY_LIMIT", '999'))
 
+settings_logger = setup_logger('settings_logger')
+settings_logger.info("Max entity limit set", extra={"max_entity_limit": max_entity_limit})
+
 def process_file(doc):
     _drawing_cache.clear()
     
@@ -168,9 +175,6 @@ def process_file(doc):
     _make_dxf_copy(doc)
     entity_count = _set_valid_entity_count(doc)
     
-    _make_svg_file(doc)
-    
-    
     if entity_count > max_entity_limit:
         db["user_dxf_files"].update_one(
             {"_id": doc["_id"]},
@@ -179,6 +183,8 @@ def process_file(doc):
         return False
     
     _close_polygon_from_dxf(doc, "dxf_polygonizer")
+    
+    _make_svg_file(doc)
     
     end_time = time.time()
     logger.info("time taken", extra={"time": end_time - start_time})

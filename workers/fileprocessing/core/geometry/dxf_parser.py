@@ -18,7 +18,7 @@ class DxfEntityGeometry:
 def _vec2(v):
     return Point(float(v[0]), float(v[1]))
 
-def _flatten_entity(entity, tol: float):
+def flatten_entity(entity, tol: float):
     """
     Return list of Point vertices approximating *e*
     and its DXF handle.  All curve entities are tessellated with the
@@ -74,7 +74,7 @@ def convert_entity_to_shapely(entity, tol) -> DxfEntityGeometry | None:
     points = []
     
     try:
-        points, h = _flatten_entity(entity, tol)
+        points, h = flatten_entity(entity, tol)
     except GeometryConversionError as e:
         raise e
     

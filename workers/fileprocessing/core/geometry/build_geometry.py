@@ -19,16 +19,32 @@ class ClosedPolygon:
     geometry: Polygon
     handles: List[str]
     
-    def to_mongo_dict(self) -> Dict[str, List[List[float]]]:
+    def to_mongo_dict(self) -> Dict[str, List[List[float]]] :
         if not isinstance(self.geometry, Polygon):
             raise TypeError("The 'geometry' attribute must be a shapely Polygon.")
 
-        exterior_coords = list(zip(*self.geometry.exterior.coords.xy))
-        
         bounding_box = self.geometry.bounds
         
         width = bounding_box[2] - bounding_box[0]
         height = bounding_box[3] - bounding_box[1]
+        
+        if (abs(width) < 0.1 or abs(height) < 0.1):
+            return None
+        
+        coords = list(zip(*self.geometry.exterior.coords.xy))
+        if not coords:
+            exterior_coords = []
+        else:
+            reduced = list()  
+            reduced.append(coords[0])
+            
+            for idx in range(1, len(coords)):
+                point = coords[idx]
+                last = reduced[len(reduced) - 1]
+                if abs(point[0] - last[0]) > 0.01 or abs(point[1] - last[1]) > 0.01:
+                    reduced.append(point)
+                    
+            exterior_coords = reduced
         
         return {
             'coordinates': exterior_coords,

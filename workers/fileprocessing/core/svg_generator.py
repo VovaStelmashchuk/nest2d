@@ -1,64 +1,48 @@
-from ezdxf.addons.drawing import svg, layout
-from xml.etree import ElementTree as ET
-from ezdxf import bbox
-from ezdxf.addons.drawing import RenderContext, Frontend, layout
-from ezdxf.addons.drawing import Frontend, RenderContext, svg, layout, config
+from shapely.geometry import Point
+from utils.logger import setup_logger
+from core.geometry.dxf_parser import flatten_entity
 
-class SVGRenderBackendWithHandle(svg.SVGRenderBackend):
-    def add_strokes(self, d: str, properties):
-        if not d:
-            return
-        element = ET.SubElement(self.entities, "path", d=d)
-        stroke_width = self.resolve_stroke_width(properties.lineweight)
-        stroke_color, stroke_opacity = self.resolve_color(properties.color)
-        cls = self.styles.get_class(
-            stroke=stroke_color,
-            stroke_width=stroke_width,
-            stroke_opacity=stroke_opacity,
-        )
-        element.set("class", cls)
-        if hasattr(properties, 'handle') and properties.handle:
-            element.set("data-dxf-handle", properties.handle)
+logger = setup_logger("svg_generator")
 
-    def add_filling(self, d: str, properties):
-        if not d:
-            return
-        element = ET.SubElement(self.entities, "path", d=d)
-        fill_color, fill_opacity = self.resolve_color(properties.color)
-        cls = self.styles.get_class(fill=fill_color, fill_opacity=fill_opacity)
-        element.set("class", cls)
-        if hasattr(properties, 'handle') and properties.handle:
-            element.set("data-dxf-handle", properties.handle)
-
-class SVGBackendWithHandle(svg.SVGBackend):
-    @staticmethod
-    def make_backend(page: layout.Page, settings: layout.Settings):
-        return SVGRenderBackendWithHandle(page, settings) 
+def get_entity_by_handle(drawing, handles):
+    result = []
+    for entity in drawing.modelspace():
+        if entity.dxf.handle in handles:
+            result.append(entity)
+        
+    return result
     
+def build_svg_string(drawing, closed_parts):
+    min_x = min([coord[0] for part in closed_parts for coord in part["coordinates"]])
+    min_y = min([coord[1] for part in closed_parts for coord in part["coordinates"]])
+    max_x = max([coord[0] for part in closed_parts for coord in part["coordinates"]])
+    max_y = max([coord[1] for part in closed_parts for coord in part["coordinates"]])
     
-def create_svg_from_doc(doc, max_flattening_distance):
-    msp = doc.modelspace()
-    doc_bbox = bbox.extents(msp)
+    width = max_x - min_x
+    height = max_y - min_y
+    
+    stroke_width = min(width, height) * 0.002
+    
+    svg_string = f"<?xml version='1.0' encoding='utf-8'?>\n"
+    
+    svg_string += f"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}mm\" height=\"{height}mm\" viewBox=\"0 0 {width} {height}\">\n"
+    
+    for part in closed_parts:
+        coords = part["coordinates"]
+        wrapper_coords_str = " ".join([f"{coord[0] - min_x} {coord[1] - min_y}" for coord in coords])
+        svg_string += f"<path d=\"M {wrapper_coords_str} Z\" fill=\"none\" stroke=\"#00FF00\" stroke-width=\"{stroke_width}\" />"
+        handles = part["handles"]
+        entities = get_entity_by_handle(drawing, handles)
+        for entity in entities:
+            flatten, _ = flatten_entity(entity, 0.1)  
+            inner_coords_str = " ".join([f"{coord.x - min_x} {coord.y - min_y}" for coord in flatten])
+            svg_string += f"<path d=\"M {inner_coords_str} Z\" fill=\"none\" stroke=\"#FF0000\" stroke-width=\"{stroke_width}\" />"
+        
+    svg_string += f"</svg>\n"
+            
+    return svg_string
 
-    drawing_width = doc_bbox.extmax[0] - doc_bbox.extmin[0]
-    drawing_height = doc_bbox.extmax[1] - doc_bbox.extmin[1]
-
-    context = RenderContext(doc)
-    backend = SVGBackendWithHandle()
-
-    cfg = config.Configuration(
-        background_policy=config.BackgroundPolicy.OFF,
-        color_policy=config.ColorPolicy.BLACK,
-        max_flattening_distance=max_flattening_distance,
-        lineweight_policy=config.LineweightPolicy.ABSOLUTE,
-        lineweight_scaling=2.0
-    )
-    frontend = Frontend(context, backend, cfg)
-
-    frontend.draw_layout(msp, finalize=True)
-
-    page = layout.Page(drawing_width, drawing_height,
-                       layout.Units.mm, margins=layout.Margins.all(8))
-
-    svg_string = backend.get_string(page)
+def create_svg_from_doc(drawing, closed_parts):
+    svg_string = build_svg_string(drawing, closed_parts)
+            
     return svg_string

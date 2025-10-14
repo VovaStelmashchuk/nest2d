@@ -1,64 +1,86 @@
-from ezdxf.addons.drawing import svg, layout
-from xml.etree import ElementTree as ET
-from ezdxf import bbox
-from ezdxf.addons.drawing import RenderContext, Frontend, layout
-from ezdxf.addons.drawing import Frontend, RenderContext, svg, layout, config
+from shapely.geometry import Point
+from utils.logger import setup_logger
 
-class SVGRenderBackendWithHandle(svg.SVGRenderBackend):
-    def add_strokes(self, d: str, properties):
-        if not d:
-            return
-        element = ET.SubElement(self.entities, "path", d=d)
-        stroke_width = self.resolve_stroke_width(properties.lineweight)
-        stroke_color, stroke_opacity = self.resolve_color(properties.color)
-        cls = self.styles.get_class(
-            stroke=stroke_color,
-            stroke_width=stroke_width,
-            stroke_opacity=stroke_opacity,
-        )
-        element.set("class", cls)
-        if hasattr(properties, 'handle') and properties.handle:
-            element.set("data-dxf-handle", properties.handle)
+logger = setup_logger("svg_generator")
 
-    def add_filling(self, d: str, properties):
-        if not d:
-            return
-        element = ET.SubElement(self.entities, "path", d=d)
-        fill_color, fill_opacity = self.resolve_color(properties.color)
-        cls = self.styles.get_class(fill=fill_color, fill_opacity=fill_opacity)
-        element.set("class", cls)
-        if hasattr(properties, 'handle') and properties.handle:
-            element.set("data-dxf-handle", properties.handle)
+def _vec2(v):
+    return Point(float(v[0]), float(v[1]))
 
-class SVGBackendWithHandle(svg.SVGBackend):
-    @staticmethod
-    def make_backend(page: layout.Page, settings: layout.Settings):
-        return SVGRenderBackendWithHandle(page, settings) 
+def flatten_entity(entity, tol: float):
+    """
+    Return list of Point vertices approximating *e*
+    and its DXF handle.  All curve entities are tessellated with the
+    user–supplied *tol* so the maximum sagitta ≤ tol.
+    """
+    h = entity.dxf.handle
+    kind = entity.dxftype()
+
+    if kind == "LINE":
+        pts = [_vec2(entity.dxf.start), _vec2(entity.dxf.end)]
+
+    elif kind == "LWPOLYLINE":
+        pts = [_vec2(p) for p in entity.get_points(format="xy")]
+        if entity.closed:
+            pts.append(pts[0])
+
+    elif kind == "POLYLINE":
+        pts = [_vec2(p) for p in entity.points()]
+        if getattr(entity, "is_closed", False):
+            pts.append(pts[0])
+
+    elif kind == "ARC":
+        radius = entity.dxf.radius
+        if radius < tol:
+            pts = []
+        else:
+            pts = [_vec2(p) for p in entity.flattening(sagitta=tol)]
+
+    elif kind == "CIRCLE":
+        pts = [_vec2(p) for p in entity.flattening(sagitta=tol)]
+
+    elif kind == "ELLIPSE":
+        pts = [_vec2(p) for p in entity.flattening(distance=tol)]
+
+    elif kind == "SPLINE":
+        pts = [_vec2(p) for p in entity.flattening(distance=tol)]
+        
+    elif kind == "POINT":
+        pts = [_vec2(entity.dxf.location)]
+
+    else:
+        raise Exception(f"Unsupported entity type: {kind} (handle: {h})")
+
+    return pts, h
+def build_svg_string(drawing):
+    entities = drawing.modelspace()
     
+    flatten_entities = []
+    for entity in entities:
+        flatten, _ = flatten_entity(entity, 0.1)
+        flatten_entities.append(flatten)
+        
+    min_x = min([coord.x for flatten in flatten_entities for coord in flatten])
+    min_y = min([coord.y for flatten in flatten_entities for coord in flatten])
+    max_x = max([coord.x for flatten in flatten_entities for coord in flatten])
+    max_y = max([coord.y for flatten in flatten_entities for coord in flatten])
     
+    width = max_x - min_x
+    height = max_y - min_y
+    
+    stroke_width = min(width, height) * 0.002
+    
+    svg_string = f"<?xml version='1.0' encoding='utf-8'?>\n"
+    svg_string += f"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}mm\" height=\"{height}mm\" viewBox=\"0 0 {width} {height}\">\n"
+    
+    for flatten in flatten_entities:
+        coords_str = " ".join([f"{coord.x - min_x} {coord.y - min_y}" for coord in flatten])
+        svg_string += f"<path d=\"M {coords_str} Z\" fill=\"none\" stroke=\"#FF0000\" stroke-width=\"{stroke_width}\" />"
+        
+    svg_string += f"</svg>\n"
+            
+    return svg_string
+
 def create_svg_from_doc(doc, max_flattening_distance):
-    msp = doc.modelspace()
-    doc_bbox = bbox.extents(msp)
-
-    drawing_width = doc_bbox.extmax[0] - doc_bbox.extmin[0]
-    drawing_height = doc_bbox.extmax[1] - doc_bbox.extmin[1]
-
-    context = RenderContext(doc)
-    backend = SVGBackendWithHandle()
-
-    cfg = config.Configuration(
-        background_policy=config.BackgroundPolicy.OFF,
-        color_policy=config.ColorPolicy.BLACK,
-        max_flattening_distance=max_flattening_distance,
-        lineweight_policy=config.LineweightPolicy.ABSOLUTE,
-        lineweight_scaling=2.0
-    )
-    frontend = Frontend(context, backend, cfg)
-
-    frontend.draw_layout(msp, finalize=True)
-
-    page = layout.Page(drawing_width, drawing_height,
-                       layout.Units.mm, margins=layout.Margins.all(8))
-
-    svg_string = backend.get_string(page)
+    svg_string = build_svg_string(doc)
+    
     return svg_string

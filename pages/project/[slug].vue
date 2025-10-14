@@ -49,16 +49,17 @@ const projectFiles = computed(() => {
 })
 const biggestPartSizes = computed(() => {
     const parts = projectFiles.value
+        .filter(file => file.count !== 0) // skip files with count 0
         .reduce((acc, file) => [...acc, ...file.parts], [])
         .map(part => ({
             width: part.width > part.height ? part.width : part.height,
             height: part.width > part.height ? part.height : part.width
-        }))
+        }));
 
     return {
         width: Math.max(...parts.map(part => part.width), 0),
         height: Math.max(...parts.map(part => part.height), 0)
-    }
+    };
 })
 const currentSizes = computed(() => {
     const { widthPlate, heightPlate } = unref(params);
