@@ -27,7 +27,4 @@ ENV NUXT_PUBLIC_GIT_COMMIT_SHA=$GIT_COMMIT_SHA
 
 COPY --from=build /src/.output /src/.output
 
-COPY --link entrypoint.sh .
-RUN chmod +x entrypoint.sh
-
 CMD ["node", ".output/server/index.mjs"]
