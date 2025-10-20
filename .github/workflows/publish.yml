@@ -71,6 +71,7 @@ jobs:
           echo "WORKERS_REPLICAS=${{ vars.WORKERS_REPLICAS }}" >> ./envfile
           echo "RESEND_TOKEN=${{ secrets.RESEND_TOKEN }}" >> ./envfile
           echo "API_TOKEN=${{ secrets.API_TOKEN }}" >> ./envfile
+          echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> ./envfile
 
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1

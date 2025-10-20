@@ -10,15 +10,10 @@ services:
     environment:
       - NUXT_PUBLIC_BASE_URL=https://nest2d.stelmashchuk.dev
       - NUXT_PUBLIC_GOOGLE_CLIENT_ID=476104126469-bv13u3dlpooq1j3jglcgj7sup6dt26nk.apps.googleusercontent.com
-      - NUXT_PUBLIC_GITHUB_CLIENT_ID=Ov23limwK0oEIzSCUExe
       - NUXT_MONGO_URI=${MONGO_URI}
       - NUXT_RESEND_TOKEN=${RESEND_TOKEN}
       - NUXT_API_TOKEN=${API_TOKEN}
-    secrets:
-      - source: nest2d_stripe_secret_key
-        target: stripe_secret_key
-      - source: nest2d_github_client_secret
-        target: github_client_secret
+      - NUXT_STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     deploy:
       update_config:
         order: start-first
@@ -68,12 +63,6 @@ services:
         order: start-first
     networks:
       - infra_mongo
-
-secrets:
-  nest2d_stripe_secret_key:
-    external: true
-  nest2d_github_client_secret:
-    external: true
 
 networks:
   infra_reverse-proxy:

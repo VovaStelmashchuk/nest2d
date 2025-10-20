@@ -30,4 +30,4 @@ COPY --from=build /src/.output /src/.output
 COPY --link entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
-CMD ["./entrypoint.sh"]
+CMD ["node", ".output/server/index.mjs"]
