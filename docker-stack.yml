@@ -13,6 +13,7 @@ services:
       - NUXT_PUBLIC_GITHUB_CLIENT_ID=Ov23limwK0oEIzSCUExe
       - NUXT_MONGO_URI=${MONGO_URI}
       - NUXT_RESEND_TOKEN=${RESEND_TOKEN}
+      - NUXT_API_TOKEN=${API_TOKEN}
     secrets:
       - source: nest2d_stripe_secret_key
         target: stripe_secret_key

@@ -11,13 +11,12 @@ export default defineNuxtConfig({
     runtimeConfig: {
         mongoUri: '',
         stripeSecretKey: '',
-        githubClientSecret: '',
         resendToken: '',
+        apiToken: '',
         public: {
             baseUrl: "http://localhost:3000",
             gitCommitSha: "",
             googleClientId: "",
-            githubClientId: "",
         },
     },
 
