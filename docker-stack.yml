@@ -19,7 +19,7 @@ services:
         order: start-first
     networks:
       - infra_reverse-proxy
-      - infra_mongo
+      - infra_mongo-rs-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/service/health"]
       interval: 60s
@@ -38,7 +38,7 @@ services:
       update_config:
         order: start-first
     networks:
-      - infra_mongo
+      - infra_mongo-rs-net
 
   user-file-processing-worker-1k-entity-count:
     image: ghcr.io/vovastelmashchuk/user-file-processing-worker:${GIT_COMMIT_HASH:-latest}
@@ -51,7 +51,7 @@ services:
       update_config:
         order: start-first
     networks:
-      - infra_mongo
+      - infra_mongo-rs-net
 
   nesting-worker:
     image: ghcr.io/vovastelmashchuk/nesting-worker:${GIT_COMMIT_HASH:-latest}
@@ -62,10 +62,10 @@ services:
       update_config:
         order: start-first
     networks:
-      - infra_mongo
+      - infra_mongo-rs-net
 
 networks:
   infra_reverse-proxy:
     external: true
-  infra_mongo:
+  infra_mongo-rs-net:
     external: true
