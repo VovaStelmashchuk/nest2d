@@ -22,6 +22,14 @@ export default defineEventHandler(async (event) => {
 
     const user = await db.collection('users').findOne({ id: userId })
 
+    if (!user?.email) {
+        throw new Error('User not found')
+    }
+
+    const email = user.email
+
+    
+
     const dbMessage = await db
         .collection('supportMessages')
         .findOne({ _id: insertedId })

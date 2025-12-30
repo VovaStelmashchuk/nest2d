@@ -49,3 +49,33 @@ export async function sendNestFinishEmail(nestingJob) {
     logger.error('Failed to send email:', err);
   }
 }
+
+export async function sendNewSupportMessageEmail(userId) {
+  const db = await connectDB();
+  const user = await db.collection('users').findOne({ id: userId });
+  if (!user) {
+    logger.error('User not found');
+    throw createError({
+      statusCode: 404,
+      statusMessage: "User not found",
+    });
+  }
+
+  try {
+    const recipient = user.email;
+    const emailSubject = `New support message from Nest2d`;
+    const emailBody = `
+      <p>Hello,</p>
+      <p>You have received a new message from the Nest2d support team.</p>
+      <p>Please log in to your account to view the message.</p>
+      <p><a href="${useRuntimeConfig().public.baseUrl}">View Message</a></p>
+      <p>Best regards, <br> Nest2d</p>
+      <p>For unsubscribe, just reply to this email with word "unsubscribe", or notify us through our support chat.</p>
+    `;
+
+    await sendEmail(recipient, emailSubject, emailBody);
+    logger.info(`Support notification email sent to ${recipient}`);
+  } catch (err) {
+    logger.error('Failed to send support notification email:', err);
+  }
+}
