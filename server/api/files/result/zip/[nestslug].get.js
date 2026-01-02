@@ -15,6 +15,10 @@ export default defineEventHandler(async (event) => {
     const db = await connectDB();
     const nestResult = await db.collection('nesting_jobs').findOne({ slug: nestSlug, ownerId: userId })
 
+    track("download_nested_result_zip_file", userId, {
+        nestSlug: nestSlug,
+    })
+
     const nestDxfBucket = await getDxfResultBucket();
 
     const dxfFiles = await nestDxfBucket.find({ filename: { $in: nestResult.dxf_files } }).toArray();
