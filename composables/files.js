@@ -13,7 +13,8 @@ const state = reactive({
         widthPlate: '400',
         heightPlate: '560',
         space: '0.1',
-        sheetCount: 100
+        sheetCount: 100,
+        addOutShape: false
     },
     isSvgLoaded: computed(
         () =>
@@ -37,7 +38,10 @@ const state = reactive({
         () => new Set(state.projectFiles?.map((file) => file.slug) || [])
     ),
     isValidParams: computed(() =>
-        Object.values(state.params).some((param) => !isValidNumber(param))
+        !isValidNumber(state.params.widthPlate) ||
+        !isValidNumber(state.params.heightPlate) ||
+        !isValidNumber(state.params.space) ||
+        !isValidNumber(state.params.sheetCount)
     ),
     requestBody: computed(() =>
         JSON.stringify({
@@ -47,7 +51,8 @@ const state = reactive({
                 height: Number(state.params.heightPlate),
                 tolerance: Number(state.params.tolerance),
                 space: Number(state.params.space),
-                sheetCount: Number(state.params.sheetCount)
+                sheetCount: Number(state.params.sheetCount),
+                addOutShape: state.params.addOutShape
             }
         })
     )

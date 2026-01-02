@@ -13,6 +13,7 @@ from core.svg_generator import create_svg_from_doc
 from ezdxf.document import Drawing
 import ezdxf
 from ezdxf import xref
+import ezdxf.bbox
 import math
 import io
 from ezdxf.math import Matrix44
@@ -90,7 +91,7 @@ def save_svg_result(owner_id, file_name, drawing):
     svg_bytes = io.BytesIO(svg_string.encode("utf-8"))
     svg_result_bucket.upload_from_stream(filename=file_name, source=svg_bytes, metadata={"ownerId": owner_id})
 
-def build_result_dxf_files(owner_id, slug, result_containers):
+def build_result_dxf_files(owner_id, slug, result_containers, add_out_shape=False, space=0):
     """
     Iterates through containers, builds a combined/transformed DXF for each,
     and saves the result.
@@ -102,7 +103,7 @@ def build_result_dxf_files(owner_id, slug, result_containers):
     for result_container in result_containers:
         dxf_file_name = f"{slug}_part_{result_container.container_id}.dxf"
         
-        new_drawing = build_part(result_container.transforms)
+        new_drawing = build_part(result_container.transforms, add_out_shape, space)
         
         logger.info("Saving combined file", extra={"file_name": dxf_file_name})
         save_dxf_result(owner_id, dxf_file_name, new_drawing)
@@ -123,13 +124,17 @@ def build_result_dxf_files(owner_id, slug, result_containers):
         }
     )
  
-def build_part(transforms):
+def build_part(transforms, add_out_shape=False, space=0):
     """
     Creates a single new DXF drawing by fetching, transforming, and combining
     entities from a list of transform operations.
     """
+
+    logger.info("Building part", extra={"add_out_shape": add_out_shape})
+
     new_doc = ezdxf.new()
     new_msp = new_doc.modelspace()
+    added_entities = []
 
     for transform in transforms:
         try:
@@ -157,6 +162,7 @@ def build_part(transforms):
                 new_entity = entity.copy()
                 new_entity.transform(matrix)
                 new_msp.add_entity(new_entity)
+                added_entities.append(new_entity)
             
             logger.info(
                 "Entities from file moved to file", 
@@ -166,7 +172,26 @@ def build_part(transforms):
         except Exception as e:
             logger.error("Error processing transform", extra={"file_slug": transform.file_slug, "error": e})
             raise e
-   
+
+    if add_out_shape and added_entities:
+        try:
+            bbox = ezdxf.bbox.extents(added_entities)
+            if bbox.has_data:
+                # Create a new layer for the bounding box
+                if "OUT_SHAPE" not in new_doc.layers:
+                    new_doc.layers.new(name="OUT_SHAPE", dxfattribs={"color": 1}) # Red color
+                
+                points = [
+                    (bbox.extmin.x - space, bbox.extmin.y - space),
+                    (bbox.extmax.x + space, bbox.extmin.y - space),
+                    (bbox.extmax.x + space, bbox.extmax.y + space),
+                    (bbox.extmin.x - space, bbox.extmax.y + space)
+                ]
+                new_msp.add_lwpolyline(points, close=True, dxfattribs={"layer": "OUT_SHAPE"})
+                logger.info("Added bounding box to layout on layer OUT_SHAPE")
+        except Exception as e:
+            logger.error("Failed to add bounding box", extra={"error": e})
+    
     return new_doc
 
 dxf_document_cache = {}
@@ -205,6 +230,7 @@ def nesting_process(doc):
     height = params.get("height")
     space = params.get("space")
     bin_count = params.get("sheetCount")
+    add_out_shape = params.get("addOutShape", False)
     owner_id = doc.get("ownerId")
    
     input_items = convert_files_to_input_items(files, space)
@@ -307,4 +333,4 @@ def nesting_process(doc):
         )
         raise Exception("Not all items could be placed in the nesting job")
     
-    build_result_dxf_files(owner_id, slug, result_containers)
+    build_result_dxf_files(owner_id, slug, result_containers, add_out_shape, space)

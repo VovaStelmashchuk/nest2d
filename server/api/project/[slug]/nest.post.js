@@ -75,6 +75,7 @@ export default defineEventHandler(async (event) => {
     width: params.width,
     space: params.space,
     sheetCount: params.sheetCount,
+    addOutShape: params.addOutShape,
   }
 
   await db.collection("nesting_jobs").insertOne({

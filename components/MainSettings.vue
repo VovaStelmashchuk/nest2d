@@ -9,6 +9,10 @@
                 </div>
                 <InputField prefix="Spacing" suffix="mm" v-model="localSpace" class="size__input" />
                 <InputField prefix="Sheet Count" suffix="units" v-model="localSheetCount" class="size__input" />
+                <label class="size__checkbox">
+                    <input type="checkbox" v-model="localAddOutShape">
+                    Add out shape
+                </label>
             </div>
         </div>
     </div>
@@ -37,6 +41,11 @@ const localSheetCount = computed({
 const localSpace = computed({
     get: () => unref(params).space,
     set: value => updateParams({ space: value }),
+});
+
+const localAddOutShape = computed({
+    get: () => unref(params).addOutShape,
+    set: value => updateParams({ addOutShape: value }),
 });
 </script>
 
@@ -79,6 +88,21 @@ const localSpace = computed({
     &__input {
         flex-grow: 1;
         min-width: 80px;
+    }
+
+    &__checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--label-primary);
+        cursor: pointer;
+        padding: 0 12px;
+
+        input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
     }
 }
 </style>
