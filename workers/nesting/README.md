@@ -40,3 +40,12 @@ With network
 ```sh
 docker run --network host -it -v "$(pwd):/app" -w /app nesting-worker:local bash
 ```
+
+Run as service
+
+```sh
+docker service create \
+  --name my-nesting-service \
+  --env-file ./.env \
+  nest2d-worker-nesting:local
+```

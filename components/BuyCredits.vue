@@ -3,14 +3,23 @@
         <MainTitle label="Buy Credits" class="modal__title" />
         <UserBalance class="modal__balance" />
         <div class="buy-credits__options">
-            <div v-for="option in data.options" :key="option.stripePriceId" class="buy-credits__option">
+            <div v-for="option in data?.options" :key="option.stripePriceId" class="buy-credits__option">
                 <div class="buy-credits__info">
                     <div class="buy-credits__title">{{ option.title }}</div>
                     <div class="buy-credits__desc">{{ option.description }}</div>
                     <div class="buy-credits__credit">Credits: <b>{{ option.credit }}</b></div>
                 </div>
-                <MainButton :label="'Buy'" :theme="themeType.primary" :size="sizeType.m" class="buy-credits__buy-btn"
+                <MainButton :label="'Go'" :theme="themeType.primary" :size="sizeType.m" class="buy-credits__buy-btn"
                     @click="buy(option)" />
+            </div>
+        </div>
+
+        <div class="buy-credits__notes">
+            <div class="buy-credits__note">
+                ✨ Pay as you go. <b>No subscription.</b>
+            </div>
+            <div class="buy-credits__note">
+                🛡️ 14-day money-back guarantee. No questions asked.
             </div>
         </div>
     </div>
@@ -96,5 +105,21 @@ const buy = async (option) => {
 
 .modal__balance {
     margin-bottom: 18px;
+}
+
+.buy-credits__notes {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.buy-credits__note {
+    font-size: 13px;
+    color: var(--label-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 </style>
