@@ -2,6 +2,7 @@ import { connectDB, getDxfResultBucket } from "~/server/db/mongo";
 import { createError } from "h3";
 import archiver from "archiver";
 import { getRouterParam } from "#imports"; // fallback, adjust if needed
+import { track } from "~~/server/utils/tracking";
 
 export default defineEventHandler(async (event) => {
     const userId = event.context?.auth?.userId;
