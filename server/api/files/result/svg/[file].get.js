@@ -14,7 +14,13 @@ export default defineEventHandler(async (event) => {
   const svgResultBucket = await getSvgResultBucket();
 
   const files = await svgResultBucket.find({ filename: fileName }).toArray()
-  const metadata = files[0].metadata
+  if (!files[0]?.metadata) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: `File ${fileName} not found`,
+    });
+  }
+  const metadata = files[0].metadata;
 
   if (metadata.ownerId !== userId && !(event.context.auth.isAdmin == true)) {
     throw createError({
@@ -27,7 +33,6 @@ export default defineEventHandler(async (event) => {
 
   setResponseHeaders(event, {
     "Content-Type": "image/svg+xml",
-    "Cache-Control": "public, max-age=86400", // Cache for 1 day
   });
   return readStream;
 });

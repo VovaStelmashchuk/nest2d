@@ -2,7 +2,7 @@ import { connectDB, getDxfResultBucket } from "~/server/db/mongo";
 import { createError } from "h3";
 import archiver from "archiver";
 import { getRouterParam } from "#imports"; // fallback, adjust if needed
-import { track } from "~~/server/utils/tracking";
+import { trackEvent } from "~~/server/tracking/add"
 
 export default defineEventHandler(async (event) => {
     const userId = event.context?.auth?.userId;
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const db = await connectDB();
     const nestResult = await db.collection('nesting_jobs').findOne({ slug: nestSlug, ownerId: userId })
 
-    track("download_nested_result_zip_file", userId, {
+    await trackEvent(event, "download_nested_result_zip_file", {
         nestSlug: nestSlug,
     })
 
@@ -27,7 +27,6 @@ export default defineEventHandler(async (event) => {
     setResponseHeaders(event, {
         "Content-Type": "application/zip",
         "Content-Disposition": `attachment; filename=nesting-${nestSlug}.zip`,
-        "Cache-Control": "public, max-age=86400",
     });
 
     const archive = archiver("zip", { zlib: { level: 9 } });

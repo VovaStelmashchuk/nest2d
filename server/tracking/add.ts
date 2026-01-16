@@ -29,13 +29,13 @@ export async function trackEvent(event: H3Event<any>, action: string, data: Reco
 
     const timestamp = new Date()
     const record: TrackDBRecord = {
-        action,
-        country,
-        data,
-        sessionKey,
-        timestamp,
-        userId,
-        userBalance,
+        action: action,
+        country: country,
+        data: data,
+        sessionKey: sessionKey,
+        timestamp: timestamp,
+        userBalance: userBalance,
+        userId: userId,
     }
     await db.collection('tracking').insertOne(record)
 }

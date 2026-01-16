@@ -1,5 +1,5 @@
 import { getDxfResultBucket } from "~/server/db/mongo";
-import { track } from "~~/server/utils/tracking";
+import { trackEvent } from "~~/server/tracking/add"
 
 export default defineEventHandler(async (event) => {
     const userId = event.context?.auth?.userId;
@@ -24,16 +24,15 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const readStream = resultDxfBucket.openDownloadStreamByName(fileName);
-
-    track("download_nested_result_dxf_file", userId, {
+    await trackEvent(event, "download_nested_result_dxf_file", {
         fileName: fileName,
     })
+
+    const readStream = resultDxfBucket.openDownloadStreamByName(fileName);
 
     setResponseHeaders(event, {
         "Content-Type": "application/octet-stream",
         "Content-Disposition": `attachment; filename="${fileName}"`,
-        "Cache-Control": "public, max-age=86400", // Cache for 1 day
     });
     return readStream;
 });
