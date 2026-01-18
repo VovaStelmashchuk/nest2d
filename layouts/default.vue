@@ -1,6 +1,5 @@
 <template>
     <div class="main">
-        <RunningLine class="main__line" />
         <MainHeader
             :theme="themeType.secondary"
             class="main__header"

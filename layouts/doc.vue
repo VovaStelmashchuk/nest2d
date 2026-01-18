@@ -1,6 +1,5 @@
 <template>
     <div class="main">
-        <RunningLine class="main__line" />
         <MainHeader class="main__header" />
         <main class="main__content content">
             <slot />
