@@ -2,6 +2,7 @@ import { createError, readMultipartFormData } from "h3";
 
 import { connectDB, getUserDxfBucket } from "~~/server/db/mongo";
 import { generateRandomString } from "~~/server/utils/strings";
+import { trackEvent } from "~~/server/tracking/add";
 
 import standardSlugify from "standard-slugify";
 
@@ -53,7 +54,7 @@ export async function saveFilesToProject(event, projectSlug, userId) {
   });
 
   file_records.forEach((file_record) => {
-    track("create_project_dxf_file", userId, {
+    trackEvent(event, "create_project_dxf_file", {
       fileName: file_record.name,
       fileSlug: file_record.slug,
       projectSlug: projectSlug,
