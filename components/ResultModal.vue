@@ -33,15 +33,15 @@
                     class="controls__next"
                 />
             </div>
+
             <div class="modal__wrapper">
                 <div v-if="isHaveError" :class="placeholderClasses" class="modal__placeholder">
                     Err
                 </div>
                 <template v-else-if="resultModalData.isMultiSheet">
-                    <SvgDisplay
-                        :src="resultModalData.svgs[activePart]" 
-                        :class="displayClasses" 
-                        @click="updateFullScreen"
+                    <DxfViewerComponent
+                        :dxfUrl="resultModalData.dxfs[activePart]"
+                        :class="displayClasses"
                         class="modal__display"
                     />
                     <MainButton
@@ -55,11 +55,10 @@
                         :theme="themeType.primary" 
                     />
                 </template>
-                <SvgDisplay
+                <DxfViewerComponent
                     v-else
-                    :src="resultModalData.svgs[0]" 
-                    :class="displayClasses" 
-                    @click="updateFullScreen"
+                    :dxfUrl="resultModalData.dxfs[0]"
+                    :class="displayClasses"
                     class="modal__display"
                 />
                 <MainButton v-if="!isHaveError" label="fullscreen" :size="sizeType.s" :theme="themeType.primary"
@@ -145,7 +144,14 @@ const updateFullScreen = () => {
     localStorage.setItem('isFullScreen', unref(isFullScreen))
 }
 onMounted(() => {
+    activePart.value = 0
     isFullScreen.value = localStorage.getItem('isFullScreen') === 'true'
+})
+
+watch(resultDialog, (isOpen) => {
+    if (isOpen) {
+        activePart.value = 0
+    }
 })
 const displayClasses = computed(() => ({
     'modal__display--is-fullscreen': unref(isFullScreen) && !unref(isHaveError)
