@@ -32,5 +32,5 @@ export default defineEventHandler(async (event) => {
         userBalance: userBalance,
     }
 
-    saveTrackRecordInBackground(trackRecond)
+    await saveTrackRecordInBackground(trackRecond)
 })

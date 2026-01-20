@@ -38,6 +38,7 @@ import { NuxtLink } from '#components';
 import { defaultThemeType, themeType } from "~~/constants/theme.constants";
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
+import { trackEvent } from '~~/utils/track';
 
 const response = await $fetch(API_ROUTES.AUTH('google'), {
     method: 'GET',

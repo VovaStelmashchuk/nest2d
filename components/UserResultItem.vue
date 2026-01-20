@@ -20,7 +20,7 @@
             </p>
             <div class="result__controls controls">
                 <MainButton v-if="isResultCompleted" :href="downloadUrl" :label="downloadButtonText" tag="a"
-                    :size="sizeType.s" :theme="themeType.primary" class="controls__download" />
+                    :size="sizeType.s" :theme="themeType.primary" class="controls__download" @click="onDownload" />
             </div>
             <button @click="openModal()" class="result__area" />
         </template>
@@ -30,6 +30,7 @@
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 import { statusType } from "~~/constants/status.constants";
+import { trackEvent } from '~~/utils/track';
 import { computed, unref } from "vue";
 
 const { result } = defineProps({
@@ -68,6 +69,13 @@ const isResultCompleted = computed(() => {
 const openModal = () => {
     emit('openModal')
 }
+
+const onDownload = () => {
+    trackEvent('click_download_button', {
+        slug: unref(result).slug,
+        isMultiSheet: isMultiSheet.value
+    })
+}
 </script>
 <style lang="scss" scoped>
 .result {
@@ -103,6 +111,7 @@ const openModal = () => {
         border: solid 1px var(--error-border);
         color: var(--label-primary);
     }
+
     &__name {
         max-width: 240px;
         word-break: break-all;
