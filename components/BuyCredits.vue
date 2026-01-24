@@ -9,8 +9,8 @@
                     <div class="buy-credits__desc">{{ option.description }}</div>
                     <div class="buy-credits__credit">Credits: <b>{{ option.credit }}</b></div>
                 </div>
-                <MainButton :label="'Go'" :theme="themeType.primary" :size="sizeType.m" class="buy-credits__buy-btn"
-                    @click="buy(option)" />
+                <MainButton :label="formatPrice(option.amount, option.currency)" :theme="themeType.primary"
+                    :size="sizeType.m" class="buy-credits__buy-btn" @click="buy(option)" />
             </div>
         </div>
 
@@ -40,6 +40,15 @@ const props = defineProps({
 const emit = defineEmits(['update:isModalOpen'])
 
 const { data } = await useFetch('/api/payment/options')
+
+const formatPrice = (amount, currency) => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    }).format(amount)
+}
 
 const buy = async (option) => {
     const response = await $fetch(`/api/payment/paywalllink?stripePriceId=${option.stripePriceId}`)

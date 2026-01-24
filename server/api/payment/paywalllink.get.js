@@ -1,6 +1,5 @@
 import { connectDB } from '~~/server/db/mongo'
 import { generateRandomString } from '~~/server/utils/strings'
-import { getStripeVariants } from '~~/server/features/payment/const'
 
 const baseUrl = useRuntimeConfig().public.baseUrl
 const stripeSecretKey = useRuntimeConfig().stripeSecretKey
@@ -11,24 +10,31 @@ export default defineEventHandler(async (event) => {
     const stripePriceId = getQuery(event).stripePriceId
 
     if (!userId) {
-        setResponseStatus(401)
-        return
+        throw createError({
+            statusCode: 401,
+            statusMessage: 'User not found'
+        })
     }
 
     const db = await connectDB()
 
     const user = await db.collection('users').findOne({ id: userId })
     if (!user) {
-        setResponseStatus(401)
-        return
+        throw createError({
+            statusCode: 401,
+            statusMessage: 'User not found'
+        })
+    }
+
+    const product = await db.collection('products').findOne({ stripePriceId: stripePriceId })
+    if (!product) {
+        throw createError({
+            statusCode: 404,
+            statusMessage: 'Product not found'
+        })
     }
 
     const transactionInternalId = generateRandomString(24)
-    const variant = (await getStripeVariants()).find(v => v.stripePriceId === stripePriceId)
-    if (!variant) {
-        setResponseStatus(400)
-        return { error: 'Invalid stripePriceId' }
-    }
 
     const params = new URLSearchParams()
     params.append('success_url', redirectUrl + '?checkoutInternalId=' + transactionInternalId)
@@ -55,8 +61,8 @@ export default defineEventHandler(async (event) => {
     const url = responseData.url
 
     await db.collection('transactions').insertOne({
-        stripePriceId: variant.stripePriceId,
-        credit: variant.credit,
+        stripePriceId: stripePriceId,
+        credit: product.balance,
         transactionInternalId: transactionInternalId,
         userId: user.id,
         checkoutId: sessionId,
