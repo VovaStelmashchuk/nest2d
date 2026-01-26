@@ -16,13 +16,13 @@
             </div>
             <template v-else>
                 <div 
-                    :class="dxfRowClasses"
-                    class="result__dxf-row"
+                    :class="svgRowClasses"
+                    class="result__svg-row"
                 >
-                    <DxfViewerComponent 
-                        v-for="(dxf, dxfIndex) in result.dxfs" 
-                        :key="`${dxf}-${dxfIndex}`" 
-                        :dxfUrl="dxf"
+                    <SvgDisplay 
+                        v-for="(svg, svgIndex) in result.svgs" 
+                        :key="`svg-${svgIndex}`" 
+                        :src="svg"
                         :size="sizeType.s"
                         class="result__display" 
                     />
@@ -81,12 +81,12 @@ const downloadButtonText = computed(() => {
     return isMultiSheet.value ? 'Download All' : 'Download';
 });
 
-const hasMultipleDxfs = computed(() => {
-    return (props.result?.dxfs?.length ?? 0) > 1;
+const hasMultipleSvgs = computed(() => {
+    return (props.result?.svgs?.length ?? 0) > 1;
 });
 
-const dxfRowClasses = computed(() => {
-    return ['result__dxf-row', { 'result__dxf-row--multi': hasMultipleDxfs.value }];
+const svgRowClasses = computed(() => {
+    return ['result__svg-row', { 'result__svg-row--multi': hasMultipleSvgs.value }];
 });
 
 const isResultNexting = computed(() => {
@@ -124,7 +124,7 @@ const onDownload = () => {
     border-radius: 8px;
     transition: border-color 0.3s;
 
-    &__dxf-row {
+    &__svg-row {
         max-width: 128px;
         display: grid;
         grid-template-columns: 1fr;

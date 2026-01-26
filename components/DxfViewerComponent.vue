@@ -125,7 +125,6 @@ $error: '.error-overlay';
     position: relative;
     max-height: 100%;
     max-width: 100%;
-    width: 100%;
     min-height: 320px;
     border-radius: 8px;
     display: flex;

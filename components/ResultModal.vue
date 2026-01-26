@@ -33,7 +33,6 @@
                     class="controls__next"
                 />
             </div>
-
             <div class="modal__wrapper">
                 <div
                     v-if="isHaveError"

@@ -1,15 +1,14 @@
 <template>
     <DialogWrapper>
-        <div class="modal">
-            <!-- {{ fileModalData.svgUrl }} -->
-           
+        <div class="modal">  
             <div class="modal__wrapper">
                 <FileParts :class="partsClasses" :parts="fileModalData.parts" class="modal__parts"/>
-                <SvgDisplay 
-                    :src="fileModalData.svgUrl"
+                <DxfViewerComponent
+                    :key="`dxf-0-${isFullScreen}`"
+                    :dxfUrl="fileModalData.dxfUrl"
+                    :isFullScreen="isFullScreen"
                     :class="displayClasses"
-                    @click="updateFullScreen"
-                    class="modal__display" 
+                    class="modal__display"
                 />
                 <MainButton 
                     label="fullscreen"
