@@ -13,7 +13,6 @@
 
 <script setup>
 import { defaultSizeType } from "~~/constants/size.constants";
-import { computed } from 'vue';
 
 const { svgContent, src, size } = defineProps({
     svgContent: {

@@ -1,81 +1,118 @@
 <template>
     <div class="result">
         <template v-if="isResultNexting">
-            <MainLoader :size="sizeType.s" :theme="themeType.secondary" class="result__display" />
+            <MainLoader 
+                :size="sizeType.s" 
+                :theme="themeType.secondary" 
+                class="result__display"
+            />
             <p class="result__text">
-                Nesting</p>
+                Nesting
+            </p>
         </template>
         <template v-else>
             <div v-if="isResultFailed" class="result__placeholder">
                 Err
             </div>
             <template v-else>
-                <div class="result__svg-row">
-                    <SvgDisplay v-for="(svg, idx) in result.svgs" :key="svg + idx" :size="sizeType.s" :src="svg"
-                        class="result__display" />
+                <div 
+                    :class="dxfRowClasses"
+                    class="result__dxf-row"
+                >
+                    <DxfViewerComponent 
+                        v-for="(dxf, dxfIndex) in result.dxfs" 
+                        :key="`${dxf}-${dxfIndex}`" 
+                        :dxfUrl="dxf"
+                        :size="sizeType.s"
+                        class="result__display" 
+                    />
                 </div>
             </template>
             <p class="result__name">
                 {{ result.slug }}.dxf
             </p>
             <div class="result__controls controls">
-                <MainButton v-if="isResultCompleted" :href="downloadUrl" :label="downloadButtonText" tag="a"
-                    :size="sizeType.s" :theme="themeType.primary" class="controls__download" @click="onDownload" />
+                <MainButton 
+                    v-if="isResultCompleted" 
+                    :href="downloadUrl" 
+                    :label="downloadButtonText" 
+                    tag="a"
+                    :size="sizeType.s" 
+                    :theme="themeType.primary" 
+                    class="controls__download" 
+                    @click="onDownload" 
+                />
             </div>
-            <button @click="openModal()" class="result__area" />
+            <button 
+                type="button"
+                @click="openModal" 
+                class="result__area" 
+                aria-label="Open result details"
+            />
         </template>
     </div>
 </template>
+
 <script setup>
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 import { statusType } from "~~/constants/status.constants";
 import { trackEvent } from '~~/utils/track';
-import { computed, unref } from "vue";
+import { computed } from "vue";
 
-const { result } = defineProps({
+const props = defineProps({
     result: {
         type: Object,
         required: true
     }
-})
+});
 
 const emit = defineEmits(["openModal"]);
 
 const isMultiSheet = computed(() => {
-    return unref(result).isMultiSheet
-})
+    return props.result?.isMultiSheet ?? false;
+});
 
 const downloadUrl = computed(() => {
-    return unref(result).downloadUrl
-})
+    return props.result?.downloadUrl ?? '';
+});
 
 const downloadButtonText = computed(() => {
-    if (isMultiSheet.value) {
-        return 'Download All'
-    }
-    return 'Download'
-})
+    return isMultiSheet.value ? 'Download All' : 'Download';
+});
+
+const hasMultipleDxfs = computed(() => {
+    return (props.result?.dxfs?.length ?? 0) > 1;
+});
+
+const dxfRowClasses = computed(() => {
+    return ['result__dxf-row', { 'result__dxf-row--multi': hasMultipleDxfs.value }];
+});
 
 const isResultNexting = computed(() => {
-    return [statusType.unfinished, statusType.pending].includes(unref(result).status)
-})
+    const status = props.result?.status;
+    return status === statusType.unfinished || status === statusType.pending;
+});
+
 const isResultFailed = computed(() => {
-    return unref(result).status === statusType.failed
-})
+    return props.result?.status === statusType.failed;
+});
+
 const isResultCompleted = computed(() => {
-    return unref(result).status === statusType.completed || unref(result).status === statusType.done
-})
+    const status = props.result?.status;
+    return status === statusType.completed || status === statusType.done;
+});
+
 const openModal = () => {
-    emit('openModal')
-}
+    emit('openModal');
+};
 
 const onDownload = () => {
     trackEvent('click_download_button', {
-        slug: unref(result).slug,
+        slug: props.result?.slug,
         isMultiSheet: isMultiSheet.value
-    })
-}
+    });
+};
 </script>
 <style lang="scss" scoped>
 .result {
@@ -87,18 +124,24 @@ const onDownload = () => {
     border-radius: 8px;
     transition: border-color 0.3s;
 
-    &__svg-row {
+    &__dxf-row {
         max-width: 128px;
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr;
         gap: 4px;
         margin-bottom: 8px;
+
+        &--multi {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
 
     &__display,
     &__placeholder {
         width: 40px;
         height: 40px;
+        min-height: 40px;
+        overflow: hidden;
     }
 
     &__placeholder {
@@ -138,6 +181,9 @@ const onDownload = () => {
         bottom: 0;
         left: 0;
         cursor: pointer;
+        border: none;
+        background: transparent;
+        padding: 0;
     }
 
     &__controls {

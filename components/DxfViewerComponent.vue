@@ -1,17 +1,32 @@
 <template>
-    <div class="dxf-viewer-container" ref="containerRef">
-        <div v-if="isLoading" class="loading-overlay">
-            <MainLoader  />
+    <div
+        ref="containerRef"
+        :class="containerClasses"
+        class="dxf-viewer-container"
+    >
+        <div
+            v-if="isLoading"
+            class="loading-overlay"
+        >
+            <MainLoader :size="sizeType.s" />
         </div>
-        <div v-if="error" class="error-overlay">
+        <div
+            v-if="error"
+            class="error-overlay"
+        >
             Err
         </div>
     </div>
 </template>
 
 <script setup>
+import { defaultSizeType, sizeType } from "~~/constants/size.constants";
 
 const props = defineProps({
+    size: {
+        type: String,
+        default: defaultSizeType
+    },
     dxfUrl: {
         type: String,
         default: null
@@ -52,6 +67,10 @@ const clearViewer = () => {
         error.value = null
     }
 }
+
+const containerClasses = computed(() => ({
+    [`dxf-viewer-container--size-${unref(props.size)}`]: Boolean(unref(props.size))
+}))
 
 onMounted(async () => {
     await nextTick()
@@ -99,6 +118,9 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
+$loading: '.loading-overlay';
+$error: '.error-overlay';
+
 .dxf-viewer-container {
     position: relative;
     max-height: 100%;
@@ -116,6 +138,17 @@ defineExpose({
         max-width: 100%;
         max-height: 100%;
         width: 100%;
+    }
+
+    &--size-s {
+        border-radius: 6px;
+
+        #{$loading} {
+            border-radius: 6px;
+        }
+        #{$error} {
+            border-radius: 6px;
+        }
     }
 }
 
