@@ -45,6 +45,11 @@ const mapFileToUi = (file) => {
       ? `/api/files/project/svg/${file.svgFileSlug}`
       : null;
 
+  const dxfUrl =
+    file.processingStatus === "completed"
+      ? `/api/files/project/dxf/${file.slug}`
+      : null;
+
   let status;
   if (file.processingStatus === "completed") {
     status = "done";
@@ -67,6 +72,7 @@ const mapFileToUi = (file) => {
     slug: file.slug,
     name: file.name,
     svgUrl: svgUrl,
+    dxfUrl: dxfUrl,
     processingStatus: status,
     parts: uiParts,
   };

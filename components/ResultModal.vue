@@ -33,14 +33,19 @@
                     class="controls__next"
                 />
             </div>
-
             <div class="modal__wrapper">
-                <div v-if="isHaveError" :class="placeholderClasses" class="modal__placeholder">
+                <div
+                    v-if="isHaveError"
+                    :class="placeholderClasses"
+                    class="modal__placeholder"
+                >
                     Err
                 </div>
                 <template v-else-if="resultModalData.isMultiSheet">
                     <DxfViewerComponent
+                        :key="`dxf-${activePart}-${isFullScreen}`"
                         :dxfUrl="resultModalData.dxfs[activePart]"
+                        :isFullScreen="isFullScreen"
                         :class="displayClasses"
                         class="modal__display"
                     />
@@ -57,13 +62,22 @@
                 </template>
                 <DxfViewerComponent
                     v-else
+                    :key="`dxf-0-${isFullScreen}`"
                     :dxfUrl="resultModalData.dxfs[0]"
+                    :isFullScreen="isFullScreen"
                     :class="displayClasses"
                     class="modal__display"
                 />
-                <MainButton v-if="!isHaveError" label="fullscreen" :size="sizeType.s" :theme="themeType.primary"
-                    :isLabelShow="false" :icon="iconType.fullscreen" @click="updateFullScreen"
-                    class="modal__fullscreen" />
+                <MainButton
+                    v-if="!isHaveError"
+                    label="fullscreen"
+                    :size="sizeType.s"
+                    :theme="themeType.primary"
+                    :isLabelShow="false"
+                    :icon="iconType.fullscreen"
+                    @click="updateFullScreen"
+                    class="modal__fullscreen"
+                />
             </div>
             <div class="modal__name modal__info info">
                 <template v-if="isHaveError">
@@ -83,8 +97,14 @@
                     {{ name }}
                 </template>
             </div>
-            <div v-if="!isHaveError" class="modal__info info">
-                <span v-if="resultModalData.requested === resultModalData.placed" class="info__label">
+            <div
+                v-if="!isHaveError"
+                class="modal__info info"
+            >
+                <span
+                    v-if="resultModalData.requested === resultModalData.placed"
+                    class="info__label"
+                >
                     All details are placed
                 </span>
                 <template v-else>
@@ -116,8 +136,12 @@
                     :size="sizeType.s" 
                     :theme="themeType.primary" 
                 />
-                <MainButton label="Try again" :size="sizeType.s" :theme="themeType.secondary"
-                    @click="resultDialog = false" />
+                <MainButton
+                    label="Try again"
+                    :size="sizeType.s"
+                    :theme="themeType.secondary"
+                    @click="resultDialog = false"
+                />
             </div>
         </div>
     </DialogWrapper>
