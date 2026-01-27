@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
     setResponseHeaders(event, {
         "Content-Type": "application/octet-stream",
         "Content-Disposition": `attachment; filename="${fileName}"`,
+        "Cache-Control": "public, max-age=86400", // Cache for 1 day
     });
     return readStream;
 });
