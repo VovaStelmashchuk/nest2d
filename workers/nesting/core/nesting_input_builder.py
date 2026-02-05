@@ -17,11 +17,11 @@ def build_config():
     }
     return config
 
-def build_item(id, demand, points):
+def build_item(id, demand, points, allowed_orientations):
     return {
         'id': id,
         'demand': demand,
-        'allowed_orientations': [0.0, 90.0, 180.0, 270.0],
+        'allowed_orientations': allowed_orientations,
         'shape': {
             'type': 'simple_polygon',
             'data': points

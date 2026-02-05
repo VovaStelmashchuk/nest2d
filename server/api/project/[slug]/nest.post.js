@@ -75,6 +75,7 @@ export default defineEventHandler(async (event) => {
     width: params.width,
     space: params.space,
     sheetCount: params.sheetCount,
+    allowRotation: params.allowRotation,
     addOutShape: params.addOutShape,
   }
 

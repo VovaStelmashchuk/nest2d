@@ -230,8 +230,12 @@ def nesting_process(doc):
     height = params.get("height")
     space = params.get("space")
     bin_count = params.get("sheetCount")
+    allow_rotation = params.get("allowRotation", True)
     add_out_shape = params.get("addOutShape", False)
     owner_id = doc.get("ownerId")
+    
+    # Map allowRotation boolean to allowed_orientations array
+    allowed_orientations = [0.0, 90.0, 180.0, 270.0] if allow_rotation else [0.0]
    
     input_items = convert_files_to_input_items(files, space)
     jaguar_items = []
@@ -239,7 +243,7 @@ def nesting_process(doc):
     total_requested_count = 0
     for item in input_items:
         count = item.get("count")
-        jaguar_item = build_item(item.get("id"), count, item.get("coords"))
+        jaguar_item = build_item(item.get("id"), count, item.get("coords"), allowed_orientations)
         total_requested_count += count
         jaguar_items.append(jaguar_item)
         

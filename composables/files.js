@@ -14,6 +14,7 @@ const state = reactive({
         heightPlate: '560',
         space: '0.1',
         sheetCount: 100,
+        allowRotation: true,
         addOutShape: false
     },
     isSvgLoaded: computed(
@@ -52,6 +53,7 @@ const state = reactive({
                 tolerance: Number(state.params.tolerance),
                 space: Number(state.params.space),
                 sheetCount: Number(state.params.sheetCount),
+                allowRotation: state.params.allowRotation,
                 addOutShape: state.params.addOutShape
             }
         })

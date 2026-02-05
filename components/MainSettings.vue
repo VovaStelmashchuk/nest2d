@@ -10,6 +10,10 @@
                 <InputField prefix="Spacing" suffix="mm" v-model="localSpace" class="size__input" />
                 <InputField prefix="Sheet Count" suffix="units" v-model="localSheetCount" class="size__input" />
                 <label class="size__checkbox">
+                    <input type="checkbox" v-model="localAllowRotation">
+                    Allow rotation
+                </label>
+                <label class="size__checkbox">
                     <input type="checkbox" v-model="localAddOutShape">
                     Add out shape
                 </label>
@@ -41,6 +45,11 @@ const localSheetCount = computed({
 const localSpace = computed({
     get: () => unref(params).space,
     set: value => updateParams({ space: value }),
+});
+
+const localAllowRotation = computed({
+    get: () => unref(params).allowRotation,
+    set: value => updateParams({ allowRotation: value }),
 });
 
 const localAddOutShape = computed({
