@@ -50,6 +50,7 @@ def convert_files_to_input_items(files, space):
     for file in files:
         file_slug = file.get("slug")
         count = file.get("count")
+        rotations = file.get("rotations", [0, 90, 180, 270])  # Default to all rotations if not specified
         
         user_dxf_file = db["user_dxf_files"].find_one({"slug": file_slug})
         plogonParts = user_dxf_file.get("polygonParts")
@@ -66,7 +67,8 @@ def convert_files_to_input_items(files, space):
                 'file_slug': file_slug,
                 'coords': buffered_polygon_coords,
                 'handles': handles,
-                'count': count
+                'count': count,
+                'rotations': rotations
             }
             
             id += 1
@@ -234,8 +236,8 @@ def nesting_process(doc):
     add_out_shape = params.get("addOutShape", False)
     owner_id = doc.get("ownerId")
     
-    # Map allowRotation boolean to allowed_orientations array
-    allowed_orientations = [0.0, 90.0, 180.0, 270.0] if allow_rotation else [0.0]
+    # Map allowRotation boolean to allowed_orientations array (fallback for backward compatibility)
+    default_allowed_orientations = [0.0, 90.0, 180.0, 270.0] if allow_rotation else [0.0]
    
     input_items = convert_files_to_input_items(files, space)
     jaguar_items = []
@@ -243,6 +245,8 @@ def nesting_process(doc):
     total_requested_count = 0
     for item in input_items:
         count = item.get("count")
+        # Use per-file rotations if available, otherwise fall back to global setting
+        allowed_orientations = item.get("rotations", default_allowed_orientations)
         jaguar_item = build_item(item.get("id"), count, item.get("coords"), allowed_orientations)
         total_requested_count += count
         jaguar_items.append(jaguar_item)

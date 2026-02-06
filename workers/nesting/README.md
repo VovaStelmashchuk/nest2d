@@ -47,5 +47,5 @@ Run as service
 docker service create \
   --name my-nesting-service \
   --env-file ./.env \
-  nest2d-worker-nesting:local
+  nesting-worker:local
 ```

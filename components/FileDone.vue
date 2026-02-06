@@ -1,85 +1,60 @@
 <template>
     <div class="file">
-        <SvgDisplay
-            :size="sizeType.s"
-            :src="file.svgUrl"
-            class="file__display"
-        />
-        <FileParts @click="openModal()" :parts="file.parts" class="file__parts"/>
+        <SvgDisplay :size="sizeType.s" :src="file.svgUrl" class="file__display" />
+        <FileParts @click="openModal()" :parts="file.parts" class="file__parts" />
         <p class="file__name">
             {{ file.name }}
         </p>
         <div class="file__counter counter">
-            <MainButton
-                :size="sizeType.s"
-                :icon="iconType.minus"
-                :isDisable="file.count < 1"
-                :isLabelShow="false"
-                @click="decrement(fileIndex, $event)"
-                label="decrement"
-                class="counter__btn"
-            />
-            <input
-                type="number"
-                v-model="count"
-                min="0"
-                max="999"
-                class="counter__value"
-                @blur="onCountBlur"
-            />
-            <MainButton
-                :size="sizeType.s"
-                :icon="iconType.plus"
-                :isLabelShow="false"
-                :isDisable="file.count >= 999"
-                @click="increment(fileIndex, $event)"
-                label="increment"
-                class="counter__btn"
-            />
+            <MainButton :size="sizeType.s" :icon="iconType.minus" :isDisable="file.count < 1" :isLabelShow="false"
+                @click="decrement(fileIndex, $event)" label="decrement" class="counter__btn" />
+            <input type="number" v-model="count" min="0" max="999" class="counter__value" @blur="onCountBlur" />
+            <MainButton :size="sizeType.s" :icon="iconType.plus" :isLabelShow="false" :isDisable="file.count >= 999"
+                @click="increment(fileIndex, $event)" label="increment" class="counter__btn" />
         </div>
-        <!-- <div class="file__btn">
-            <MainButton 
-                :label="`delete ${file.name}`"
-                :size="sizeType.s"
-                :icon="iconType.trash"
-                :isLabelShow=false
-                @click="console.log(`delete ${file.name}`)"
-            />
-        </div> -->
-        <div
-            @click="openModal()"
-            class="file__area"
-        />
+        <SelectorField v-model="rotation" :options="rotationOptions" class="file__rotation" />
+        <div @click="openModal()" class="file__area" />
     </div>
 </template>
 <script setup>
-    import { sizeType } from '~~/constants/size.constants'
-    import { iconType } from '~~/constants/icon.constants'
+import { sizeType } from '~~/constants/size.constants'
+import { iconType } from '~~/constants/icon.constants'
 
-    const props = defineProps({
-        file: {
-            type: Object,
-            required: true,
-        },
-        fileIndex: {
-            type: Number,
-            required: true,
-        },
-    })
+const props = defineProps({
+    file: {
+        type: Object,
+        required: true,
+    },
+    fileIndex: {
+        type: Number,
+        required: true,
+    },
+})
 
-    const count = computed({
-        get: () => props.file.count,
-        set: value => updateCount(value, props.fileIndex),
-    });
+const count = computed({
+    get: () => props.file.count,
+    set: value => updateCount(value, props.fileIndex),
+});
 
-    const emit = defineEmits(['openModal'])
+const rotation = computed({
+    get: () => props.file.rotation || '[0, 90, 180, 270]',
+    set: value => updateRotation(value, props.fileIndex),
+});
 
-    const { actions } = filesStore
-    const { increment, decrement, updateCount } = actions
+const rotationOptions = computed(() => [
+    { value: '[0, 90, 180, 270]', label: '90°' },
+    { value: '[0, 180]', label: '180°' },
+    { value: '[0]', label: 'No rotation' },
+])
 
-    const openModal = () => {
-        emit('openModal')
-    }
+const emit = defineEmits(['openModal'])
+
+const { actions } = filesStore
+const { increment, decrement, updateCount, updateRotation } = actions
+
+const openModal = () => {
+    emit('openModal')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -100,6 +75,7 @@
         position: relative;
         z-index: 1;
     }
+
     &__display {
         width: 56px;
         height: 56px;
@@ -136,7 +112,13 @@
     &__counter {
         position: relative;
         z-index: 1;
+    }
 
+    &__rotation {
+        position: relative;
+        z-index: 1;
+        margin-top: 12px;
+        width: 100%;
     }
 
     @media (hover: hover) {
@@ -179,6 +161,7 @@
             -webkit-appearance: none;
             margin: 0;
         }
+
         -moz-appearance: textfield;
     }
 }

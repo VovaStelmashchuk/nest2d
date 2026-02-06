@@ -58,10 +58,12 @@ export default defineEventHandler(async (event) => {
   }).toArray()
 
   const fileMetadata = userDxfFilesDatabase.map((file) => {
+    const requestFile = filteredFiles.find((f) => f.slug === file.slug)
     return {
       slug: file.slug,
       simpleName: file.name.replace('.dxf', ''),
-      count: filteredFiles.find((f) => f.slug === file.slug)?.count || 0
+      count: requestFile?.count || 0,
+      rotations: requestFile?.rotation ? JSON.parse(requestFile.rotation) : [0, 90, 180, 270]
     }
   })
 
@@ -75,7 +77,6 @@ export default defineEventHandler(async (event) => {
     width: params.width,
     space: params.space,
     sheetCount: params.sheetCount,
-    allowRotation: params.allowRotation,
     addOutShape: params.addOutShape,
   }
 

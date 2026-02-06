@@ -14,7 +14,6 @@ const state = reactive({
         heightPlate: '560',
         space: '0.1',
         sheetCount: 100,
-        allowRotation: true,
         addOutShape: false
     },
     isSvgLoaded: computed(
@@ -32,7 +31,8 @@ const state = reactive({
     filesToNest: computed(() =>
         state.filesStatusDone.map((file) => ({
             slug: file.slug,
-            count: file.count
+            count: file.count,
+            rotation: file.rotation || '[0, 90, 180, 270]'
         }))
     ),
     currentFilesSlug: computed(
@@ -53,7 +53,6 @@ const state = reactive({
                 tolerance: Number(state.params.tolerance),
                 space: Number(state.params.space),
                 sheetCount: Number(state.params.sheetCount),
-                allowRotation: state.params.allowRotation,
                 addOutShape: state.params.addOutShape
             }
         })
@@ -81,7 +80,10 @@ function setProjectFiles(files, path) {
             ...file,
             count: state.currentFilesSlug.has(file.slug)
                 ? state.projectFiles[fileIndex].count
-                : 1
+                : 1,
+            rotation: state.currentFilesSlug.has(file.slug)
+                ? state.projectFiles[fileIndex].rotation
+                : '[0, 90, 180, 270]'
         }))
     ]
     if (updateTimer) {
@@ -141,6 +143,11 @@ function updateCount(value, index) {
         }
     }
 }
+function updateRotation(value, index) {
+    if (state.projectFiles[index]) {
+        state.projectFiles[index].rotation = value
+    }
+}
 async function nest(slug) {
     try {
         try {
@@ -193,6 +200,7 @@ export const filesStore = readonly({
         setProjectName,
         updateParams,
         updateCount,
+        updateRotation,
         getProject,
         increment,
         decrement,
