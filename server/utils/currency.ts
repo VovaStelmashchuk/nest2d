@@ -3,7 +3,7 @@ export const CountryCurrencyMapping: Record<string, string> = {
     'AT': 'eur', 'BE': 'eur', 'CY': 'eur', 'EE': 'eur', 'FI': 'eur', 'FR': 'eur',
     'DE': 'eur', 'GR': 'eur', 'IE': 'eur', 'IT': 'eur', 'LV': 'eur', 'LT': 'eur',
     'LU': 'eur', 'MT': 'eur', 'NL': 'eur', 'PT': 'eur', 'SK': 'eur', 'SI': 'eur',
-    'ES': 'eur',
+    'ES': 'eur', 'PL': 'eur',
 
     'UA': 'uah',
     'US': 'usd',
