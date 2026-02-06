@@ -71,7 +71,7 @@ const currentSizes = computed(() => {
 const sizesIsAvailable = computed(() => {
     const { width, height } = unref(currentSizes);
     const { width: partWidth, height: partHeight } = unref(biggestPartSizes);
-    return width >= partWidth && height >= partHeight;
+    return (width >= partWidth && height >= partHeight) || (height >= partWidth && width >= partHeight);
 })
 onMounted(() => {
     if (!filesGetters.projectFiles) {
