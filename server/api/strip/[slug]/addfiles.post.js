@@ -2,12 +2,14 @@ import { defineEventHandler, createError } from "h3";
 
 import { connectDB } from "~~/server/db/mongo";
 import { saveFilesToStripProject } from "~~/server/core/strip/dxf";
+import { assertStripFeatureEnabled } from "~~/server/utils/featureFlags";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
   if (!userId) {
     throw createError({ statusCode: 401, message: "Unauthorized" });
   }
+  await assertStripFeatureEnabled(userId);
   const stripSlug = getRouterParam(event, "slug");
 
   const db = await connectDB();

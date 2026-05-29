@@ -1,19 +1,11 @@
 import { computed, reactive, readonly } from 'vue'
-import { processingType } from '~~/constants/files.constants'
 
 const state = reactive({
     projectsList: null,
     projectFiles: null,
     projectName: '',
-    isSvgLoaded: computed(
-        () =>
-            state.projectFiles?.every(
-                (file) => file.processingStatus !== processingType.inProgress
-            ) || false
-    ),
+    fileModalData: {},
 })
-
-let updateTimer
 
 async function getStripProjects() {
     try {
@@ -29,19 +21,13 @@ function setStripProjects(projects) {
 function setProjectName(name) {
     state.projectName = name
 }
-function setProjectFiles(files, path) {
+function setProjectFiles(files) {
     state.projectFiles = [...files]
-    if (updateTimer) {
-        clearTimeout(updateTimer)
-    }
-    if (!state.isSvgLoaded) {
-        updateTimer = setTimeout(() => getStripProject(path), 5000)
-    }
 }
 async function getStripProject(path) {
     try {
         const data = await $fetch(path)
-        setProjectFiles(data.files, path)
+        setProjectFiles(data.files)
         setProjectName(data.name)
     } catch (error) {
         console.error('Error fetching strip project:', error)
@@ -62,12 +48,16 @@ async function addFiles(files, slug) {
         console.error('Error while uploading strip files:', error)
     }
 }
+function setModalFileData(file) {
+    state.fileModalData = { ...file }
+}
 
 export const stripStore = readonly({
     getters: {
         projectsList: computed(() => state.projectsList),
         projectFiles: computed(() => state.projectFiles),
         projectName: computed(() => state.projectName),
+        fileModalData: computed(() => state.fileModalData),
     },
     actions: {
         getStripProjects,
@@ -76,5 +66,6 @@ export const stripStore = readonly({
         setProjectFiles,
         getStripProject,
         addFiles,
+        setModalFileData,
     }
 })

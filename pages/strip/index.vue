@@ -14,7 +14,7 @@
 <script setup>
 definePageMeta({
     layout: "strip",
-    middleware: "auth",
+    middleware: ["auth", "strip"],
 });
 
 const router = useRouter();

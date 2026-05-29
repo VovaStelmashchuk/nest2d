@@ -64,6 +64,17 @@ services:
     networks:
       - infra_mongo-rs-net
 
+  strip-file-processing-worker:
+    image: ghcr.io/vovastelmashchuk/strip-file-processing-worker:${GIT_COMMIT_HASH:-latest}
+    environment:
+      - MONGO_URI=${MONGO_URI}
+    deploy:
+      replicas: ${WORKERS_REPLICAS}
+      update_config:
+        order: start-first
+    networks:
+      - infra_mongo-rs-net
+
 networks:
   infra_reverse-proxy:
     external: true

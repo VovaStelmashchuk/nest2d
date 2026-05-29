@@ -5,7 +5,7 @@
                 Nest2D
             </span>
         </component>
-        <nav v-if="isPrimaryTheme" class="header__tabs tabs">
+        <nav v-if="isPrimaryTheme && isStripFeatureEnabled" class="header__tabs tabs">
             <NuxtLink to="/home" class="tabs__link" active-class="tabs__link--active">
                 Projects
             </NuxtLink>
@@ -88,6 +88,11 @@ const nav = [
         href: '/blog',
     },
 ]
+
+const { getters: authGetters } = authStore;
+const isStripFeatureEnabled = computed(() => {
+    return Boolean(unref(authGetters.user)?.isStripFeatureEnable)
+})
 
 const isPrimaryTheme = computed(() => {
     return unref(theme) === themeType.primary

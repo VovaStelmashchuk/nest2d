@@ -1,7 +1,12 @@
 import { connectDB } from "~/server/db/mongo";
+import { assertStripFeatureEnabled } from "~~/server/utils/featureFlags";
 
 export default defineEventHandler(async (event) => {
-  const userId = event.context?.auth?.userId || "anonymous";
+  const userId = event.context?.auth?.userId;
+  if (!userId) {
+    throw createError({ statusCode: 401, message: "Unauthorized" });
+  }
+  await assertStripFeatureEnabled(userId);
 
   const db = await connectDB();
   const stripProjects = await db
