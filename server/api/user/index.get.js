@@ -15,5 +15,6 @@ export default defineEventHandler(async (event) => {
     email: user.email,
     avatar: user.avatarUrl || "/api/user/avatar",
     isAdmin: user.isAdmin || false,
+    isStripFeatureEnable: user.isStripFeatureEnable || false,
   };
 });

@@ -26,6 +26,9 @@ jobs:
           - name: nesting-worker
             context: ./workers/nesting
             image: nesting-worker
+          - name: strip-file-processing-worker
+            context: ./workers/stripfileprocessing
+            image: strip-file-processing-worker
 
     runs-on: ubuntu-latest
     permissions:
