@@ -5,6 +5,14 @@
                 Nest2D
             </span>
         </component>
+        <nav v-if="isPrimaryTheme" class="header__tabs tabs">
+            <NuxtLink to="/home" class="tabs__link" active-class="tabs__link--active">
+                Projects
+            </NuxtLink>
+            <NuxtLink to="/strip" class="tabs__link" active-class="tabs__link--active">
+                Strip
+            </NuxtLink>
+        </nav>
         <nav v-if="isSecondaryTheme" :class="navClasses" class="header__nav nav">
             <ul class="nav__list">
                 <li v-for="(navItem, navIndex) in nav" :key="navIndex" @click="toggleMenu" class="nav__item">
@@ -225,6 +233,39 @@ const themeIcon = computed(() => {
                 top: initial;
                 right: initial;
             }
+        }
+    }
+}
+
+.tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+
+    @media (min-width: 567px) {
+        margin-top: initial;
+    }
+
+    &__link {
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--label-secondary);
+        background-color: var(--fill-tertiary);
+        transition: color 0.3s, background-color 0.3s;
+
+        @media (hover:hover) {
+            &:hover {
+                color: var(--accent-primary);
+                background-color: var(--fill-secondary);
+            }
+        }
+
+        &--active {
+            color: var(--accent-primary);
+            background-color: var(--fill-secondary);
         }
     }
 }
