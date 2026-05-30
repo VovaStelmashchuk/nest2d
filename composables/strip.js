@@ -1,4 +1,5 @@
 import { computed, reactive, readonly } from 'vue'
+import { processingType } from '~~/constants/files.constants'
 
 const state = reactive({
     projectsList: null,
@@ -15,7 +16,11 @@ const state = reactive({
     isNesting: false,
     filesToNest: computed(() =>
         (state.projectFiles || [])
-            .filter((file) => file.count > 0)
+            .filter(
+                (file) =>
+                    file.count > 0 &&
+                    file.processingStatus === processingType.done
+            )
             .map((file) => ({ slug: file.slug, count: file.count }))
     ),
     requestBody: computed(() =>
@@ -30,6 +35,27 @@ const state = reactive({
 
 function isValidNumber(value) {
     return /^\d+([.,]\d+)?$/.test(String(value))
+}
+
+let updateTimer
+
+// Keep polling the project while any uploaded file is still being processed by
+// the strip file processing worker, so the UI flips from a loader to the
+// selectable file as soon as processing completes.
+function scheduleFilesRefresh() {
+    if (updateTimer) {
+        clearTimeout(updateTimer)
+        updateTimer = null
+    }
+    const hasProcessing = (state.projectFiles || []).some(
+        (file) => file.processingStatus === processingType.inProgress
+    )
+    if (hasProcessing && state.projectSlug) {
+        updateTimer = setTimeout(
+            () => getStripProject(API_ROUTES.STRIP_PROJECT(state.projectSlug)),
+            5000
+        )
+    }
 }
 
 async function getStripProjects() {
@@ -66,6 +92,7 @@ function setProjectFiles(files, slug) {
         // newly loaded project rather than the previous one.
         state.lastParams = ''
     }
+    scheduleFilesRefresh()
 }
 function increment(index, event) {
     const step = event && event.shiftKey ? 10 : 1
@@ -164,15 +191,18 @@ export const stripStore = readonly({
         resultModalData: computed(() => state.resultModalData),
         resultsList: computed(() => state.resultsList),
         filesCount: computed(() =>
-            (state.projectFiles || []).reduce(
-                (acc, file) => acc + (file.count || 0),
-                0
-            )
+            (state.projectFiles || [])
+                .filter((file) => file.processingStatus === processingType.done)
+                .reduce((acc, file) => acc + (file.count || 0), 0)
         ),
         params: computed(() => state.params),
         requiredHeight: computed(() => {
             const heights = (state.projectFiles || [])
-                .filter((file) => (file.count || 0) > 0)
+                .filter(
+                    (file) =>
+                        (file.count || 0) > 0 &&
+                        file.processingStatus === processingType.done
+                )
                 .map((file) => file.minHeight)
                 .filter((height) => typeof height === 'number')
             if (heights.length === 0) {

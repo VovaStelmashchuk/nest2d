@@ -48,11 +48,24 @@ export default defineEventHandler(async (event) => {
 });
 
 const mapFileToUi = (file) => {
+  let status;
+  if (file.processingStatus === "completed") {
+    status = "done";
+  } else if (
+    file.processingStatus === "processing" ||
+    file.processingStatus === "pending"
+  ) {
+    status = "in-progress";
+  } else {
+    status = file.processingStatus;
+  }
+
   return {
     slug: file.slug,
     name: file.name,
     dxfUrl: `/api/files/strip/dxf/${file.slug}`,
     minHeight: minRequiredHeight(file),
+    processingStatus: status,
   };
 };
 

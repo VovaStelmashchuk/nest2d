@@ -1,30 +1,51 @@
 <template>
     <div class="file">
-        <DxfViewerComponent
-            :size="sizeType.s"
-            :dxfUrl="file.dxfUrl"
-            class="file__display"
-        />
-        <p class="file__name">
-            {{ file.name }}
-        </p>
-        <p v-if="minHeight != null" class="file__height">
-            Min height: {{ minHeight }}mm
-        </p>
-        <div class="file__counter counter">
-            <MainButton :size="sizeType.s" :icon="iconType.minus" :isLabelShow="false" :isDisable="file.count < 1"
-                @click="decrement(fileIndex, $event)" label="decrement" class="counter__btn" />
-            <input type="number" v-model="count" min="0" max="999" class="counter__value" />
-            <MainButton :size="sizeType.s" :icon="iconType.plus" :isLabelShow="false" :isDisable="file.count >= 999"
-                @click="increment(fileIndex, $event)" label="increment" class="counter__btn" />
-        </div>
-        <div @click="openModal()" class="file__area" />
+        <template v-if="isInProgress">
+            <MainLoader :theme="themeType.secondary" class="file__display file__display--loader" />
+            <p class="file__name">
+                {{ file.name }}
+            </p>
+        </template>
+        <template v-else-if="isError">
+            <div class="file__display file__placeholder">
+                Err
+            </div>
+            <p class="file__name">
+                {{ file.name }}
+            </p>
+            <MainButton :size="sizeType.s" :theme="themeType.secondary"
+                href="https://github.com/VovaStelmashchuk/nest2d/issues/new" target="_blank" label="Report a problem"
+                tag="a" class="file__problem" />
+        </template>
+        <template v-else>
+            <DxfViewerComponent
+                :size="sizeType.s"
+                :dxfUrl="file.dxfUrl"
+                class="file__display"
+            />
+            <p class="file__name">
+                {{ file.name }}
+            </p>
+            <p v-if="minHeight != null" class="file__height">
+                Min height: {{ minHeight }}mm
+            </p>
+            <div class="file__counter counter">
+                <MainButton :size="sizeType.s" :icon="iconType.minus" :isLabelShow="false" :isDisable="file.count < 1"
+                    @click="decrement(fileIndex, $event)" label="decrement" class="counter__btn" />
+                <input type="number" v-model="count" min="0" max="999" class="counter__value" />
+                <MainButton :size="sizeType.s" :icon="iconType.plus" :isLabelShow="false" :isDisable="file.count >= 999"
+                    @click="increment(fileIndex, $event)" label="increment" class="counter__btn" />
+            </div>
+            <div @click="openModal()" class="file__area" />
+        </template>
     </div>
 </template>
 
 <script setup>
 import { sizeType } from '~~/constants/size.constants'
 import { iconType } from '~~/constants/icon.constants'
+import { themeType } from '~~/constants/theme.constants'
+import { processingType } from '~~/constants/files.constants'
 
 const props = defineProps({
     file: {
@@ -41,6 +62,9 @@ const emit = defineEmits(['openModal'])
 
 const { actions } = stripStore
 const { increment, decrement, updateCount } = actions
+
+const isInProgress = computed(() => props.file.processingStatus === processingType.inProgress)
+const isError = computed(() => props.file.processingStatus === processingType.error)
 
 const count = computed({
     get: () => props.file.count,
@@ -73,6 +97,29 @@ const openModal = () => {
         width: 100%;
         min-height: 120px;
         pointer-events: none;
+
+        &--loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    &__placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border-radius: 8px;
+        background-color: var(--error-background);
+        border: solid 1px var(--error-border);
+        color: var(--label-primary);
+        font-size: 16px;
+    }
+
+    &__problem {
+        margin-left: auto;
+        margin-right: auto;
     }
 
     &__name {
