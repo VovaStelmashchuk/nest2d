@@ -20,7 +20,7 @@ definePageMeta({
 const router = useRouter();
 
 const { actions } = stripStore;
-const { getStripProjects } = actions;
+const { getStripProjects, getStripProject } = actions;
 
 onMounted(() => {
     trackEvent('page_view', { page: 'strip' })
@@ -40,7 +40,13 @@ const handleSubmit = async (files) => {
             body: formData,
         });
 
-        await getStripProjects();
+        // Load the newly created project into the store before navigating so
+        // the project page shows its files instead of the previously opened
+        // project's cached state.
+        await Promise.all([
+            getStripProjects(),
+            getStripProject(API_ROUTES.STRIP_PROJECT(result.slug))
+        ]);
 
         router.push({ path: `/strip/${result.slug}` });
     } catch (err) {

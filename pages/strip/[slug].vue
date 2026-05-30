@@ -41,10 +41,18 @@ const { setProjectFiles, setProjectName, setModalFileData, nest } = actions;
 const route = useRoute();
 const slug = route.params.slug;
 const apiPath = API_ROUTES.STRIP_PROJECT(slug);
-const data = getters.projectFiles || await $fetch(apiPath, { headers });
+
+// Only reuse the cached store state when it actually belongs to this project.
+// Otherwise (e.g. right after creating a new project, or switching projects)
+// the store still holds the previously opened project's files.
+const hasCachedProject = getters.projectFiles !== null && getters.projectSlug === slug;
+const data = hasCachedProject ? null : await $fetch(apiPath, { headers });
 
 const projectFiles = computed(() => {
-    return getters.projectFiles || data.files.map(file => ({ ...file, count: 1 }))
+    if (getters.projectFiles !== null && getters.projectSlug === slug) {
+        return getters.projectFiles
+    }
+    return (data?.files || []).map(file => ({ ...file, count: 1 }))
 })
 const filesCount = computed(() => getters.filesCount)
 const nestRequestError = computed(() => getters.nestRequestError)
@@ -76,8 +84,8 @@ const startNest = async () => {
 }
 
 onMounted(() => {
-    if (!getters.projectFiles) {
-        setProjectFiles(data.files)
+    if (!hasCachedProject) {
+        setProjectFiles(data.files, data.slug)
         setProjectName(data.name)
     }
 

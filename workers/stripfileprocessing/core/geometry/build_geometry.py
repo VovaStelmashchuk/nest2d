@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from .dxf_parser import convert_entity_to_shapely
 
@@ -118,7 +118,11 @@ class ClosedPolygon:
         }
 
 
-def build_geometry(drawing: Drawing, tolerance: float) -> List[ClosedPolygon]:
+def build_geometry(
+    drawing: Drawing,
+    tolerance: float,
+    original_footprints: List[Tuple[str, Point]],
+) -> List[ClosedPolygon]:
     """
     Build accurate part contours from a DXF drawing.
 
@@ -130,12 +134,15 @@ def build_geometry(drawing: Drawing, tolerance: float) -> List[ClosedPolygon]:
       * Each body keeps the outer contour only (interior detail like grain lines,
         notches and leader lines is dropped) while preserving the concave outline.
 
-    DXF handles are preserved: every original entity that falls inside a body has
-    its handle attached to that body's ClosedPolygon.
+    Original DXF handles are preserved via `original_footprints`: each is the
+    (handle, bounding-box centre) of an *original* entity from the uploaded file
+    (captured before blocks/dimensions were decomposed and text was removed).
+    Every footprint that falls inside a body has its handle attached to that
+    body's ClosedPolygon — so text labels, dimensions and blocks travel with the
+    part even though they do not contribute to the contour.
     """
     msp = drawing.modelspace()
 
-    entity_geometries = []  # (handle, shapely geometry) for handle assignment
     closed_polys: List[Polygon] = []
     open_lines: List[LineString] = []
 
@@ -154,7 +161,6 @@ def build_geometry(drawing: Drawing, tolerance: float) -> List[ClosedPolygon]:
             continue
 
         geometry = dxf_geometry.geometry
-        entity_geometries.append((dxf_geometry.handle, geometry))
 
         if isinstance(geometry, Polygon):
             if not geometry.is_empty and geometry.area > 1e-10:
@@ -200,11 +206,17 @@ def build_geometry(drawing: Drawing, tolerance: float) -> List[ClosedPolygon]:
 
     result: List[ClosedPolygon] = []
     for silhouette in silhouettes:
+        # The silhouette is the part's outer contour as a *solid* region
+        # (interior rings dropped), so every original entity that belongs to the
+        # part — the outline, plus holes, notches, grain lines, logos, text and
+        # dimensions sitting inside it — has its bounding-box centre within this
+        # solid. Parts are disjoint, so a centre belongs to at most one part.
         probe = silhouette.buffer(max(tolerance, 1e-6))
+
         handles = [
             handle
-            for (handle, geometry) in entity_geometries
-            if probe.intersects(geometry)
+            for (handle, point) in original_footprints
+            if point is not None and not point.is_empty and probe.intersects(point)
         ]
 
         result.append(ClosedPolygon(geometry=silhouette, handles=handles))

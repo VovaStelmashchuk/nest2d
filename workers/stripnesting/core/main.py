@@ -2,15 +2,22 @@ from datetime import datetime
 import io
 import math
 import os
+import tempfile
 
 import ezdxf
+from ezdxf import recover, xref
+from ezdxf.math import Matrix44
 import spyrrow
 
-from utils.mongo import db, strip_nest_dxf_bucket
+from utils.mongo import db, strip_nest_dxf_bucket, strip_user_dxf_bucket
 from utils.logger import setup_logger
 from core.input_builder import build_input_items
 
 logger = setup_logger("core_stripnesting")
+
+# Cache of origin DXF documents keyed by file slug. Cleared at the start of each
+# job so memory does not grow and stale documents are never reused.
+_origin_doc_cache = {}
 
 strip_nesting_jobs = db["strip_nesting_job_queue"]
 
@@ -31,10 +38,48 @@ def _transform_coords(coords, rotation_deg, tx, ty):
     ]
 
 
+def _load_origin_doc(file_slug):
+    """Load (and cache) the user's original strip DXF for a file slug.
+
+    Loaded with `recover.readfile` — the same loader the stripfileprocessing
+    worker used when it captured the part handles — so the entity handles match
+    exactly what is stored in `polygonParts`.
+    """
+    if file_slug in _origin_doc_cache:
+        return _origin_doc_cache[file_slug]
+
+    stream = strip_user_dxf_bucket.open_download_stream_by_name(file_slug)
+    with tempfile.NamedTemporaryFile(suffix=".dxf", delete=False) as tmp:
+        tmp.write(stream.read())
+        tmp_path = tmp.name
+
+    doc, _auditor = recover.readfile(tmp_path)
+    _origin_doc_cache[file_slug] = doc
+    return doc
+
+
+def _get_origin_entities(file_slug, handles):
+    """Return the origin document and the entities whose handles match `handles`."""
+    doc = _load_origin_doc(file_slug)
+    handle_set = set(handles)
+    entities = [e for e in doc.modelspace() if e.dxf.handle in handle_set]
+    return doc, entities
+
+
 def _build_result_drawing(placed_items, items_by_id):
-    """Build a single DXF drawing of the nested strip from the placed outlines."""
+    """
+    Build the nested-strip DXF from the placed parts.
+
+    The strip solver only decides *where* each part goes (rotation + translation).
+    The geometry itself is reconstructed from the original uploaded DXF: every
+    handle attached to the placed part is looked up in the origin file and the
+    real entity (outline, holes, grain lines, text, dimensions, ...) is copied,
+    transformed by the placement and added to the result — mirroring how the bin
+    nesting worker builds its output. Parts whose origin entities cannot be found
+    fall back to drawing the silhouette outline so nothing silently disappears.
+    """
     new_doc = ezdxf.new()
-    msp = new_doc.modelspace()
+    new_msp = new_doc.modelspace()
 
     for placed in placed_items:
         item = items_by_id.get(placed.id)
@@ -43,8 +88,35 @@ def _build_result_drawing(placed_items, items_by_id):
             continue
 
         tx, ty = placed.translation
-        placed_coords = _transform_coords(item.coords, placed.rotation, tx, ty)
-        msp.add_lwpolyline(placed_coords, close=True)
+        matrix = Matrix44.z_rotate(math.radians(placed.rotation)) * Matrix44.translate(tx, ty, 0)
+
+        source_doc, entities = _get_origin_entities(item.file_slug, item.handles)
+
+        if not entities:
+            logger.warning(
+                "No origin entities for placed part; drawing silhouette only",
+                extra={"file_slug": item.file_slug, "handles": item.handles},
+            )
+            placed_coords = _transform_coords(item.coords, placed.rotation, tx, ty)
+            new_msp.add_lwpolyline(placed_coords, close=True)
+            continue
+
+        # Bring the source layers across so copied entities keep their layer.
+        required_layers = {entity.dxf.layer for entity in entities}
+        loader = xref.Loader(source_doc, new_doc)
+        if required_layers:
+            loader.load_layers(list(required_layers))
+        loader.execute()
+
+        for entity in entities:
+            new_entity = entity.copy()
+            new_entity.transform(matrix)
+            new_msp.add_entity(new_entity)
+
+        logger.info(
+            "Placed part from origin entities",
+            extra={"file_slug": item.file_slug, "entity_count": len(entities)},
+        )
 
     return new_doc
 
@@ -74,6 +146,8 @@ def strip_nesting_process(doc):
     files = doc.get("files") or []
     params = doc.get("params") or {}
     height = params.get("height")
+
+    _origin_doc_cache.clear()
 
     logger.info("Processing strip nesting", extra={"slug": slug, "height": height})
 

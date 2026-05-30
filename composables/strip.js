@@ -3,6 +3,7 @@ import { computed, reactive, readonly } from 'vue'
 const state = reactive({
     projectsList: null,
     projectFiles: null,
+    projectSlug: null,
     projectName: '',
     fileModalData: {},
     resultModalData: {},
@@ -45,14 +46,26 @@ function setStripProjects(projects) {
 function setProjectName(name) {
     state.projectName = name
 }
-function setProjectFiles(files) {
+function setProjectFiles(files, slug) {
+    // Only carry over the user-selected counts when we are reloading the same
+    // project (e.g. after uploading more files). When switching to a different
+    // project we must start fresh so stale counts/files don't leak across.
+    const sameProject = slug != null && slug === state.projectSlug
     const countBySlug = new Map(
-        (state.projectFiles || []).map((file) => [file.slug, file.count])
+        sameProject
+            ? (state.projectFiles || []).map((file) => [file.slug, file.count])
+            : []
     )
     state.projectFiles = files.map((file) => ({
         ...file,
         count: countBySlug.has(file.slug) ? countBySlug.get(file.slug) : 1
     }))
+    state.projectSlug = slug ?? null
+    if (!sameProject) {
+        // Reset the "already nested" marker so the Nest button reflects the
+        // newly loaded project rather than the previous one.
+        state.lastParams = ''
+    }
 }
 function increment(index, event) {
     const step = event && event.shiftKey ? 10 : 1
@@ -79,7 +92,7 @@ function updateCount(value, index) {
 async function getStripProject(path) {
     try {
         const data = await $fetch(path)
-        setProjectFiles(data.files)
+        setProjectFiles(data.files, data.slug)
         setProjectName(data.name)
     } catch (error) {
         console.error('Error fetching strip project:', error)
@@ -145,6 +158,7 @@ export const stripStore = readonly({
     getters: {
         projectsList: computed(() => state.projectsList),
         projectFiles: computed(() => state.projectFiles),
+        projectSlug: computed(() => state.projectSlug),
         projectName: computed(() => state.projectName),
         fileModalData: computed(() => state.fileModalData),
         resultModalData: computed(() => state.resultModalData),
