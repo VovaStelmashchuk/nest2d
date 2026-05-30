@@ -29,6 +29,15 @@ services:
       update_config:
         order: start-first
 
+  strip-nesting-worker:
+    image: ghcr.io/vovastelmashchuk/strip-nesting-worker:latest
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/nest2d
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+
   mongo:
     image: mongo:latest
     container_name: nest2d_mongo

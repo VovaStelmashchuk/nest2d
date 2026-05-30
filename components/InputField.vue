@@ -26,7 +26,7 @@
 
 const inputElement = ref(null)
 
-const { isDisable, tag, modelValue } = defineProps({
+const { isDisable, isError, tag, modelValue } = defineProps({
     prefix: { 
         type: String, 
         default: "" 
@@ -48,6 +48,10 @@ const { isDisable, tag, modelValue } = defineProps({
         default: "" 
     },
     isDisable: {
+        type: Boolean,
+        default: false
+    },
+    isError: {
         type: Boolean,
         default: false
     },
@@ -81,7 +85,8 @@ watch(() => modelValue, async () => {
 })
 
 const inputClasses = computed(() => ({
-    'input--disable': isDisable
+    'input--disable': isDisable,
+    'input--error': isError
 }))
 </script>
 <style lang="scss" scoped>
@@ -137,6 +142,15 @@ const inputClasses = computed(() => ({
 
     &:focus-within {
         border-color: var(--accent-primary);
+    }
+
+    &--error {
+        background-color: var(--error-background);
+        border-color: var(--error-border);
+
+        &:focus-within {
+            border-color: var(--error-border);
+        }
     }
 
     &--disable {

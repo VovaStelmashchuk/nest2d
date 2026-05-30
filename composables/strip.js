@@ -5,7 +5,31 @@ const state = reactive({
     projectFiles: null,
     projectName: '',
     fileModalData: {},
+    resultModalData: {},
+    resultsList: [],
+    params: {
+        height: '250'
+    },
+    lastParams: '',
+    isNesting: false,
+    filesToNest: computed(() =>
+        (state.projectFiles || [])
+            .filter((file) => file.count > 0)
+            .map((file) => ({ slug: file.slug, count: file.count }))
+    ),
+    requestBody: computed(() =>
+        JSON.stringify({
+            files: state.filesToNest,
+            params: {
+                height: Number(state.params.height)
+            }
+        })
+    ),
 })
+
+function isValidNumber(value) {
+    return /^\d+([.,]\d+)?$/.test(String(value))
+}
 
 async function getStripProjects() {
     try {
@@ -22,7 +46,35 @@ function setProjectName(name) {
     state.projectName = name
 }
 function setProjectFiles(files) {
-    state.projectFiles = [...files]
+    const countBySlug = new Map(
+        (state.projectFiles || []).map((file) => [file.slug, file.count])
+    )
+    state.projectFiles = files.map((file) => ({
+        ...file,
+        count: countBySlug.has(file.slug) ? countBySlug.get(file.slug) : 1
+    }))
+}
+function increment(index, event) {
+    const step = event && event.shiftKey ? 10 : 1
+    state.projectFiles[index].count = Math.min(
+        state.projectFiles[index].count + step,
+        999
+    )
+}
+function decrement(index, event) {
+    const step = event && event.shiftKey ? 10 : 1
+    state.projectFiles[index].count = Math.max(
+        state.projectFiles[index].count - step,
+        0
+    )
+}
+function updateCount(value, index) {
+    const number = Number(value)
+    if (!Number.isFinite(number) || number < 0) {
+        state.projectFiles[index].count = 0
+    } else {
+        state.projectFiles[index].count = Math.min(Math.floor(number), 999)
+    }
 }
 async function getStripProject(path) {
     try {
@@ -51,6 +103,43 @@ async function addFiles(files, slug) {
 function setModalFileData(file) {
     state.fileModalData = { ...file }
 }
+function setStripResults(results) {
+    state.resultsList = [...results]
+}
+function setModalResultData(result) {
+    state.resultModalData = { ...result }
+}
+async function getStripResults(slug) {
+    try {
+        const data = await $fetch(API_ROUTES.STRIP_RESULTS(slug))
+        setStripResults(data.items)
+    } catch (error) {
+        console.error('Error fetching strip results:', error)
+    }
+}
+function updateParams(param) {
+    state.params = { ...state.params, ...param }
+}
+async function nest(slug) {
+    state.isNesting = true
+    try {
+        const data = await $fetch(API_ROUTES.STRIP_NEST(slug), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: state.requestBody
+        })
+
+        state.lastParams = state.requestBody
+
+        await getStripResults(slug)
+
+        return data
+    } finally {
+        state.isNesting = false
+    }
+}
 
 export const stripStore = readonly({
     getters: {
@@ -58,6 +147,49 @@ export const stripStore = readonly({
         projectFiles: computed(() => state.projectFiles),
         projectName: computed(() => state.projectName),
         fileModalData: computed(() => state.fileModalData),
+        resultModalData: computed(() => state.resultModalData),
+        resultsList: computed(() => state.resultsList),
+        filesCount: computed(() =>
+            (state.projectFiles || []).reduce(
+                (acc, file) => acc + (file.count || 0),
+                0
+            )
+        ),
+        params: computed(() => state.params),
+        requiredHeight: computed(() => {
+            const heights = (state.projectFiles || [])
+                .filter((file) => (file.count || 0) > 0)
+                .map((file) => file.minHeight)
+                .filter((height) => typeof height === 'number')
+            if (heights.length === 0) {
+                return null
+            }
+            // Require at least a 5% margin above the tallest part so it always
+            // fits comfortably within the strip.
+            return Math.max(...heights) * 1.05
+        }),
+        isHeightTooSmall: computed(() => {
+            const required = stripStore.getters.requiredHeight
+            if (required == null) {
+                return false
+            }
+            const height = Number(state.params.height)
+            if (!Number.isFinite(height) || height <= 0) {
+                return false
+            }
+            return height < required
+        }),
+        isNewParams: computed(() => state.requestBody !== state.lastParams),
+        isNesting: computed(() => state.isNesting),
+        nestRequestError: computed(() => {
+            if (stripStore.getters.filesCount < 1) {
+                return 'Please select at least one file to nest.'
+            }
+            if (!isValidNumber(state.params.height) || Number(state.params.height) <= 0) {
+                return 'Please enter a valid height.'
+            }
+            return ''
+        }),
     },
     actions: {
         getStripProjects,
@@ -67,5 +199,13 @@ export const stripStore = readonly({
         getStripProject,
         addFiles,
         setModalFileData,
+        setModalResultData,
+        setStripResults,
+        getStripResults,
+        increment,
+        decrement,
+        updateCount,
+        updateParams,
+        nest,
     }
 })

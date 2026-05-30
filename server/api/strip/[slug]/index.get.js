@@ -52,5 +52,21 @@ const mapFileToUi = (file) => {
     slug: file.slug,
     name: file.name,
     dxfUrl: `/api/files/strip/dxf/${file.slug}`,
+    minHeight: minRequiredHeight(file),
   };
+};
+
+// Minimum strip height required to nest a file is the tallest of its polygon
+// parts, since every part must fit within the strip height.
+const minRequiredHeight = (file) => {
+  const parts = file.polygonParts || [];
+  const heights = parts
+    .map((part) => part.height)
+    .filter((height) => typeof height === "number");
+
+  if (heights.length === 0) {
+    return null;
+  }
+
+  return Math.max(...heights);
 };

@@ -3,32 +3,28 @@
         <div class="modal">
             <div class="modal__wrapper">
                 <DxfViewerComponent
-                    :dxfUrl="fileModalData.dxfUrl"
+                    :dxfUrl="resultModalData.dxfUrl"
                     :isFullScreen="true"
                     class="modal__display modal__display--is-fullscreen"
                 />
             </div>
             <div class="modal__name">
-                {{ fileModalData.name }}
+                {{ resultModalData.slug }}.dxf
             </div>
-            <p v-if="minHeight != null" class="modal__height">
-                Min height: {{ minHeight }}mm
-            </p>
+            <div class="modal__meta">
+                <span class="modal__tag">H {{ resultModalData.height }}mm</span>
+                <span v-if="resultModalData.width != null" class="modal__tag">W {{ roundedWidth }}mm</span>
+                <span class="modal__tag">{{ resultModalData.fileCount }} files</span>
+            </div>
         </div>
     </DialogWrapper>
 </template>
 
 <script setup>
 const { getters } = stripStore;
-const fileModalData = computed(() => getters.fileModalData);
+const resultModalData = computed(() => getters.resultModalData);
 
-const minHeight = computed(() => {
-    const value = unref(fileModalData)?.minHeight
-    if (value == null) {
-        return null
-    }
-    return Math.round(value * 100) / 100
-})
+const roundedWidth = computed(() => Math.round((unref(resultModalData)?.width ?? 0) * 100) / 100);
 </script>
 
 <style lang="scss" scoped>
@@ -61,17 +57,32 @@ const minHeight = computed(() => {
     }
     &__name {
         display: flex;
+        justify-content: center;
         align-items: center;
-        text-align: left;
+        text-align: center;
         margin-top: 10px;
         min-height: 42px;
         color: var(--label-primary);
+        margin-left: auto;
+        margin-right: auto;
+
+        @media (min-width: 567px) {
+            max-width: 320px;
+        }
     }
-    &__height {
-        text-align: left;
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
         margin-bottom: 10px;
-        font-size: 14px;
+    }
+    &__tag {
+        font-size: 12px;
         color: var(--label-tertiary);
+        background-color: var(--fill-tertiary);
+        border-radius: 4px;
+        padding: 2px 8px;
     }
 }
 </style>
