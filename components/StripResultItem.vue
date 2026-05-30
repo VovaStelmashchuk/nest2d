@@ -25,6 +25,18 @@
             <span v-if="result.width != null" class="result__tag">W {{ roundedWidth }}mm</span>
             <span class="result__tag">{{ result.fileCount }} files</span>
         </div>
+        <div class="result__controls controls">
+            <MainButton
+                v-if="canPreview"
+                :href="result.dxfUrl"
+                label="Download"
+                tag="a"
+                download
+                :size="sizeType.s"
+                :theme="themeType.primary"
+                @click="onDownload"
+            />
+        </div>
         <div v-if="canPreview" @click="openModal()" class="result__area" />
     </div>
 </template>
@@ -33,6 +45,7 @@
 import { sizeType } from '~~/constants/size.constants';
 import { themeType } from '~~/constants/theme.constants';
 import { statusType } from '~~/constants/status.constants';
+import { trackEvent } from '~~/utils/track';
 
 const props = defineProps({
     result: {
@@ -59,6 +72,12 @@ const roundedWidth = computed(() => Math.round((props.result?.width ?? 0) * 100)
 
 const openModal = () => {
     emit('openModal');
+};
+
+const onDownload = () => {
+    trackEvent('click_download_button', {
+        slug: props.result?.slug,
+    });
 };
 </script>
 
@@ -123,6 +142,13 @@ const openModal = () => {
         background-color: var(--fill-tertiary);
         border-radius: 4px;
         padding: 2px 8px;
+    }
+
+    &__controls {
+        z-index: 1;
+        position: absolute;
+        top: 8px;
+        right: 8px;
     }
 
     &__area {

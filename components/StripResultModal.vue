@@ -16,11 +16,24 @@
                 <span v-if="resultModalData.width != null" class="modal__tag">W {{ roundedWidth }}mm</span>
                 <span class="modal__tag">{{ resultModalData.fileCount }} files</span>
             </div>
+            <div class="controls">
+                <MainButton
+                    :href="resultModalData.dxfUrl"
+                    label="Download"
+                    tag="a"
+                    download
+                    :size="sizeType.s"
+                    :theme="themeType.primary"
+                />
+            </div>
         </div>
     </DialogWrapper>
 </template>
 
 <script setup>
+import { sizeType } from '~~/constants/size.constants';
+import { themeType } from '~~/constants/theme.constants';
+
 const { getters } = stripStore;
 const resultModalData = computed(() => getters.resultModalData);
 
@@ -83,6 +96,17 @@ const roundedWidth = computed(() => Math.round((unref(resultModalData)?.width ??
         background-color: var(--fill-tertiary);
         border-radius: 4px;
         padding: 2px 8px;
+    }
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &>* {
+        margin-left: 4px;
+        margin-right: 4px;
     }
 }
 </style>
