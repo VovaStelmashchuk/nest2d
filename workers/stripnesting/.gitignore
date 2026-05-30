@@ -1,0 +1,15 @@
+venv
+.venv
+
+__pycache__
+*.pyc
+
+logs.log
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Local mongo data
+.mongo-data

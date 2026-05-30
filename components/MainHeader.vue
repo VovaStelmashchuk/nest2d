@@ -7,7 +7,7 @@
         </component>
         <nav v-if="isPrimaryTheme && isStripFeatureEnabled" class="header__tabs tabs">
             <NuxtLink to="/home" class="tabs__link" active-class="tabs__link--active">
-                Projects
+                Bins
             </NuxtLink>
             <NuxtLink to="/strip" class="tabs__link" active-class="tabs__link--active">
                 Strip
@@ -30,7 +30,7 @@
             </div>
             <MainButton href="https://github.com/VovaStelmashchuk/nest2d/issues/new" target="_blank"
                 label="Report a problem" tag="a" class="header__btn" v-if="isSecondaryTheme" />
-            <UserBalance class="header__btn" v-if="isPrimaryTheme" />
+            <UserBalance class="header__btn" v-if="isPrimaryTheme && !isStripPage" />
             <MainButton v-if="isSecondaryTheme" :theme="themeType.primary" @click="onLoginClick" label="Login / Sign Up"
                 class="header__btn header__btn--login" />
             <Avatar v-if="isPrimaryTheme" :size="sizeType.s" class="header__avatar" />
@@ -102,6 +102,9 @@ const isSecondaryTheme = computed(() => {
 })
 const isHomePage = computed(() => {
     return route.path === '/home' || route.path === '/'
+})
+const isStripPage = computed(() => {
+    return route.path === '/strip' || route.path.startsWith('/strip/')
 })
 const logoTag = computed(() => {
     return unref(isHomePage) ? 'div' : NuxtLink

@@ -111,6 +111,24 @@ export async function getStripUserDxfBucket() {
 /**
  * @type {GridFSBucket}
  */
+let stripNestDxfBucket;
+
+/**
+ * @returns {Promise<GridFSBucket>}
+ */
+export async function getStripNestDxfBucket() {
+  await connectDB();
+  if (!stripNestDxfBucket) {
+    stripNestDxfBucket = new GridFSBucket(db, {
+      bucketName: "stripNestDxf",
+    });
+  }
+  return stripNestDxfBucket;
+}
+
+/**
+ * @type {GridFSBucket}
+ */
 let userSvgBucket;
 
 /**

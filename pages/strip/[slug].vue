@@ -1,21 +1,33 @@
 <template>
     <div class="content">
-        <MainTitle :label="`Files: ${projectFiles.length}`" class="content__title" />
+        <MainTitle :label="`Files: ${filesCount}`" class="content__title" />
         <div class="content__files files">
             <DxfUpload @files="addFiles" />
             <StripFile
-                v-for="file in projectFiles"
+                v-for="(file, fileIndex) in projectFiles"
                 :key="file.slug"
                 :file="file"
+                :fileIndex="fileIndex"
                 @openModal="openModal(file)"
                 class="files__item"
             />
+        </div>
+        <StripSettings class="content__settings" />
+        <MainButton :theme="themeType.primary" :label="btnLabel" :isDisable="btnIsDisable" @click="startNest"
+            class="content__btn" />
+        <div v-if="nestRequestError" class="content__error">
+            {{ nestRequestError }}
+        </div>
+        <div v-if="!isNewParams && !nestRequestError && !isNesting" class="content__text">
+            Change settings or files to generate again
         </div>
         <StripFileModal v-model:isModalOpen="fileDialog" />
     </div>
 </template>
 
 <script setup>
+import { themeType } from "~~/constants/theme.constants";
+
 definePageMeta({
     layout: "strip",
     middleware: ["auth", "strip"],
@@ -24,7 +36,7 @@ definePageMeta({
 const headers = useRequestHeaders(['cookie']);
 
 const { getters, actions } = stripStore;
-const { setProjectFiles, setProjectName, setModalFileData } = actions;
+const { setProjectFiles, setProjectName, setModalFileData, nest } = actions;
 
 const route = useRoute();
 const slug = route.params.slug;
@@ -32,8 +44,17 @@ const apiPath = API_ROUTES.STRIP_PROJECT(slug);
 const data = getters.projectFiles || await $fetch(apiPath, { headers });
 
 const projectFiles = computed(() => {
-    return getters.projectFiles || data.files
+    return getters.projectFiles || data.files.map(file => ({ ...file, count: 1 }))
 })
+const filesCount = computed(() => getters.filesCount)
+const nestRequestError = computed(() => getters.nestRequestError)
+const isNewParams = computed(() => getters.isNewParams)
+const isNesting = computed(() => getters.isNesting)
+
+const btnLabel = computed(() => `Nest ${unref(filesCount)} files`)
+const btnIsDisable = computed(() =>
+    Boolean(unref(nestRequestError)) || !unref(isNewParams) || unref(isNesting)
+)
 
 const fileDialog = useStripFileDialog();
 const openModal = (file) => {
@@ -43,6 +64,15 @@ const openModal = (file) => {
 
 const addFiles = (files) => {
     actions.addFiles(files, slug)
+}
+
+const startNest = async () => {
+    if (btnIsDisable.value) return;
+    try {
+        await nest(slug);
+    } catch (error) {
+        console.error("Strip nesting request failed:", error);
+    }
 }
 
 onMounted(() => {
@@ -64,6 +94,30 @@ onMounted(() => {
 
     &__title {
         margin-bottom: 16px;
+    }
+
+    &__settings {
+        margin-top: 40px;
+    }
+
+    &__btn {
+        margin-top: 40px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    &__error {
+        margin-top: 16px;
+        padding: 12px;
+        background-color: var(--error-background);
+        border: solid 1px var(--error-border);
+        color: var(--label-secondary);
+        border-radius: 8px;
+    }
+
+    &__text {
+        color: var(--label-secondary);
+        margin-top: 16px;
     }
 }
 

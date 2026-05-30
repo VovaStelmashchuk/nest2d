@@ -8,21 +8,52 @@
         <p class="file__name">
             {{ file.name }}
         </p>
+        <p v-if="minHeight != null" class="file__height">
+            Min height: {{ minHeight }}mm
+        </p>
+        <div class="file__counter counter">
+            <MainButton :size="sizeType.s" :icon="iconType.minus" :isLabelShow="false" :isDisable="file.count < 1"
+                @click="decrement(fileIndex, $event)" label="decrement" class="counter__btn" />
+            <input type="number" v-model="count" min="0" max="999" class="counter__value" />
+            <MainButton :size="sizeType.s" :icon="iconType.plus" :isLabelShow="false" :isDisable="file.count >= 999"
+                @click="increment(fileIndex, $event)" label="increment" class="counter__btn" />
+        </div>
         <div @click="openModal()" class="file__area" />
     </div>
 </template>
 
 <script setup>
 import { sizeType } from '~~/constants/size.constants'
+import { iconType } from '~~/constants/icon.constants'
 
-defineProps({
+const props = defineProps({
     file: {
         type: Object,
+        required: true,
+    },
+    fileIndex: {
+        type: Number,
         required: true,
     },
 })
 
 const emit = defineEmits(['openModal'])
+
+const { actions } = stripStore
+const { increment, decrement, updateCount } = actions
+
+const count = computed({
+    get: () => props.file.count,
+    set: value => updateCount(value, props.fileIndex),
+})
+
+const minHeight = computed(() => {
+    const value = props.file.minHeight
+    if (value == null) {
+        return null
+    }
+    return Math.round(value * 100) / 100
+})
 
 const openModal = () => {
     emit('openModal')
@@ -46,12 +77,25 @@ const openModal = () => {
 
     &__name {
         margin-top: 16px;
-        margin-bottom: 4px;
+        margin-bottom: 12px;
         color: var(--label-secondary);
         transition: color 0.3s;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    &__height {
+        margin-top: -4px;
+        margin-bottom: 12px;
+        font-size: 12px;
+        text-align: left;
+        color: var(--label-tertiary);
+    }
+
+    &__counter {
+        position: relative;
+        z-index: 1;
     }
 
     &__area {
@@ -71,6 +115,36 @@ const openModal = () => {
                 color: var(--label-primary);
             }
         }
+    }
+}
+
+.counter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &__value {
+        padding-left: 4px;
+        padding-right: 4px;
+        margin-left: 8px;
+        margin-right: 8px;
+        text-align: center;
+        width: 36px;
+        height: 30px;
+        border: solid 1px var(--separator-secondary);
+        border-radius: 4px;
+        color: var(--accent-primary);
+        outline: none;
+        background-color: transparent;
+        font-family: $sf_mono;
+
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        -moz-appearance: textfield;
     }
 }
 </style>

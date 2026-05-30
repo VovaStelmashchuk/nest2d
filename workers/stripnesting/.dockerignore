@@ -1,0 +1,26 @@
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+venv
+.venv
+
+# Local mongo data (when running mongo alongside the worker for testing)
+.mongo-data
+
+test-data
