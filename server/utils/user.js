@@ -61,7 +61,7 @@ export async function createOrUpdateUser({
     }
 
     await db.collection('tracking').updateMany(
-        { sessionKey: sessionId },
+        { sessionKey: sessionId, userId: { $exists: false } },
         { $set: { userId: userId } }
     )
 
