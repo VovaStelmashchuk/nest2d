@@ -1,12 +1,17 @@
 <template>
     <DialogWrapper>
         <div class="modal">
-            <BuyCredits />
+            <Subscription v-if="isStripFeatureEnable" />
+            <BuyCredits v-else />
         </div>
     </DialogWrapper>
 </template>
 
 <script setup>
+const { getters } = authStore;
+const isStripFeatureEnable = computed(() => {
+    return Boolean(unref(getters.user)?.isStripFeatureEnable);
+});
 </script>
 
 <style lang="scss" scoped>

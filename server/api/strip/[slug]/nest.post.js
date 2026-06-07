@@ -4,6 +4,7 @@ import { generateRandomString } from "~~/server/utils/strings";
 import standardSlugify from "standard-slugify";
 import { trackEvent } from "~~/server/tracking/add";
 import { assertStripFeatureEnabled } from "~~/server/utils/featureFlags";
+import { assertCanNest } from "~~/server/utils/entitlement";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -84,6 +85,10 @@ export default defineEventHandler(async (event) => {
       return fileNameSlug + "_" + file.count;
     })
     .join("-")}-${generateRandomString(6)}`;
+
+  // Subscription / free-quota gate. Consumes a free nesting operation only
+  // once the request is fully validated and about to be enqueued.
+  await assertCanNest(userId);
 
   await db.collection("strip_nesting_job_queue").insertOne({
     slug: jobSlug,

@@ -4,6 +4,7 @@ import { generateRandomString } from "~~/server/utils/strings";
 import standardSlugify from "standard-slugify";
 import logger from "~~/server/utils/logger";
 import { trackEvent } from "~~/server/tracking/add";
+import { assertCanNest } from "~~/server/utils/entitlement";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -28,7 +29,9 @@ export default defineEventHandler(async (event) => {
     projectSlug: projectSlug,
   });
 
-  if (user.balance < 1) {
+  // Legacy (flag-off) users keep the pay-as-you-go credit check up front.
+  // Feature-flagged users are gated by assertCanNest just before enqueue.
+  if (!user.isStripFeatureEnable && user.balance < 1) {
     throw createError({
       statusCode: 402,
       statusMessage: "Not enough credits",
@@ -78,6 +81,12 @@ export default defineEventHandler(async (event) => {
     space: params.space,
     sheetCount: params.sheetCount,
     addOutShape: params.addOutShape,
+  }
+
+  // Subscription / free-quota gate for feature-flagged users. Consumes a free
+  // nesting operation only once the request is fully validated.
+  if (user.isStripFeatureEnable) {
+    await assertCanNest(userId);
   }
 
   await db.collection("nesting_jobs").insertOne({

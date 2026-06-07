@@ -15,6 +15,7 @@
         <StripSettings class="content__settings" />
         <MainButton :theme="themeType.primary" :label="btnLabel" :isDisable="btnIsDisable" @click="startNest"
             class="content__btn" />
+        <FreeNestBanner />
         <div v-if="nestRequestError" class="content__error">
             {{ nestRequestError }}
         </div>

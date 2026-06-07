@@ -30,7 +30,7 @@
             </div>
             <MainButton href="https://github.com/VovaStelmashchuk/nest2d/issues/new" target="_blank"
                 label="Report a problem" tag="a" class="header__btn" v-if="isSecondaryTheme" />
-            <UserBalance class="header__btn" v-if="isPrimaryTheme && !isStripPage" />
+            <UserBalance class="header__btn" v-if="isPrimaryTheme && !isStripPage && !isStripFeatureEnabled" />
             <MainButton v-if="isSecondaryTheme" :theme="themeType.primary" @click="onLoginClick" label="Login / Sign Up"
                 class="header__btn header__btn--login" />
             <Avatar v-if="isPrimaryTheme" :size="sizeType.s" class="header__avatar" />
@@ -272,8 +272,15 @@ const themeIcon = computed(() => {
         }
 
         &--active {
-            color: var(--accent-primary);
-            background-color: var(--fill-secondary);
+            color: var(--background-primary);
+            background-color: var(--accent-primary);
+
+            @media (hover:hover) {
+                &:hover {
+                    color: var(--background-primary);
+                    background-color: var(--accent-secondary);
+                }
+            }
         }
     }
 }
