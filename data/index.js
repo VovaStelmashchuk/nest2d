@@ -73,23 +73,27 @@ export const howItWorks = {
 }
 export const started = {
     title: 'Get Started Today',
-    text: 'Sign up and start optimizing your laser cutting projects in minutes.'
+    text: 'Sign up and get 3 free nesting operations to try it out. After that, Nest2D runs on a simple subscription — just $7.99/month — with a 7-day free trial and no commitment. Cancel anytime.'
 }
 export const faq = {
     title: 'Frequently Asked Questions',
     text: 'Stuck on something? We’re here to help with all your questions and answers in one place.',
     list: [
         {
-            title: 'Is Nest2d has a free trial?',
-            firstPart: 'Yes, you can try us for free until your read a limit of free credding. If you want, login and send a message to me via support chat.'
+            title: 'Is there a free trial?',
+            firstPart: 'Yes. Every account starts with 3 free nesting operations so you can try Nest2D first. After that, your subscription begins with a 7-day free trial — you are not charged until the trial ends, and you can cancel anytime before then.'
+        },
+        {
+            title: 'How much does Nest2D cost?',
+            firstPart: 'Nest2D now runs on a simple monthly subscription — just $7.99/month (or the equivalent in your local currency). While active it includes unlimited nesting, and it starts with a 7-day free trial.'
+        },
+        {
+            title: 'Is it a subscription or a one-time payment?',
+            firstPart: 'Nest2D has moved to a subscription model. A small recurring monthly fee keeps the service running and continuously improving. There is no long-term commitment — cancel anytime, and the first 7 days are always free.'
         },
         {
             title: 'What is your cancellation policy?',
-            firstPart: 'I understand that things change. You can cancel your payment any time, i will provide a full refound.'
-        },
-        {
-            title: 'Is it a one-time payment?',
-            firstPart: 'Just a one-time payment! No recurring charges or surprises, we promise. We’re just as sick of recurring charges as you are.'
+            firstPart: 'Things change, and that is fine. You can cancel your subscription at any time. Cancel during the 7-day free trial and you will not be charged at all.'
         },
         {
             title: 'What file formats do you support?',
@@ -114,4 +118,11 @@ export const faq = {
             linkHref: 'mailto:vovochkastelmashchuk@gmail.com',
         },
     ]
+}
+export const refund = {
+    title: 'Refunds',
+    firstPart: 'My business philosophy is that if you, as a customer, are not happy, then I’m not happy. I have a 30-day, no-questions-asked refund policy. Please email',
+    link: 'vovochkastelmashchuk@gmail.com',
+    linkHref: 'mailto:vovochkastelmashchuk@gmail.com',
+    secondPart: 'for a full refund. I appreciate it if you can share the reason you are unhappy with the purchase, but doing so is not necessary for a refund.'
 }

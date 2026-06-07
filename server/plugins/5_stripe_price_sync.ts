@@ -20,8 +20,22 @@ export default defineNitroPlugin(async (nitroApp) => {
 
     console.log('Fetched', productResponse.data.length, 'products from Stripe.')
 
+    // The subscription plan is synced separately (6_subscription_plan_sync) and
+    // must not appear in the pay-as-you-go credit list.
+    const isSubscription = (product: any) => {
+        if (product.metadata?.type === 'subscription') {
+            return true
+        }
+        const price = product.default_price
+        return typeof price === 'object' && price?.recurring != null
+    }
 
-    const products = await Promise.all(productResponse.data.map(async (product: any) => {
+    const creditProducts = productResponse.data.filter((p: any) => !isSubscription(p))
+    const excludedIds = productResponse.data
+        .filter((p: any) => isSubscription(p))
+        .map((p: any) => p.id)
+
+    const products = await Promise.all(creditProducts.map(async (product: any) => {
         const defaultPriceId = typeof product.default_price === 'object' ? product.default_price.id : product.default_price
         let priceData = product.default_price
 
@@ -65,10 +79,16 @@ export default defineNitroPlugin(async (nitroApp) => {
         }
     }))
 
-    if (products.length > 0) {
-        const db = await connectDB()
-        const collection = db.collection('products')
+    const db = await connectDB()
+    const collection = db.collection('products')
 
+    // Remove any subscription products that were synced before they were
+    // excluded, so the credit list stays pay-as-you-go only.
+    if (excludedIds.length > 0) {
+        await collection.deleteMany({ id: { $in: excludedIds } })
+    }
+
+    if (products.length > 0) {
         const operations = products.map((p: any) => ({
             updateOne: {
                 filter: { id: p.id },
@@ -78,8 +98,8 @@ export default defineNitroPlugin(async (nitroApp) => {
         }))
 
         await collection.bulkWrite(operations)
-        console.log(`Synced ${products.length} products from Stripe to MongoDB.`)
+        console.log(`Synced ${products.length} credit products from Stripe to MongoDB.`)
     } else {
-        throw new Error('No active products found in Stripe.')
+        console.warn('[stripe-price-sync] No pay-as-you-go credit products found in Stripe.')
     }
 })

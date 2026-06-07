@@ -21,14 +21,33 @@ const router = useRouter();
 
 onMounted(async () => {
     trackEvent('page_view', { page: 'home' })
-    const checkoutInternalId = useRoute().query.checkoutInternalId
+    const route = useRoute()
+    const checkoutInternalId = route.query.checkoutInternalId
     if (checkoutInternalId) {
         const { status } = await $fetch('/api/payment/check?checkoutInternalId=' + checkoutInternalId, {
             method: "POST",
         });
         console.log(status)
     }
+
+    const subscriptionInternalId = route.query.subscriptionInternalId
+    if (subscriptionInternalId) {
+        try {
+            await $fetch('/api/payment/subscription/check?subscriptionInternalId=' + subscriptionInternalId, {
+                method: "POST",
+            });
+            // Refresh the cached user so freeRemaining / subscriptionStatus update.
+            await setUser();
+        } catch (err) {
+            console.error('Subscription confirmation failed:', err)
+        }
+        // Drop the query param so a refresh doesn't re-trigger the check.
+        router.replace({ path: '/home' })
+    }
 })
+
+const { actions: authActions } = authStore;
+const { setUser } = authActions;
 
 const { actions } = globalStore;
 const { actions: filesActions } = filesStore;

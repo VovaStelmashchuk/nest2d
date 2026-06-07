@@ -5,6 +5,7 @@
         <MainSettings />
         <MainButton :theme="themeType.primary" :label="btnLabel" :isDisable="btnIsDisable" @click="startsNest"
             class="content__btn" />
+        <FreeNestBanner />
         <div v-if="nestRequestError" class="content__error">
             {{ nestRequestError }}
         </div>

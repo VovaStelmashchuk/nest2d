@@ -160,6 +160,9 @@ async function nest(slug) {
             })
             setModalNestData(data)
             useInfoAboutNest().value = true
+            // Refresh the cached user so the free-quota banner reflects the
+            // operation that was just consumed.
+            await authStore.actions.setUser()
         } catch (error) {
             if (error?.response?.status === 402) {
                 const buyCreditsDialog = useBuyCreditsDialog();

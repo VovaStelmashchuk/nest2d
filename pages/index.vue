@@ -123,6 +123,24 @@
                 </div>
             </div>
         </section>
+        <section class="main__refund refund" id="refund">
+            <h3 class="refund__title title title--medium">
+                {{ refund.title }}
+            </h3>
+            <p class="refund__text">
+                {{ refund.firstPart }}
+                <a
+                    v-if="refund.link"
+                    class="refund__link"
+                    :href="refund.linkHref"
+                >
+                    {{ refund.link }}
+                </a>
+                <template v-if="refund.secondPart">
+                    {{ ' ' + refund.secondPart }}
+                </template>
+            </p>
+        </section>
         <ScreenshotsModal v-model:isModalOpen="screenshotDialog" />
     </div>
 </template>
@@ -133,7 +151,7 @@ definePageMeta({
 onMounted(() => {
     trackEvent('page_view', { page: 'landing' })
 })
-import { header, features, screenshots, howItWorks, started, faq } from '~~/data/index'
+import { header, features, screenshots, howItWorks, started, faq, refund } from '~~/data/index'
 import { defaultThemeType, themeType } from '~~/constants/theme.constants'
 
 const response = await $fetch(API_ROUTES.AUTH('google'), {
@@ -369,6 +387,18 @@ const updateActiveFaqList = (index) => {
         @media (min-width: 567px) {
             margin-top: 32px;
         }
+    }
+}
+.refund {
+    &__text {
+        margin-top: 16px;
+        max-width: 720px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    &__link {
+        color: var(--accent-primary);
+        text-decoration: underline;
     }
 }
 .faq-list {

@@ -175,7 +175,19 @@ async function nest(slug) {
 
         await getStripResults(slug)
 
+        // Refresh the cached user so the free-quota banner reflects the
+        // operation that was just consumed.
+        await authStore.actions.setUser()
+
         return data
+    } catch (error) {
+        // Paywall: free quota exhausted and no active subscription.
+        if (error?.response?.status === 402) {
+            const buyCreditsDialog = useBuyCreditsDialog();
+            buyCreditsDialog.value = true;
+            return
+        }
+        throw error
     } finally {
         state.isNesting = false
     }
