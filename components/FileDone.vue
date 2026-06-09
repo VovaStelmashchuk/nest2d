@@ -7,10 +7,10 @@
         </p>
         <div class="file__counter counter">
             <MainButton :size="sizeType.s" :icon="iconType.minus" :isDisable="file.count < 1" :isLabelShow="false"
-                @click="decrement(fileIndex, $event)" label="decrement" class="counter__btn" />
+                trackingTag="file_decrement" @click="decrement(fileIndex, $event)" label="decrement" class="counter__btn" />
             <input type="number" v-model="count" min="0" max="999" class="counter__value" @blur="onCountBlur" />
             <MainButton :size="sizeType.s" :icon="iconType.plus" :isLabelShow="false" :isDisable="file.count >= 999"
-                @click="increment(fileIndex, $event)" label="increment" class="counter__btn" />
+                trackingTag="file_increment" @click="increment(fileIndex, $event)" label="increment" class="counter__btn" />
         </div>
         <SelectorField v-model="rotation" :options="rotationOptions" class="file__rotation" />
         <div @click="openModal()" class="file__area" />

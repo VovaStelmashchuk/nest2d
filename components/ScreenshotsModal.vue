@@ -7,6 +7,7 @@
                         :theme="themeType.primary"
                         :icon="iconType.arrowPrev"
                         :isLabelShow=false
+                        trackingTag="screenshots_prev"
                         @click="updateScreenshot(-1)"
                         label="prev"
                         class="controls__prev"
@@ -15,6 +16,7 @@
                         :theme="themeType.primary"
                         :icon="iconType.arrowNext"
                         :isLabelShow=false
+                        trackingTag="screenshots_next"
                         @click="updateScreenshot(1)"
                         label="next"
                         class="controls__next"

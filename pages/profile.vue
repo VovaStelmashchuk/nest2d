@@ -3,7 +3,7 @@
         <MainTitle :label="user.name" class="profile__title" />
         <div class="profile__content">
             <Avatar />
-            <MainButton :theme="themeType.primary" @click="logoutHandler" label="Logout" class="profile__btn" />
+            <MainButton :theme="themeType.primary" trackingTag="logout" @click="logoutHandler" label="Logout" class="profile__btn" />
         </div>
         <Subscription v-if="isStripFeatureEnable" />
         <template v-else>

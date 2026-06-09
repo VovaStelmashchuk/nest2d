@@ -25,18 +25,18 @@
         </nav>
         <div :class="{ 'header__wrapper--is-primary': isPrimaryTheme }" class="header__wrapper">
             <div class="header__theme">
-                <MainButton :theme="themeType.primary" :icon="themeIcon" :isLabelShow=false @click="updateTheme"
-                    label="toogle theme" />
+                <MainButton :theme="themeType.primary" :icon="themeIcon" :isLabelShow=false trackingTag="toggle_theme"
+                    @click="updateTheme" label="toogle theme" />
             </div>
             <MainButton href="https://github.com/VovaStelmashchuk/nest2d/issues/new" target="_blank"
-                label="Report a problem" tag="a" class="header__btn" v-if="isSecondaryTheme" />
+                label="Report a problem" tag="a" trackingTag="report_problem" class="header__btn" v-if="isSecondaryTheme" />
             <UserBalance class="header__btn" v-if="isPrimaryTheme && !isStripPage && !isStripFeatureEnabled" />
             <MainButton v-if="isSecondaryTheme" :theme="themeType.primary" @click="onLoginClick" label="Login / Sign Up"
                 class="header__btn header__btn--login" />
             <Avatar v-if="isPrimaryTheme" :size="sizeType.s" class="header__avatar" />
             <div v-if="isSecondaryTheme" class="header__toggler">
-                <MainButton :theme="themeType.secondary" :icon="iconType.menu" :isLabelShow=false @click="toggleMenu"
-                    label="menu toggler" />
+                <MainButton :theme="themeType.secondary" :icon="iconType.menu" :isLabelShow=false trackingTag="menu_toggle"
+                    @click="toggleMenu" label="menu toggler" />
             </div>
         </div>
     </header>

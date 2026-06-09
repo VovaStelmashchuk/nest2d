@@ -12,8 +12,9 @@
                     alt="google logo"
                     class="item__img"
                 />
-                <MainButton 
+                <MainButton
                     :theme="themeType.secondary"
+                    trackingTag="login_google"
                     @click="doAuth('google')"
                     label="Login with Google"
                 />

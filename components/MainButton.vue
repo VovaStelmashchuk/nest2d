@@ -1,9 +1,10 @@
 <template>
     <component
-        :is="tag" 
+        :is="tag"
         :class="buttonClasses"
         v-bind="attr"
         class="button"
+        @click="onClick"
     >
         <span v-if="Boolean(icon)" class="button__icon" />
         <span v-if="isLabelShow" class="button__label">
@@ -15,8 +16,9 @@
 import { computed, unref } from 'vue';
 import { defaultSizeType } from '~~/constants/size.constants';
 import { defaultThemeType } from '~~/constants/theme.constants';
+import { trackEvent } from '~~/utils/track';
 
-const { label, icon, target, href, size, theme, isDisable, isLabelShow, isNotClickable } = defineProps({
+const { label, icon, target, href, size, theme, isDisable, isLabelShow, isNotClickable, trackingTag } = defineProps({
     label: {
         type: String,
         default: '',
@@ -56,8 +58,12 @@ const { label, icon, target, href, size, theme, isDisable, isLabelShow, isNotCli
     isNotClickable: {
         type: Boolean,
         default: false
+    },
+    trackingTag: {
+        type: String,
+        default: ''
     }
-}) 
+})
 const attr = computed(() => {
     const hrefValue = Boolean(unref(href)) ? { href: unref(href) } : {} 
     const targetValue = Boolean(unref(target)) ? { target: unref(target) } : {}
@@ -68,6 +74,11 @@ const attr = computed(() => {
         ...titleValue,
     }
 })
+const onClick = () => {
+    if (Boolean(unref(trackingTag))) {
+        trackEvent(`click_${unref(trackingTag)}`)
+    }
+}
 const buttonClasses = computed(() => ({
     [`button--size-${unref(size)}`]: Boolean(unref(size)),
     [`button--theme-${unref(theme)}`]: Boolean(unref(theme)),

@@ -24,6 +24,7 @@
                     download
                     :size="sizeType.s"
                     :theme="themeType.primary"
+                    trackingTag="strip_result_download"
                 />
             </div>
         </div>

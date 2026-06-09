@@ -40,14 +40,15 @@
                 :theme="themeType.primary"
                 :icon="iconType.arrowPrev"
                 :isLabelShow="false"
+                trackingTag="admin_chat_back"
                 @click="$emit('back')"
-                label="Send" 
-                class="footer__back" 
+                label="Send"
+                class="footer__back"
             />
             <InputField tag="textarea" placeholder="Type your message..." class="footer__input" v-model="newMessage"
                 @keydown="handleKeyDown" :isDisable="!isConnected" />
-            <MainButton :theme="themeType.primary" :isDisable="!newMessage.trim() || !isConnected" @click="sendMessage"
-                label="Send" class="footer__btn" />
+            <MainButton :theme="themeType.primary" :isDisable="!newMessage.trim() || !isConnected" trackingTag="admin_chat_send"
+                @click="sendMessage" label="Send" class="footer__btn" />
         </div>
 
         <div v-if="error" class="error-message">

@@ -10,6 +10,7 @@
                     :size="sizeType.s"
                     :icon="iconType.close"
                     :theme="themeType.primary"
+                    trackingTag="support_chat_close"
                     @click="supportDialog = false"
                     class="support__close"
                 />
@@ -43,6 +44,7 @@
                 />
                 <MainButton
                     :theme="themeType.primary"
+                    trackingTag="support_chat_send"
                     @click="sendMessage"
                     :isDisable="!message.trim() || isLoading"
                     label="Send"

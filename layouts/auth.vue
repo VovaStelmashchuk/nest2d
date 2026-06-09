@@ -9,12 +9,14 @@
                 <div :class="{'controls__bg--open': projectsIsOpen || resultsIsOpen}" @click="close" class="controls__bg"></div>
                 <MainButton
                     @click="openProjects"
+                    trackingTag="open_projects"
                     class="controls__btn controls__btn--projects"
                     :theme="themeType.secondary"
                     label="Open projects"
                 />
                 <MainButton
                     @click="openResults"
+                    trackingTag="open_results"
                     class="controls__btn controls__btn--results"
                     :theme="themeType.secondary"
                     :label="isHomePage ? 'Open all results' : 'Open results'"

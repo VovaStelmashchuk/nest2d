@@ -51,6 +51,7 @@
                     label="Retry"
                     tag="button"
                     :theme="themeType.primary"
+                    trackingTag="admin_chat_list_retry"
                     class="error__btn"
                     @click="connectToChatList"
                 />

@@ -3,8 +3,8 @@
         <MainTitle :label="`Files: ${filesCount}`" class="content__title" />
         <ProjectFiles :projectFiles="projectFiles" @addFiles="addFiles" class="content__files" />
         <MainSettings />
-        <MainButton :theme="themeType.primary" :label="btnLabel" :isDisable="btnIsDisable" @click="startsNest"
-            class="content__btn" />
+        <MainButton :theme="themeType.primary" :label="btnLabel" :isDisable="btnIsDisable" trackingTag="project_nest_start"
+            @click="startsNest" class="content__btn" />
         <FreeNestBanner />
         <div v-if="nestRequestError" class="content__error">
             {{ nestRequestError }}

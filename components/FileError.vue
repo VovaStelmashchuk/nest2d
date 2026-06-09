@@ -6,13 +6,14 @@
         <p class="file__name">
             {{ file.name }}
         </p>
-        <MainButton 
+        <MainButton
             :size="sizeType.s"
             :theme="themeType.secondary"
             href="https://github.com/VovaStelmashchuk/nest2d/issues/new"
             target="_blank"
             label="Report a problem"
             tag="a"
+            trackingTag="report_problem"
             class="file__problem"
         />
         <!-- <div class="file__btn">

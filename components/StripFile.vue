@@ -15,7 +15,7 @@
             </p>
             <MainButton :size="sizeType.s" :theme="themeType.secondary"
                 href="https://github.com/VovaStelmashchuk/nest2d/issues/new" target="_blank" label="Report a problem"
-                tag="a" class="file__problem" />
+                tag="a" trackingTag="report_problem" class="file__problem" />
         </template>
         <template v-else>
             <DxfViewerComponent
@@ -31,10 +31,10 @@
             </p>
             <div class="file__counter counter">
                 <MainButton :size="sizeType.s" :icon="iconType.minus" :isLabelShow="false" :isDisable="file.count < 1"
-                    @click="decrement(fileIndex, $event)" label="decrement" class="counter__btn" />
+                    trackingTag="strip_file_decrement" @click="decrement(fileIndex, $event)" label="decrement" class="counter__btn" />
                 <input type="number" v-model="count" min="0" max="999" class="counter__value" />
                 <MainButton :size="sizeType.s" :icon="iconType.plus" :isLabelShow="false" :isDisable="file.count >= 999"
-                    @click="increment(fileIndex, $event)" label="increment" class="counter__btn" />
+                    trackingTag="strip_file_increment" @click="increment(fileIndex, $event)" label="increment" class="counter__btn" />
             </div>
             <div @click="openModal()" class="file__area" />
         </template>

@@ -10,14 +10,15 @@
                     :class="displayClasses"
                     class="modal__display"
                 />
-                <MainButton 
+                <MainButton
                     label="fullscreen"
                     :size="sizeType.s"
                     :theme="themeType.primary"
                     :isLabelShow=false
                     :icon="iconType.fullscreen"
+                    trackingTag="file_fullscreen"
                     @click="updateFullScreen"
-                    class="modal__fullscreen" 
+                    class="modal__fullscreen"
                 />
             </div>
             <div class="modal__name">

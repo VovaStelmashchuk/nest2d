@@ -6,6 +6,7 @@
             href="/admin/support"
             :tag="NuxtLink"
             :theme="themeType.primary"
+            trackingTag="admin_support_open"
             class="upload__btn"
         />
         <component

@@ -10,6 +10,7 @@
                     :icon="iconType.arrowPrev"
                     :isLabelShow=false
                     :size="sizeType.s"
+                    trackingTag="result_part_prev"
                     @click="updatePartPage(activePart - 1)"
                     :isDisable="activePart === 0"
                     label="prev"
@@ -28,6 +29,7 @@
                     :size="sizeType.s"
                     :isLabelShow=false
                     :isDisable="activePart === resultModalData.dxfs.length - 1"
+                    trackingTag="result_part_next"
                     @click="updatePartPage(activePart + 1)"
                     label="next"
                     class="controls__next"
@@ -53,11 +55,12 @@
                         class="modal__part-download"
                         v-if="resultModalData.isMultiSheet" 
                         :href="resultModalData.dxfs[activePart]"
-                        :label="`Download part ${activePart + 1}`" 
-                        tag="a" 
-                        :isDisable="isHaveError" 
+                        :label="`Download part ${activePart + 1}`"
+                        tag="a"
+                        :isDisable="isHaveError"
                         :size="sizeType.s"
-                        :theme="themeType.primary" 
+                        :theme="themeType.primary"
+                        trackingTag="result_part_download"
                     />
                 </template>
                 <DxfViewerComponent
@@ -75,6 +78,7 @@
                     :theme="themeType.primary"
                     :isLabelShow="false"
                     :icon="iconType.fullscreen"
+                    trackingTag="result_fullscreen"
                     @click="updateFullScreen"
                     class="modal__fullscreen"
                 />
@@ -121,25 +125,28 @@
                 <MainButton 
                     v-if="resultModalData.isMultiSheet" 
                     :href="resultModalData.zipDownloadUrl"
-                    label="Download All" 
-                    tag="a" 
-                    :isDisable="isHaveError" 
+                    label="Download All"
+                    tag="a"
+                    :isDisable="isHaveError"
                     :size="sizeType.s"
-                    :theme="themeType.primary" 
+                    :theme="themeType.primary"
+                    trackingTag="result_download_all"
                 />
                 <MainButton 
                     v-if="!resultModalData.isMultiSheet" 
-                    :href="resultModalData.dxfs[0]" 
-                    label="Download" 
-                    tag="a" 
+                    :href="resultModalData.dxfs[0]"
+                    label="Download"
+                    tag="a"
                     download
-                    :size="sizeType.s" 
-                    :theme="themeType.primary" 
+                    :size="sizeType.s"
+                    :theme="themeType.primary"
+                    trackingTag="result_download"
                 />
                 <MainButton
                     label="Try again"
                     :size="sizeType.s"
                     :theme="themeType.secondary"
+                    trackingTag="result_try_again"
                     @click="resultDialog = false"
                 />
             </div>

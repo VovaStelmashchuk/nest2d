@@ -26,6 +26,7 @@
                     :theme="themeType.primary"
                     :size="sizeType.m"
                     :isDisable="isLoading"
+                    trackingTag="subscription_start_trial"
                     class="subscription__btn"
                     @click="subscribe"
                 />

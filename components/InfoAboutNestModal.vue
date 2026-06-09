@@ -16,9 +16,9 @@
             </div>
             <div class="modal__controls controls">
                 <MainButton label="Notify me via email" :size="sizeType.s" :theme="themeType.primary"
-                    :icon="iconType.bell" @click="email" />
+                    :icon="iconType.bell" trackingTag="nest_notify_email" @click="email" />
                 <MainButton label="Just close" :size="sizeType.s" :theme="themeType.secondary"
-                    @click="infoAboutNestDialog = false" />
+                    trackingTag="nest_info_close" @click="infoAboutNestDialog = false" />
             </div>
         </div>
     </DialogWrapper>

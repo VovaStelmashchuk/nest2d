@@ -10,7 +10,7 @@
                     <div class="buy-credits__credit">Credits: <b>{{ option.credit }}</b></div>
                 </div>
                 <MainButton :label="formatPrice(option.amount, option.currency)" :theme="themeType.primary"
-                    :size="sizeType.m" class="buy-credits__buy-btn" @click="buy(option)" />
+                    :size="sizeType.m" trackingTag="buy_credits" class="buy-credits__buy-btn" @click="buy(option)" />
             </div>
         </div>
 

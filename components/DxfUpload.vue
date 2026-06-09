@@ -18,10 +18,11 @@
                 @change="onDXFChange"
                 class="upload__input"
             />
-            <MainButton 
+            <MainButton
                 label="Choose files"
                 tag="div"
                 :theme="themeType.primary"
+                trackingTag="choose_files"
                 class="upload__btn"
             />
             <span class="upload__text">

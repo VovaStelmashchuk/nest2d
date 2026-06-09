@@ -7,11 +7,12 @@
                 @btnClick="$emit('btnClick')"
                 class="aside__title"
             />
-            <MainButton 
+            <MainButton
                 label="close modal"
                 :isLabelShow=false
                 :icon="iconType.close"
                 :theme="themeType.primary"
+                trackingTag="aside_close"
                 @click="$emit('closeAside')"
                 class="aside__close"
             />
