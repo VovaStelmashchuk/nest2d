@@ -1,5 +1,5 @@
 <template>
-    <DialogWrapper>
+    <DialogWrapper trackingTag="screenshots">
         <div class="modal">
             <div class="modal__wrapper">
                 <div class="modal__controls controls">

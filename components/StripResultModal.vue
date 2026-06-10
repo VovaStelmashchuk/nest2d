@@ -1,5 +1,5 @@
 <template>
-    <DialogWrapper>
+    <DialogWrapper trackingTag="strip_result">
         <div class="modal">
             <div class="modal__wrapper">
                 <DxfViewerComponent

@@ -13,12 +13,17 @@
 <script setup>
 import { iconType } from '~~/constants/icon.constants';
 import { sizeType } from '~~/constants/size.constants';
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, watch } from 'vue';
+import { trackEvent } from '~~/utils/track';
 
-const { isModalOpen } = defineProps({
+const { isModalOpen, trackingTag } = defineProps({
     isModalOpen: {
         type: Boolean,
         default: false,
+    },
+    trackingTag: {
+        type: String,
+        default: '',
     },
 })
 
@@ -27,6 +32,12 @@ const emit = defineEmits(["update:isModalOpen"]);
 const closeModal = () => {
     emit("update:isModalOpen", false);
 }
+
+watch(() => isModalOpen, (isOpen) => {
+    if (isOpen && Boolean(trackingTag)) {
+        trackEvent(`dialog_view_${trackingTag}`);
+    }
+});
 
 const handleKeydown = (event) => {
     if (event.key === 'Escape' && isModalOpen) {

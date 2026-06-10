@@ -1,5 +1,5 @@
 <template>
-    <DialogWrapper>
+    <DialogWrapper trackingTag="nest_info">
         <div class="modal">
             <MainTitle class="modal__title" label="Nesting in Progress" />
             <div class="modal__text text">

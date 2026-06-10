@@ -1,6 +1,6 @@
 <template>
-    <DialogWrapper>
-        <div class="modal">  
+    <DialogWrapper trackingTag="file">
+        <div class="modal">
             <div class="modal__wrapper">
                 <FileParts :class="partsClasses" :parts="fileModalData.parts" class="modal__parts"/>
                 <DxfViewerComponent
