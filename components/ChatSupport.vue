@@ -60,6 +60,7 @@ import { iconType } from '~~/constants/icon.constants'
 import { sizeType } from '~~/constants/size.constants'
 import { themeType } from '~~/constants/theme.constants'
 import { ref, onMounted, onBeforeUnmount, unref } from 'vue'
+import { trackEvent } from '~~/utils/track'
 
 const supportDialog = useSupportDialog()
 
@@ -97,6 +98,8 @@ const sendMessage = async () => {
 }
 
 onMounted(() => {
+    trackEvent('dialog_view_support_chat')
+
     eventSource.value = new EventSource('/api/support/messages')
 
     unref(eventSource).onmessage = async (event) => {

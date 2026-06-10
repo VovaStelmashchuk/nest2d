@@ -1,5 +1,5 @@
 <template>
-    <DialogWrapper>
+    <DialogWrapper :trackingTag="dialogTag">
         <div class="modal">
             <Subscription v-if="isStripFeatureEnable" />
             <BuyCredits v-else />
@@ -11,6 +11,9 @@
 const { getters } = authStore;
 const isStripFeatureEnable = computed(() => {
     return Boolean(unref(getters.user)?.isStripFeatureEnable);
+});
+const dialogTag = computed(() => {
+    return unref(isStripFeatureEnable) ? 'subscription' : 'buy_credits';
 });
 </script>
 

@@ -1,7 +1,7 @@
 <template>
-    <DialogWrapper>
+    <DialogWrapper trackingTag="login">
         <div class="modal">
-            <MainTitle 
+            <MainTitle
                 label="Login to your account"
                 class="modal__title"
             />

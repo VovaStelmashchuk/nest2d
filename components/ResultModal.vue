@@ -1,5 +1,5 @@
 <template>
-    <DialogWrapper>
+    <DialogWrapper trackingTag="result">
         <div class="modal">
             <div
                 v-if="resultModalData.isMultiSheet && !isHaveError"
