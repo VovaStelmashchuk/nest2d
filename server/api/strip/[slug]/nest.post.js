@@ -76,6 +76,9 @@ export default defineEventHandler(async (event) => {
       slug: file.slug,
       simpleName: file.name.replace(".dxf", ""),
       count: requestFile?.count || 0,
+      // Allowed orientations for this part. Strip nesting only supports keeping
+      // the part as-is or flipping it 180°, so anything else is dropped.
+      angle: parseStripAngle(requestFile?.rotation),
     };
   });
 
@@ -106,3 +109,27 @@ export default defineEventHandler(async (event) => {
     slug: jobSlug,
   };
 });
+
+/**
+ * Parse the per-file rotation sent by the strip UI into a sanitized list of
+ * allowed orientations. Only 0° and 180° are supported for strip nesting; any
+ * other value is discarded and an empty/invalid input falls back to [0].
+ *
+ * @param {string | number[] | undefined} rotation
+ * @returns {number[]}
+ */
+function parseStripAngle(rotation) {
+  let parsed = rotation;
+  if (typeof rotation === "string") {
+    try {
+      parsed = JSON.parse(rotation);
+    } catch {
+      parsed = null;
+    }
+  }
+  const allowed = Array.isArray(parsed)
+    ? parsed.map(Number).filter((angle) => angle === 0 || angle === 180)
+    : [];
+  const unique = [...new Set(allowed)];
+  return unique.length > 0 ? unique : [0];
+}

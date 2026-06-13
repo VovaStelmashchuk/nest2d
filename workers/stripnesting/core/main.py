@@ -138,8 +138,8 @@ def strip_nesting_process(doc):
 
     Unlike bin packing, strip packing always places every item — the strip
     width grows to fit. The solver minimises that width for the given fixed
-    strip height. Parts are not rotated (the strip feature has no rotation
-    option), so every item is given a single allowed orientation of 0 degrees.
+    strip height. Each part is given the allowed orientations the user chose in
+    the UI (either [0] to keep it as-is or [0, 180] to also allow a 180° flip).
     """
     slug = doc.get("slug")
     owner_id = doc.get("ownerId")
@@ -168,7 +168,7 @@ def strip_nesting_process(doc):
                 item.item_id,
                 item.coords,
                 demand=item.count,
-                allowed_orientations=[0],  # strip nesting never rotates parts
+                allowed_orientations=item.angle,  # [0] or [0, 180] per the UI
             )
         )
         total_requested += item.count

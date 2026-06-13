@@ -36,6 +36,7 @@
                 <MainButton :size="sizeType.s" :icon="iconType.plus" :isLabelShow="false" :isDisable="file.count >= 999"
                     trackingTag="strip_file_increment" @click="increment(fileIndex, $event)" label="increment" class="counter__btn" />
             </div>
+            <SelectorField v-model="rotation" :options="rotationOptions" class="file__rotation" />
             <div @click="openModal()" class="file__area" />
         </template>
     </div>
@@ -61,7 +62,7 @@ const props = defineProps({
 const emit = defineEmits(['openModal'])
 
 const { actions } = stripStore
-const { increment, decrement, updateCount } = actions
+const { increment, decrement, updateCount, updateRotation } = actions
 
 const isInProgress = computed(() => props.file.processingStatus === processingType.inProgress)
 const isError = computed(() => props.file.processingStatus === processingType.error)
@@ -70,6 +71,17 @@ const count = computed({
     get: () => props.file.count,
     set: value => updateCount(value, props.fileIndex),
 })
+
+// Strip nesting only supports keeping the part as-is or flipping it 180°.
+const rotation = computed({
+    get: () => props.file.rotation || '[0]',
+    set: value => updateRotation(value, props.fileIndex),
+})
+
+const rotationOptions = [
+    { value: '[0]', label: 'No rotation' },
+    { value: '[0, 180]', label: '180°' },
+]
 
 const minHeight = computed(() => {
     const value = props.file.minHeight
@@ -143,6 +155,13 @@ const openModal = () => {
     &__counter {
         position: relative;
         z-index: 1;
+    }
+
+    &__rotation {
+        position: relative;
+        z-index: 1;
+        margin-top: 12px;
+        width: 100%;
     }
 
     &__area {

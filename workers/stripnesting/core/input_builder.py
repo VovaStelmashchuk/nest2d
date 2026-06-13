@@ -10,12 +10,14 @@ class InputItem:
     """One nesting item: a single closed polygon outline that must be placed
     `count` times on the strip."""
 
-    def __init__(self, item_id, file_slug, coords, handles, count):
+    def __init__(self, item_id, file_slug, coords, handles, count, angle):
         self.item_id = item_id
         self.file_slug = file_slug
         self.coords = coords
         self.handles = handles
         self.count = count
+        # Allowed orientations (degrees) for this part, e.g. [0] or [0, 180].
+        self.angle = angle
 
 
 def _close_ring(coords):
@@ -23,6 +25,25 @@ def _close_ring(coords):
     if len(coords) >= 1 and coords[0] != coords[-1]:
         return coords + [coords[0]]
     return coords
+
+
+def _sanitize_angle(angle):
+    """Strip nesting only supports keeping a part as-is or flipping it 180°.
+
+    Accepts the per-file `angle` stored on the job document and returns a clean
+    list of allowed orientations, falling back to [0] when nothing valid is set
+    (keeps behaviour stable for jobs enqueued before the feature existed)."""
+    if not isinstance(angle, (list, tuple)):
+        return [0.0]
+    allowed = []
+    for value in angle:
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            continue
+        if number in (0.0, 180.0) and number not in allowed:
+            allowed.append(number)
+    return allowed or [0.0]
 
 
 def build_input_items(files):
@@ -42,6 +63,8 @@ def build_input_items(files):
         count = file.get("count", 0)
         if not file_slug or count <= 0:
             continue
+
+        angle = _sanitize_angle(file.get("angle"))
 
         strip_file = strip_user_dxf_files.find_one({"slug": file_slug})
         if strip_file is None:
@@ -67,6 +90,7 @@ def build_input_items(files):
                     coords=_close_ring(coords),
                     handles=part.get("handles", []),
                     count=count,
+                    angle=angle,
                 )
             )
             next_id += 1

@@ -21,7 +21,13 @@ const state = reactive({
                     file.count > 0 &&
                     file.processingStatus === processingType.done
             )
-            .map((file) => ({ slug: file.slug, count: file.count }))
+            .map((file) => ({
+                slug: file.slug,
+                count: file.count,
+                // Strip nesting only allows keeping the part as-is ([0]) or
+                // flipping it 180° ([0, 180]).
+                rotation: file.rotation || '[0]'
+            }))
     ),
     requestBody: computed(() =>
         JSON.stringify({
@@ -82,9 +88,15 @@ function setProjectFiles(files, slug) {
             ? (state.projectFiles || []).map((file) => [file.slug, file.count])
             : []
     )
+    const rotationBySlug = new Map(
+        sameProject
+            ? (state.projectFiles || []).map((file) => [file.slug, file.rotation])
+            : []
+    )
     state.projectFiles = files.map((file) => ({
         ...file,
-        count: countBySlug.has(file.slug) ? countBySlug.get(file.slug) : 1
+        count: countBySlug.has(file.slug) ? countBySlug.get(file.slug) : 1,
+        rotation: rotationBySlug.get(file.slug) || '[0]'
     }))
     state.projectSlug = slug ?? null
     if (!sameProject) {
@@ -114,6 +126,11 @@ function updateCount(value, index) {
         state.projectFiles[index].count = 0
     } else {
         state.projectFiles[index].count = Math.min(Math.floor(number), 999)
+    }
+}
+function updateRotation(value, index) {
+    if (state.projectFiles[index]) {
+        state.projectFiles[index].rotation = value
     }
 }
 async function getStripProject(path) {
@@ -261,6 +278,7 @@ export const stripStore = readonly({
         increment,
         decrement,
         updateCount,
+        updateRotation,
         updateParams,
         nest,
     }
