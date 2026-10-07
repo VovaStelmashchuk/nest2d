@@ -8,7 +8,7 @@ Nesting For plotters, laser & plasma cutters, and other CNC machines.
 
 #### [Visit Nest2D](https://nest2d.stelmashchuk.dev/)
 
-# What is Nest Problem?
+# What is the Nest Problem?
 
 Given a square piece of material and some letters to be laser-cut:
 
@@ -50,40 +50,6 @@ I use slightly modified version of his project. Can be found [here](https://gith
 Also special thanks to:
 
 - [Autocad dxf](https://github.com/Asaye/autocad-dxf/tree/main)
-
-## Development setup
-
-Make sure to install dependencies:
-
-```bash
-# npm
-npm install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-```
 
 ### Referenced Paper
 
