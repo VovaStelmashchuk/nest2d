@@ -29,14 +29,6 @@ export default defineEventHandler(async (event) => {
     projectSlug: projectSlug,
   });
 
-  // Legacy (flag-off) users keep the pay-as-you-go credit check up front.
-  // Feature-flagged users are gated by assertCanNest just before enqueue.
-  if (!user.isStripFeatureEnable && user.balance < 1) {
-    throw createError({
-      statusCode: 402,
-      statusMessage: "Not enough credits",
-    });
-  }
   const project = await db.collection("projects").findOne({ slug: projectSlug, ownerId: userId })
   if (!project) {
     throw createError({
@@ -83,11 +75,8 @@ export default defineEventHandler(async (event) => {
     addOutShape: params.addOutShape,
   }
 
-  // Subscription / free-quota gate for feature-flagged users. Consumes a free
-  // nesting operation only once the request is fully validated.
-  if (user.isStripFeatureEnable) {
-    await assertCanNest(userId);
-  }
+  // Free-quota / on-demand plan gate, once the request is fully validated.
+  await assertCanNest(userId);
 
   await db.collection("nesting_jobs").insertOne({
     slug: nestingSlug,
@@ -95,6 +84,8 @@ export default defineEventHandler(async (event) => {
     files: fileMetadata,
     params: dbParams,
     status: "pending",
+    // Settled by the usage billing job once the run succeeds.
+    billingStatus: "pending",
     createdAt: new Date(),
     ownerId: userId,
   });

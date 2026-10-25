@@ -3,7 +3,7 @@
         <template v-if="isEmpty">
             <span class="free-nest__text">You've used all free nesting operations.</span>
             <button type="button" class="free-nest__link" @click="openPaywall">
-                Start free trial
+                Add payment method
             </button>
         </template>
         <template v-else>
@@ -26,16 +26,14 @@ const isSubscribed = computed(() => {
 
 const freeRemaining = computed(() => Number(user.value.freeRemaining || 0));
 
-// Only relevant for feature-flagged users who are not yet subscribed.
-const show = computed(() =>
-    Boolean(user.value.isStripFeatureEnable) && !isSubscribed.value
-);
+// Only relevant for users without an on-demand plan yet.
+const show = computed(() => Boolean(user.value.id) && !isSubscribed.value);
 
 const isEmpty = computed(() => freeRemaining.value <= 0);
 
-const buyCreditsDialog = useBuyCreditsDialog();
+const paywallDialog = usePaywallDialog();
 const openPaywall = () => {
-    buyCreditsDialog.value = true;
+    paywallDialog.value = true;
 };
 </script>
 

@@ -89,8 +89,7 @@ export default defineEventHandler(async (event) => {
     })
     .join("-")}-${generateRandomString(6)}`;
 
-  // Subscription / free-quota gate. Consumes a free nesting operation only
-  // once the request is fully validated and about to be enqueued.
+  // Free-quota / on-demand plan gate, once the request is fully validated.
   await assertCanNest(userId);
 
   await db.collection("strip_nesting_job_queue").insertOne({
@@ -101,6 +100,8 @@ export default defineEventHandler(async (event) => {
       height: height,
     },
     status: "pending",
+    // Settled by the usage billing job once the run succeeds.
+    billingStatus: "pending",
     createdAt: new Date(),
     ownerId: userId,
   });

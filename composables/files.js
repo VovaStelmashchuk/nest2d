@@ -165,8 +165,8 @@ async function nest(slug) {
             await authStore.actions.setUser()
         } catch (error) {
             if (error?.response?.status === 402) {
-                const buyCreditsDialog = useBuyCreditsDialog();
-                buyCreditsDialog.value = true;
+                const paywallDialog = usePaywallDialog();
+                paywallDialog.value = true;
                 return
             }
         }

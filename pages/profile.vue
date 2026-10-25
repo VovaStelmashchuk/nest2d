@@ -5,11 +5,7 @@
             <Avatar />
             <MainButton :theme="themeType.primary" trackingTag="logout" @click="logoutHandler" label="Logout" class="profile__btn" />
         </div>
-        <Subscription v-if="isStripFeatureEnable" />
-        <template v-else>
-            <UserBalance class="profile__balance" />
-            <BuyCredits />
-        </template>
+        <Subscription />
     </div>
 </template>
 <script setup>
@@ -25,10 +21,6 @@ definePageMeta({
 const { getters, actions } = authStore;
 const { logout } = actions;
 const user = computed(() => getters.user);
-
-const isStripFeatureEnable = computed(() => {
-    return Boolean(unref(getters.user)?.isStripFeatureEnable);
-});
 
 const logoutHandler = async () => {
     await logout();
@@ -50,9 +42,5 @@ const logoutHandler = async () => {
         margin-left: 24px;
     }
 
-    &__balance {
-        margin-top: 24px;
-        margin-bottom: 24px;
-    }
 }
 </style>

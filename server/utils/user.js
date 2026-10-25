@@ -34,7 +34,6 @@ export async function createOrUpdateUser({
         },
         $setOnInsert: {
             createdAt: new Date(),
-            balance: 30,
             isStripFeatureEnable: true,
             freeNestingUsed: 0,
         },

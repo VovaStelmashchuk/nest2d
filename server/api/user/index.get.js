@@ -12,9 +12,7 @@ export default defineEventHandler(async (event) => {
   const user = await db.collection("users").findOne({ id: userId });
 
   const isStripFeatureEnable = user.isStripFeatureEnable || false;
-  const entitlement = isStripFeatureEnable
-    ? await getEntitlement(userId)
-    : { freeRemaining: 0, subscriptionStatus: null, requiresPaywall: false };
+  const entitlement = await getEntitlement(userId);
 
   return {
     id: user.id,

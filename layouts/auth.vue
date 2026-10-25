@@ -42,14 +42,14 @@
             </span>
         </button>
         <Footer />
-        <BuyCreditsDialog v-model:isModalOpen="buyCreditsDialog" />
+        <PaywallDialog v-model:isModalOpen="paywallDialog" />
     </div>
 </template>
 <script setup>
 import { themeType } from '~~/constants/theme.constants';
 const route = useRoute()
 const supportDialog = useSupportDialog();
-const buyCreditsDialog = useBuyCreditsDialog();
+const paywallDialog = usePaywallDialog();
 const projectsIsOpen = ref(false);
 const resultsIsOpen = ref(false);
 const openProjects = () => {

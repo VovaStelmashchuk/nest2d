@@ -1,8 +1,6 @@
 import { connectDB } from '~~/server/db/mongo'
 import { generateRandomString } from '~~/server/utils/strings'
-import { getCurrencyByCountry } from '~~/server/utils/currency'
-import { createCustomer, createSubscriptionCheckout } from '~~/server/features/payment/stripe'
-import { TRIAL_DAYS } from '~~/server/features/payment/const'
+import { createCustomer, createMeteredCheckout } from '~~/server/features/payment/stripe'
 
 const baseUrl = useRuntimeConfig().public.baseUrl
 
@@ -21,10 +19,11 @@ export default defineEventHandler(async (event) => {
 
     const plan = await db.collection('subscription_plan').findOne({ id: 'subscription' })
     if (!plan?.priceId) {
-        throw createError({ statusCode: 503, statusMessage: 'Subscription plan not available' })
+        throw createError({ statusCode: 503, statusMessage: 'Billing plan not available' })
     }
 
-    // Ensure a Stripe customer exists so the subscription is attached to it.
+    // Ensure a Stripe customer exists so the subscription and the usage
+    // reports are attached to it.
     let customerId = user.stripeCustomerId
     if (!customerId) {
         customerId = await createCustomer({ email: user.email, userId: user.id })
@@ -33,19 +32,12 @@ export default defineEventHandler(async (event) => {
             .updateOne({ id: user.id }, { $set: { stripeCustomerId: customerId } })
     }
 
-    const country = getHeader(event, 'cf-ipcountry')
-    const currency = plan.prices?.[getCurrencyByCountry(country)] != null
-        ? getCurrencyByCountry(country)
-        : 'usd'
-
     const internalId = generateRandomString(24)
     const redirectUrl = `${baseUrl}/home`
 
-    const { id: sessionId, url } = await createSubscriptionCheckout({
+    const { id: sessionId, url } = await createMeteredCheckout({
         customerId,
         priceId: plan.priceId,
-        currency,
-        trialDays: TRIAL_DAYS,
         userId: user.id,
         internalId,
         successUrl: `${redirectUrl}?subscriptionInternalId=${internalId}`,

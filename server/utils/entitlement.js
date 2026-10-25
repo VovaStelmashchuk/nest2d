@@ -1,21 +1,35 @@
 import { createError } from "h3";
 import { connectDB } from "~~/server/db/mongo";
-import { FREE_NESTING_LIMIT } from "~~/server/features/payment/const";
+import {
+  FREE_NESTING_LIMIT,
+  NESTING_JOB_COLLECTIONS,
+} from "~~/server/features/payment/const";
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getSubscription,
+  isOnDemandPlan,
   mapSubscription,
 } from "~~/server/features/payment/stripe";
 import logger from "./logger";
 
 /**
- * Returns true if the user's stored subscription currently grants access.
+ * @param {import('mongodb').Db} db
+ * @returns {Promise<any>} the on-demand plan, or null before the first sync
+ */
+function getPlan(db) {
+  return db.collection("subscription_plan").findOne({ id: "subscription" });
+}
+
+/**
+ * Returns true if the user's stored subscription is on the on-demand plan and
+ * currently grants access.
  * @param {any} user
+ * @param {any} plan
  * @returns {boolean}
  */
-function hasActiveSubscription(user) {
+function hasActiveSubscription(user, plan) {
   const subscription = user?.subscription;
-  if (!subscription) {
+  if (!isOnDemandPlan(subscription, plan)) {
     return false;
   }
   if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
@@ -36,7 +50,7 @@ function hasActiveSubscription(user) {
  * @param {any} user
  * @returns {Promise<boolean>} whether the refreshed subscription is active
  */
-async function refreshSubscription(db, user) {
+async function refreshSubscription(db, user, plan) {
   const subscriptionId = user?.subscription?.stripeSubscriptionId;
   if (!subscriptionId) {
     return false;
@@ -47,7 +61,7 @@ async function refreshSubscription(db, user) {
     await db
       .collection("users")
       .updateOne({ id: user.id }, { $set: { subscription: mapped } });
-    return hasActiveSubscription({ subscription: mapped });
+    return hasActiveSubscription({ subscription: mapped }, plan);
   } catch (err) {
     logger.warn("Failed to refresh subscription from Stripe", {
       userId: user.id,
@@ -56,6 +70,28 @@ async function refreshSubscription(db, user) {
     });
     return false;
   }
+}
+
+/**
+ * Counts the user's nesting jobs that are queued or running and not billed
+ * yet. Each of them will consume a free run (or be billed) once it succeeds,
+ * so they are reserved against the free quota at enqueue time.
+ * @param {import('mongodb').Db} db
+ * @param {string} userId
+ * @returns {Promise<number>}
+ */
+async function countUnbilledJobs(db, userId) {
+  const filter = {
+    ownerId: userId,
+    billingStatus: { $in: ["pending", "processing"] },
+    status: { $nin: ["error", "failed"] },
+  };
+  const counts = await Promise.all(
+    NESTING_JOB_COLLECTIONS.map((name) =>
+      db.collection(name).countDocuments(filter)
+    )
+  );
+  return counts.reduce((acc, count) => acc + count, 0);
 }
 
 /**
@@ -72,8 +108,11 @@ export async function getEntitlement(userId) {
       { projection: { freeNestingUsed: 1, subscription: 1 } }
     );
 
-  const subscriptionStatus = user?.subscription?.status || null;
-  const active = hasActiveSubscription(user);
+  const plan = await getPlan(db);
+  const subscriptionStatus = isOnDemandPlan(user?.subscription, plan)
+    ? user.subscription.status
+    : null;
+  const active = hasActiveSubscription(user, plan);
   const freeRemaining = Math.max(
     0,
     FREE_NESTING_LIMIT - (user?.freeNestingUsed || 0)
@@ -87,14 +126,13 @@ export async function getEntitlement(userId) {
 }
 
 /**
- * Gate for nesting requests of feature-flagged users.
+ * Gate for nesting requests.
  *
- * Allows the request when the user has an active subscription, otherwise
- * atomically consumes one of the free nesting operations. Throws a 402 with a
+ * Allows the request when the user has an active on-demand subscription, or
+ * when free runs remain after reserving the user's queued and running jobs.
+ * Nothing is consumed here: the usage billing job spends a free run or reports
+ * usage to Stripe only once a job finishes successfully. Throws a 402 with a
  * paywall reason when neither is available.
- *
- * Callers must only invoke this for users with isStripFeatureEnable on; legacy
- * (flag-off) users keep their balance-based flow.
  *
  * @param {string} userId
  */
@@ -111,7 +149,8 @@ export async function assertCanNest(userId) {
     throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
   }
 
-  if (hasActiveSubscription(user)) {
+  const plan = await getPlan(db);
+  if (hasActiveSubscription(user, plan)) {
     return;
   }
 
@@ -119,25 +158,19 @@ export async function assertCanNest(userId) {
   // have caught a renewal yet, so verify against Stripe before denying.
   if (
     user.subscription?.stripeSubscriptionId &&
-    (await refreshSubscription(db, user))
+    (await refreshSubscription(db, user, plan))
   ) {
     return;
   }
 
-  // Atomically consume a free nesting operation. The guard prevents two
-  // concurrent requests from both spending the same remaining free slot.
-  const consumed = await db.collection("users").findOneAndUpdate(
-    { id: userId, freeNestingUsed: { $lt: FREE_NESTING_LIMIT } },
-    { $inc: { freeNestingUsed: 1 } }
-  );
-
-  if (consumed) {
+  const reserved = await countUnbilledJobs(db, userId);
+  if ((user.freeNestingUsed || 0) + reserved < FREE_NESTING_LIMIT) {
     return;
   }
 
   throw createError({
     statusCode: 402,
-    statusMessage: "Subscription required",
+    statusMessage: "Payment method required",
     data: { reason: "paywall" },
   });
 }

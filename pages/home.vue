@@ -22,14 +22,6 @@ const router = useRouter();
 onMounted(async () => {
     trackEvent('page_view', { page: 'home' })
     const route = useRoute()
-    const checkoutInternalId = route.query.checkoutInternalId
-    if (checkoutInternalId) {
-        const { status } = await $fetch('/api/payment/check?checkoutInternalId=' + checkoutInternalId, {
-            method: "POST",
-        });
-        console.log(status)
-    }
-
     const subscriptionInternalId = route.query.subscriptionInternalId
     if (subscriptionInternalId) {
         try {

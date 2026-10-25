@@ -1,41 +1,41 @@
 <template>
     <div class="subscription">
-        <MainTitle label="Subscription" class="subscription__title" />
+        <MainTitle label="Pay as you go" class="subscription__title" />
 
         <div v-if="isActive" class="subscription__card">
             <div class="subscription__status">
                 <span class="subscription__badge">{{ statusLabel }}</span>
             </div>
             <p class="subscription__desc">
-                You have unlimited nesting while your subscription is active.
+                You can nest without limits. You pay only for successful nesting runs, billed monthly.
             </p>
         </div>
 
         <div v-else class="subscription__card">
             <div v-if="data?.plan" class="subscription__plan">
-                <div class="subscription__plan-title">{{ data.plan.title || 'Monthly plan' }}</div>
+                <div class="subscription__plan-title">{{ data.plan.title || 'On-demand nesting' }}</div>
                 <div class="subscription__price">
-                    {{ formatPrice(data.plan.amount, data.plan.currency) }}
-                    <span class="subscription__interval">/ {{ data.plan.interval }}</span>
+                    {{ formatPrice(data.plan.unitAmount, data.plan.currency) }}
+                    <span class="subscription__interval">/ successful nesting</span>
                 </div>
                 <div class="subscription__free">
                     {{ data.freeRemaining }} free nesting operation{{ data.freeRemaining === 1 ? '' : 's' }} left
                 </div>
                 <MainButton
-                    :label="`Start ${data.plan.trialDays}-day free trial`"
+                    label="Add payment method"
                     :theme="themeType.primary"
                     :size="sizeType.m"
                     :isDisable="isLoading"
-                    trackingTag="subscription_start_trial"
+                    trackingTag="subscription_add_payment_method"
                     class="subscription__btn"
                     @click="subscribe"
                 />
                 <p class="subscription__note">
-                    🛡️ Cancel anytime during the trial and you won't be charged.
+                    🛡️ No upfront charge. Failed runs are free. Billed monthly for what you use.
                 </p>
             </div>
             <div v-else class="subscription__desc">
-                The subscription plan is currently unavailable. Please try again later.
+                On-demand billing is currently unavailable. Please try again later.
             </div>
         </div>
 
@@ -61,8 +61,7 @@ const isActive = computed(() => {
 
 const statusLabel = computed(() => {
     const status = unref(data)?.subscriptionStatus
-    if (status === 'trialing') return 'Free trial active'
-    if (status === 'active') return 'Active'
+    if (status === 'trialing' || status === 'active') return 'Active'
     return status || ''
 })
 
@@ -70,7 +69,7 @@ const formatPrice = (amount, currency) => {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: currency,
-        minimumFractionDigits: 0,
+        minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     }).format(amount)
 }
@@ -83,7 +82,7 @@ const subscribe = async () => {
         const response = await $fetch('/api/payment/subscribe')
         navigateTo(response.url, { external: true })
     } catch (err) {
-        error.value = err?.data?.statusMessage || 'Failed to start subscription. Please try again.'
+        error.value = err?.data?.statusMessage || 'Failed to open checkout. Please try again.'
         isLoading.value = false
     }
 }
@@ -150,7 +149,7 @@ const subscribe = async () => {
         color: var(--accent-primary);
     }
 
-    // Override MainButton's default `width: max-content` so the trial button
+    // Override MainButton's default `width: max-content` so the button
     // stretches to the full width of the card. The descendant selector raises
     // specificity enough to win against the child component's own scoped rule.
     &__card &__btn {

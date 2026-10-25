@@ -200,8 +200,8 @@ async function nest(slug) {
     } catch (error) {
         // Paywall: free quota exhausted and no active subscription.
         if (error?.response?.status === 402) {
-            const buyCreditsDialog = useBuyCreditsDialog();
-            buyCreditsDialog.value = true;
+            const paywallDialog = usePaywallDialog();
+            paywallDialog.value = true;
             return
         }
         throw error

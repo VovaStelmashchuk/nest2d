@@ -19,8 +19,8 @@ export const useFullScreen = () => {
 export const useSupportDialog = () => {
     return useState("supportDialog", () => false);
 };
-export const useBuyCreditsDialog = () => {
-    return useState("buyCreditsDialog", () => false);
+export const usePaywallDialog = () => {
+    return useState("paywallDialog", () => false);
 };
 export const useInfoAboutNest = () => {
     return useState("infoAboutNest", () => false);

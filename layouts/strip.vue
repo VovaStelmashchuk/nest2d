@@ -10,13 +10,13 @@
             <StripResults class="content__results" />
         </main>
         <Footer />
-        <BuyCreditsDialog v-model:isModalOpen="buyCreditsDialog" />
+        <PaywallDialog v-model:isModalOpen="paywallDialog" />
     </div>
 </template>
 
 <script setup>
 import { themeType } from '~~/constants/theme.constants';
-const buyCreditsDialog = useBuyCreditsDialog();
+const paywallDialog = usePaywallDialog();
 </script>
 <style lang="scss" scoped>
 .main {

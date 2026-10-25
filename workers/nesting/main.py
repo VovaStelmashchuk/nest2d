@@ -120,8 +120,7 @@ while not shutdown_requested:
             {"id": doc["ownerId"]},
             {
                 "$inc": {
-                    "nesting_count": 1,
-                    "balance": -10
+                    "nesting_count": 1
                 }
             }
         )
