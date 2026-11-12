@@ -1,20 +1,19 @@
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 import { trackEvent } from "~~/server/tracking/add";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId || "anonymous";
-  const db = await connectDB();
 
   let isDbConnected = false;
+  let user = null;
 
   try {
-    await db.command({ ping: 1 });
+    const sql = await getDb();
+    [user] = await sql`SELECT provider, is_admin FROM users WHERE id = ${userId}`;
     isDbConnected = true;
   } catch (e) {
     console.error(e);
   }
-
-  const user = await db.collection("users").findOne({ id: userId });
 
   let commitSha = "init unknown";
 

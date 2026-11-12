@@ -1,68 +1,11 @@
-import { connectDB } from '~~/server/db/mongo'
+import { streamMessages } from '~~/server/features/support/messages'
 
 export default defineEventHandler(async (event) => {
     const userId = event.context?.auth?.userId
     if (!userId) {
-        setResponseStatus(401)
+        setResponseStatus(event, 401)
         return
     }
 
-    const eventStream = createEventStream(event)
-
-    const db = await connectDB()
-
-    const messages = await db
-        .collection('supportMessages')
-        .find({ userId: userId })
-        .sort({ timestamp: 1 })
-        .project({ message: 1, sender: 1, timestamp: 1, _id: 1 })
-        .toArray()
-
-    let lastTimestamp = new Date(0)
-    if (messages.length > 0) {
-        eventStream.push(
-            JSON.stringify({
-                type: 'initial',
-                data: messages
-            })
-        )
-        lastTimestamp = messages[messages.length - 1].timestamp
-    }
-    const interval = setInterval(async () => {
-        const newMessages = await db
-            .collection('supportMessages')
-            .find({
-                userId: userId,
-                timestamp: { $gt: lastTimestamp }
-            })
-            .sort({ timestamp: 1 })
-            .project({ message: 1, sender: 1, timestamp: 1, _id: 1 })
-            .toArray()
-        if (newMessages.length > 0) {
-            lastTimestamp = newMessages[newMessages.length - 1].timestamp
-            await eventStream.push(
-                JSON.stringify({
-                    type: 'newMessages',
-                    data: newMessages
-                })
-            )
-        }
-    }, 1000)
-
-    const heartbeatInterval = setInterval(async () => {
-        await eventStream.push(
-            JSON.stringify({
-                type: 'heartbeat',
-                ts: Date.now()
-            })
-        )
-    }, 30000)
-
-    eventStream.onClosed(async () => {
-        clearInterval(heartbeatInterval)
-        clearInterval(interval)
-        await eventStream.close()
-    })
-
-    return eventStream.send()
+    return streamMessages(event, userId)
 })

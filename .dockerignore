@@ -27,4 +27,4 @@ logs
 
 workers
 
-.mongo-data
+.postgres-data

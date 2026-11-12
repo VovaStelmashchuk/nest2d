@@ -17,7 +17,7 @@
                 v-else
             >
                 <template 
-                    :key="message._id"
+                    :key="message.id"
                     v-for="message in messagesList"
                 >
                     <div v-if="message.day" class="message-list__day day">

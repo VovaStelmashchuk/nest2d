@@ -1,12 +1,10 @@
-from datetime import datetime
 import json
 import subprocess
 import sys
 import os
 import io
 from pathlib import Path
-from utils.mongo import valid_dxf_bucket, dxf_result_bucket, svg_result_bucket
-from utils.mongo import db
+from utils import db
 from core.nesting_input_builder import build_input_json, build_item
 from dxf.dxf_utils import read_dxf
 from core.svg_generator import create_svg_from_doc
@@ -52,8 +50,12 @@ def convert_files_to_input_items(files, space):
         count = file.get("count")
         rotations = file.get("rotations", [0, 90, 180, 270])  # Default to all rotations if not specified
         
-        user_dxf_file = db["user_dxf_files"].find_one({"slug": file_slug})
-        plogonParts = user_dxf_file.get("polygonParts")
+        user_dxf_file = db.fetchone(
+            "SELECT polygon_parts FROM user_dxf_files WHERE slug = %s", (file_slug,)
+        )
+        if user_dxf_file is None:
+            raise Exception(f"File not found: {file_slug}")
+        plogonParts = user_dxf_file.get("polygon_parts") or []
         for part in plogonParts:
             coords = part.get("coordinates")
             handles = part.get("handles")
@@ -86,12 +88,11 @@ def save_dxf_result(owner_id, file_name, drawing):
     
     dxf_copy_bytes = dxf_copy_text.encode('utf-8')
     
-    dxf_result_bucket.upload_from_stream(filename=file_name, source=dxf_copy_bytes, metadata={"ownerId": owner_id})
+    db.save_file(db.BUCKET_NEST_DXF, file_name, owner_id, dxf_copy_bytes)
     
 def save_svg_result(owner_id, file_name, drawing):
     svg_string = create_svg_from_doc(drawing, 0.001)
-    svg_bytes = io.BytesIO(svg_string.encode("utf-8"))
-    svg_result_bucket.upload_from_stream(filename=file_name, source=svg_bytes, metadata={"ownerId": owner_id})
+    db.save_file(db.BUCKET_NEST_SVG, file_name, owner_id, svg_string.encode("utf-8"))
 
 def build_result_dxf_files(owner_id, slug, result_containers, add_out_shape=False, space=0):
     """
@@ -115,15 +116,9 @@ def build_result_dxf_files(owner_id, slug, result_containers, add_out_shape=Fals
         save_svg_result(owner_id, svg_file_name, new_drawing)
         svg_files.append(svg_file_name)
         
-    db["nesting_jobs"].update_one(
-        {"slug": slug},
-        {
-            "$set": {
-                "dxf_files": dxf_files,
-                "svg_files": svg_files,
-                "update_ts": datetime.now()
-            },
-        }
+    db.execute(
+        "UPDATE nesting_jobs SET dxf_files = %s, svg_files = %s, update_ts = now() WHERE slug = %s",
+        (dxf_files, svg_files, slug),
     )
  
 def build_part(transforms, add_out_shape=False, space=0):
@@ -206,8 +201,8 @@ def get_entities_from_dxf_file(dxf_file_slug, handles):
     if dxf_file_slug in dxf_document_cache:
         doc = dxf_document_cache[dxf_file_slug]
     else:
-        dxf_file = valid_dxf_bucket.open_download_stream_by_name(filename=dxf_file_slug)
-        doc = read_dxf(dxf_file)
+        dxf_bytes = db.read_file(db.BUCKET_VALID_DXF, dxf_file_slug)
+        doc = read_dxf(io.BytesIO(dxf_bytes))
         dxf_document_cache[dxf_file_slug] = doc
         
     msp = doc.modelspace()
@@ -234,7 +229,7 @@ def nesting_process(doc):
     bin_count = params.get("sheetCount")
     allow_rotation = params.get("allowRotation", True)
     add_out_shape = params.get("addOutShape", False)
-    owner_id = doc.get("ownerId")
+    owner_id = doc.get("owner_id")
     
     # Map allowRotation boolean to allowed_orientations array (fallback for backward compatibility)
     default_allowed_orientations = [0.0, 90.0, 180.0, 270.0] if allow_rotation else [0.0]
@@ -251,14 +246,9 @@ def nesting_process(doc):
         total_requested_count += count
         jaguar_items.append(jaguar_item)
         
-    db["nesting_jobs"].update_one(
-        {"_id": doc.get("_id")},
-        {
-            "$set": {
-                "requested": total_requested_count,
-                "update_ts": datetime.now()
-            },
-        }
+    db.execute(
+        "UPDATE nesting_jobs SET requested = %s, update_ts = now() WHERE id = %s",
+        (total_requested_count, doc.get("id")),
     )
         
     input_json = build_input_json(bin_count, width, height, jaguar_items)
@@ -316,28 +306,20 @@ def nesting_process(doc):
         
     is_all_placed = total_placed_count == total_requested_count
     
-    db["nesting_jobs"].update_one(
-        { "slug": slug },
-        {
-            "$set": {
-                "placed": total_placed_count,
-                "layoutCount": len(layouts),
-                "update_ts": datetime.now()
-            },
-        }
+    db.execute(
+        "UPDATE nesting_jobs SET placed = %s, layout_count = %s, update_ts = now() WHERE slug = %s",
+        (total_placed_count, len(layouts), slug),
     )
     
     if not is_all_placed:
-        db["nesting_jobs"].update_one(
-            { "slug": slug },
-            { 
-                "$set": { 
-                    "status": "error",
-                    "finishedAt": datetime.now(),
-                    "update_ts": datetime.now(),
-                    "information": "Not all items could be placed in the nesting job"
-                } 
-            },
+        db.execute(
+            """
+            UPDATE nesting_jobs
+            SET status = 'error', finished_at = now(), update_ts = now(),
+                information = 'Not all items could be placed in the nesting job'
+            WHERE slug = %s
+            """,
+            (slug,),
         )
         raise Exception("Not all items could be placed in the nesting job")
     

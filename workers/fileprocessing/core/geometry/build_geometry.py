@@ -19,7 +19,7 @@ class ClosedPolygon:
     geometry: Polygon
     handles: List[str]
     
-    def to_mongo_dict(self) -> Dict[str, List[List[float]]] :
+    def to_dict(self) -> Dict[str, List[List[float]]] :
         if not isinstance(self.geometry, Polygon):
             raise TypeError("The 'geometry' attribute must be a shapely Polygon.")
 

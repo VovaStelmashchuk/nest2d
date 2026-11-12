@@ -1,8 +1,8 @@
+from typing import BinaryIO
 import tempfile
 import uuid
 import ezdxf
 from ezdxf.document import Drawing
-from gridfs.synchronous.grid_file import GridOut
 from ezdxf.audit import Auditor
 from ezdxf.explode import explode_entity
 from ezdxf import recover
@@ -13,7 +13,7 @@ from ezdxf.entities import DXFGraphic
 
 logger = setup_logger("dxf_utils")
 
-def read_dxf(dxf_stream: GridOut) -> Drawing:
+def read_dxf(dxf_stream: BinaryIO) -> Drawing:
     """
     Reads a DXF stream and returns the modelspace without entities TEXT and MTEXT.
 

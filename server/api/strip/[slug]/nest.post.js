@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from "h3";
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 import { generateRandomString } from "~~/server/utils/strings";
 import standardSlugify from "standard-slugify";
 import { trackEvent } from "~~/server/tracking/add";
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   }
   await assertStripFeatureEnabled(userId);
 
-  const db = await connectDB();
+  const sql = await getDb();
 
   const stripSlug = getRouterParam(event, "slug");
 
@@ -24,9 +24,9 @@ export default defineEventHandler(async (event) => {
     stripSlug: stripSlug,
   });
 
-  const strip = await db
-    .collection("strip_projects")
-    .findOne({ slug: stripSlug, ownerId: userId });
+  const [strip] = await sql`
+    SELECT slug FROM strip_projects WHERE slug = ${stripSlug} AND owner_id = ${userId}
+  `;
   if (!strip) {
     throw createError({
       statusCode: 404,
@@ -57,18 +57,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const stripFilesDatabase = await db
-    .collection("strip_user_dxf_files")
-    .find({
-      slug: { $in: filteredFiles.map((file) => file.slug) },
-      ownerId: userId,
-    })
-    .project({
-      _id: 0,
-      slug: 1,
-      name: 1,
-    })
-    .toArray();
+  const stripFilesDatabase = await sql`
+    SELECT slug, name FROM strip_user_dxf_files
+    WHERE slug IN ${sql(filteredFiles.map((file) => file.slug))} AND owner_id = ${userId}
+  `;
 
   const fileMetadata = stripFilesDatabase.map((file) => {
     const requestFile = filteredFiles.find((f) => f.slug === file.slug);
@@ -92,19 +84,15 @@ export default defineEventHandler(async (event) => {
   // Free-quota / on-demand plan gate, once the request is fully validated.
   await assertCanNest(userId);
 
-  await db.collection("strip_nesting_job_queue").insertOne({
-    slug: jobSlug,
-    stripSlug: stripSlug,
-    files: fileMetadata,
-    params: {
-      height: height,
-    },
-    status: "pending",
-    // Settled by the usage billing job once the run succeeds.
-    billingStatus: "pending",
-    createdAt: new Date(),
-    ownerId: userId,
-  });
+  // billing_status is settled by the usage billing job once the run succeeds.
+  await sql`
+    INSERT INTO strip_nesting_jobs (
+      slug, strip_slug, files, params, status, billing_status, owner_id
+    ) VALUES (
+      ${jobSlug}, ${stripSlug}, ${sql.json(fileMetadata)}, ${sql.json({ height })},
+      'pending', 'pending', ${userId}
+    )
+  `;
 
   return {
     slug: jobSlug,

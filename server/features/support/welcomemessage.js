@@ -1,26 +1,21 @@
 import { MESSAGE_SENDER } from '~/server/features/support/const'
-import { connectDB } from '~/server/db/mongo'
+import { getDb } from '~/server/db/postgres'
 
 export async function sendWelcomeMessage(userId) {
-    const db = await connectDB()
-    const user = await db.collection('users').findOne({ id: userId })
-    if (!user) {
-        return
-    }
+    const sql = await getDb()
 
-    db.collection('supportMessages').insertOne({
-        userId: userId,
-        sender: MESSAGE_SENDER.WELCOME,
-        message: 'Welcome to the support channel! We will do our best to help you with your questions and issues.',
-        timestamp: new Date()
-    })
+    await sql`
+        INSERT INTO support_messages (user_id, sender, message)
+        VALUES (
+            ${userId}, ${MESSAGE_SENDER.WELCOME},
+            'Welcome to the support channel! We will do our best to help you with your questions and issues.'
+        )
+    `
 
     await new Promise((resolve) => setTimeout(resolve, 3000))
 
-    db.collection('supportMessages').insertOne({
-        userId: userId,
-        sender: MESSAGE_SENDER.WELCOME,
-        message: 'If you have any questions or issues, please feel free to ask.',
-        timestamp: new Date()
-    })
+    await sql`
+        INSERT INTO support_messages (user_id, sender, message)
+        VALUES (${userId}, ${MESSAGE_SENDER.WELCOME}, 'If you have any questions or issues, please feel free to ask.')
+    `
 }

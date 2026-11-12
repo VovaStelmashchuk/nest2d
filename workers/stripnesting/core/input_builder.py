@@ -1,9 +1,7 @@
-from utils.mongo import db
+from utils import db
 from utils.logger import setup_logger
 
 logger = setup_logger("strip_input_builder")
-
-strip_user_dxf_files = db["strip_user_dxf_files"]
 
 
 class InputItem:
@@ -50,9 +48,9 @@ def build_input_items(files):
     """
     Build the list of nesting items for a strip nesting job.
 
-    For every file referenced by the job, the `polygonParts` (computed by the
-    stripfileprocessing worker and stored on the `strip_user_dxf_files`
-    document) are loaded. Every part becomes its own item whose demand equals
+    For every file referenced by the job, the `polygon_parts` (computed by the
+    stripfileprocessing worker and stored in the `strip_user_dxf_files`
+    row) are loaded. Every part becomes its own item whose demand equals
     the file count.
     """
     input_items = []
@@ -66,14 +64,17 @@ def build_input_items(files):
 
         angle = _sanitize_angle(file.get("angle"))
 
-        strip_file = strip_user_dxf_files.find_one({"slug": file_slug})
+        strip_file = db.fetchone(
+            "SELECT polygon_parts FROM strip_user_dxf_files WHERE slug = %s",
+            (file_slug,),
+        )
         if strip_file is None:
             raise Exception(f"Strip file not found: {file_slug}")
 
-        polygon_parts = strip_file.get("polygonParts") or []
+        polygon_parts = strip_file.get("polygon_parts") or []
         if not polygon_parts:
             raise Exception(
-                f"Strip file '{file_slug}' has no polygonParts "
+                f"Strip file '{file_slug}' has no polygon_parts "
                 "(has the stripfileprocessing worker processed it?)"
             )
 

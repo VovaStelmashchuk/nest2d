@@ -1,4 +1,4 @@
-import { getSvgResultBucket } from "~/server/db/mongo";
+import { BUCKET, getFile } from "~/server/db/files";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -11,28 +11,23 @@ export default defineEventHandler(async (event) => {
 
   const fileName = getRouterParam(event, "file");
 
-  const svgResultBucket = await getSvgResultBucket();
-
-  const files = await svgResultBucket.find({ filename: fileName }).toArray()
-  if (!files[0]?.metadata) {
+  const file = await getFile(BUCKET.NEST_SVG, fileName);
+  if (!file) {
     throw createError({
       statusCode: 404,
       statusMessage: `File ${fileName} not found`,
     });
   }
-  const metadata = files[0].metadata;
 
-  if (metadata.ownerId !== userId && !(event.context.auth.isAdmin == true)) {
+  if (file.ownerId !== userId && !(event.context.auth.isAdmin == true)) {
     throw createError({
       statusCode: 401,
       statusMessage: "Unauthorized",
     });
   }
 
-  const readStream = svgResultBucket.openDownloadStreamByName(fileName);
-
   setResponseHeaders(event, {
     "Content-Type": "image/svg+xml",
   });
-  return readStream;
+  return file.data;
 });

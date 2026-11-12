@@ -5,8 +5,8 @@
 export const FREE_NESTING_LIMIT = 3
 
 /**
- * Collections holding nesting jobs. A job is billable when it was enqueued
- * with billingStatus "pending"; the usage billing job settles it once the
- * worker marks it done.
+ * Tables holding nesting jobs. A job is billable when it was enqueued with
+ * billing_status "pending"; the usage billing job settles it once the worker
+ * marks it done.
  */
-export const NESTING_JOB_COLLECTIONS = ['nesting_jobs', 'strip_nesting_job_queue']
+export const NESTING_JOB_TABLES = ['nesting_jobs', 'strip_nesting_jobs']

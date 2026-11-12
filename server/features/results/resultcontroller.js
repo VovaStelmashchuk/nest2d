@@ -1,4 +1,4 @@
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 
 /**
  * @param {string} userId 
@@ -6,12 +6,14 @@ import { connectDB } from "~~/server/db/mongo";
  * @returns {Promise<{items: {slug: string, status: string, createdAt: Date, svgs: string[]}[]}>}
  */
 export async function getResults(userId, projectSlug) {
-    const db = await connectDB();
-    const queueList = await db
-        .collection("nesting_jobs")
-        .find({ ownerId: userId, ...(projectSlug && { projectSlug }) })
-        .sort({ createdAt: -1 })
-        .toArray();
+    const sql = await getDb();
+    const queueList = await sql`
+        SELECT slug, status, error, layout_count, created_at, placed, requested, dxf_files, svg_files
+        FROM nesting_jobs
+        WHERE owner_id = ${userId}
+          ${projectSlug ? sql`AND project_slug = ${projectSlug}` : sql``}
+        ORDER BY created_at DESC
+    `;
 
     const respnoseItems = queueList.map((queueItem) => {
         let status = queueItem.status
@@ -23,7 +25,7 @@ export async function getResults(userId, projectSlug) {
         let zipDownloadUrl = ''
         if (queueItem.status == 'done') {
             zipDownloadUrl = `/api/files/result/zip/${queueItem.slug}`
-            downloadUrl = isMultiSheet ? zipDownloadUrl : `/api/files/result/dxf/${queueItem.dxf_files[0]}`
+            downloadUrl = isMultiSheet ? zipDownloadUrl : `/api/files/result/dxf/${queueItem.dxfFiles[0]}`
         } else {
             downloadUrl = null
             zipDownloadUrl = null
@@ -38,8 +40,8 @@ export async function getResults(userId, projectSlug) {
             downloadUrl: downloadUrl,
             zipDownloadUrl: zipDownloadUrl,
             isInProgress: queueItem.status === 'processing' || queueItem.status === 'pending',
-            svgs: (queueItem.svg_files || []).map((file) => "/api/files/result/svg/" + file),
-            dxfs: (queueItem.dxf_files || []).map((file) => "/api/files/result/dxf/" + file),
+            svgs: (queueItem.svgFiles || []).map((file) => "/api/files/result/svg/" + file),
+            dxfs: (queueItem.dxfFiles || []).map((file) => "/api/files/result/dxf/" + file),
         }
     })
 

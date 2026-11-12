@@ -1,4 +1,4 @@
-import { connectDB } from '~~/server/db/mongo'
+import { getPlan } from '~~/server/features/payment/store'
 import { getEntitlement } from '~~/server/utils/entitlement'
 
 export default defineEventHandler(async (event) => {
@@ -7,8 +7,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
     }
 
-    const db = await connectDB()
-    const plan = await db.collection('subscription_plan').findOne({ id: 'subscription' })
+    const plan = await getPlan()
 
     const entitlement = await getEntitlement(userId)
 

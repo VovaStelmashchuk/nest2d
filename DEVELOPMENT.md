@@ -10,31 +10,38 @@ To install colima use brew
 brew install colima
 ```
 
-### Mongo setup
+### Postgres setup
 
 ```sh
-mkdir .mongo-data
-docker run -d --name nest2d_mongo -p 27017:27017 --user "$(id -u):$(id -g)" -v "$(pwd)/.mongo-data":/data/db mongo
+mkdir .postgres-data
+docker run -d --name nest2d_postgres -p 5432:5432 \
+  -e POSTGRES_USER=nest2d -e POSTGRES_PASSWORD=nest2d -e POSTGRES_DB=nest2d \
+  -v "$(pwd)/.postgres-data":/var/lib/postgresql/data postgres:17
 ```
 
-To restore the mongo from backup run the command
+Point the app at it (e.g. in `.env`):
+
 ```sh
-mongorestore --uri="mongodb://localhost:27017" --gzip --archive=mongo_backup_latest.gz --nsInclude="nest2d-v2.*"
+NUXT_DATABASE_URL=postgres://nest2d:nest2d@localhost:5432/nest2d
 ```
+
+The app creates and migrates the schema on startup (see `server/db/schema.js`);
+the workers only read and write rows, so start the app at least once before the workers.
 
 To stop the container runs
 
 ```sh
-docker stop nest2d_mongo
+docker stop nest2d_postgres
 ```
 
 To clean data 
 ```sh
-rm -rf .mongo-data
+docker rm nest2d_postgres
+rm -rf .postgres-data
 ```
 
-The Mongo is the only one storage need for run project localy, all files (dxf, svg, and user avatars) saved by Mongo GridFS. 
-It's implement in purpuse to make the developer life easier.
+Postgres is the only storage needed to run the project locally: all files (dxf, svg, and user avatars) are saved
+in the `files` table. It's implemented on purpose to make the developer life easier.
 
 ### Run the workers
 
@@ -42,7 +49,7 @@ It's implement in purpuse to make the developer life easier.
 docker stack deploy -c docker-stack-external.yml nest2d
 ```
 
-The command runs the two workers user file processing and the nesting one. Each workes will have the replication equals to **one**. 
+The command runs a Postgres container and the workers (user file processing, nesting, strip file processing and strip nesting). Each workes will have the replication equals to **one**. 
 
 
 ### Rfor windows

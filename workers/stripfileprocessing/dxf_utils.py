@@ -1,10 +1,10 @@
+from typing import BinaryIO
 import tempfile
 import uuid
 from typing import List, Tuple
 import ezdxf
 import ezdxf.bbox
 from ezdxf.document import Drawing
-from gridfs.synchronous.grid_file import GridOut
 from ezdxf.audit import Auditor
 from ezdxf.explode import explode_entity
 from ezdxf import recover
@@ -51,7 +51,7 @@ def _extract_original_footprints(msp) -> List[OriginalFootprint]:
     return footprints
 
 
-def read_dxf(dxf_stream: GridOut) -> Tuple[Drawing, List[OriginalFootprint]]:
+def read_dxf(dxf_stream: BinaryIO) -> Tuple[Drawing, List[OriginalFootprint]]:
     """
     Reads a DXF stream and returns the cleaned geometry drawing together with the
     original entities' (handle, bounding-box centre) footprints.

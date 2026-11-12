@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from "h3";
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 import { generateRandomString } from "~~/server/utils/strings";
 import standardSlugify from "standard-slugify";
 import logger from "~~/server/utils/logger";
@@ -14,14 +14,7 @@ export default defineEventHandler(async (event) => {
       statusMessage: "Unauthorized",
     });
   }
-  const db = await connectDB();
-  const user = await db.collection("users").findOne({ id: userId });
-  if (!user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: "Unauthorized",
-    });
-  }
+  const sql = await getDb();
 
   const projectSlug = getRouterParam(event, "slug");
 
@@ -29,7 +22,9 @@ export default defineEventHandler(async (event) => {
     projectSlug: projectSlug,
   });
 
-  const project = await db.collection("projects").findOne({ slug: projectSlug, ownerId: userId })
+  const [project] = await sql`
+    SELECT slug FROM projects WHERE slug = ${projectSlug} AND owner_id = ${userId}
+  `
   if (!project) {
     throw createError({
       statusCode: 404,
@@ -44,13 +39,11 @@ export default defineEventHandler(async (event) => {
 
   const filteredFiles = files.filter((file) => file.count > 0);
 
-  const userDxfFilesDatabase = await db.collection("user_dxf_files").find({
-    slug: { $in: filteredFiles.map((file) => file.slug) }
-  }).project({
-    _id: 0,
-    slug: 1,
-    name: 1,
-  }).toArray()
+  const requestedSlugs = filteredFiles.map((file) => file.slug)
+  const userDxfFilesDatabase = requestedSlugs.length === 0 ? [] : await sql`
+    SELECT slug, name FROM user_dxf_files
+    WHERE slug IN ${sql(requestedSlugs)} AND owner_id = ${userId}
+  `
 
   const fileMetadata = userDxfFilesDatabase.map((file) => {
     const requestFile = filteredFiles.find((f) => f.slug === file.slug)
@@ -78,17 +71,15 @@ export default defineEventHandler(async (event) => {
   // Free-quota / on-demand plan gate, once the request is fully validated.
   await assertCanNest(userId);
 
-  await db.collection("nesting_jobs").insertOne({
-    slug: nestingSlug,
-    projectSlug: projectSlug,
-    files: fileMetadata,
-    params: dbParams,
-    status: "pending",
-    // Settled by the usage billing job once the run succeeds.
-    billingStatus: "pending",
-    createdAt: new Date(),
-    ownerId: userId,
-  });
+  // billing_status is settled by the usage billing job once the run succeeds.
+  await sql`
+    INSERT INTO nesting_jobs (
+      slug, project_slug, files, params, status, billing_status, owner_id
+    ) VALUES (
+      ${nestingSlug}, ${projectSlug}, ${sql.json(fileMetadata)}, ${sql.json(dbParams)},
+      'pending', 'pending', ${userId}
+    )
+  `;
 
   return {
     slug: nestingSlug,

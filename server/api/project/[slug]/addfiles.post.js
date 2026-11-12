@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from "h3";
 
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 import { saveFilesToProject } from "~~/server/core/project/dxf";
 
 export default defineEventHandler(async (event) => {
@@ -10,15 +10,15 @@ export default defineEventHandler(async (event) => {
   }
   const projectSlug = getRouterParam(event, "slug");
 
-  const db = await connectDB();
+  const sql = await getDb();
 
-  const project = await db.collection("projects").findOne({
-    slug: projectSlug,
-  });
+  const [project] = await sql`SELECT owner_id FROM projects WHERE slug = ${projectSlug}`;
 
-  const projectOwnerId = project.ownerId;
+  if (!project) {
+    throw createError({ statusCode: 404, message: "Project not found" });
+  }
 
-  if (projectOwnerId !== userId) {
+  if (project.ownerId !== userId) {
     throw createError({ statusCode: 403, message: "Forbidden" });
   }
 

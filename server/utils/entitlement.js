@@ -1,9 +1,11 @@
 import { createError } from "h3";
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
+import { FREE_NESTING_LIMIT } from "~~/server/features/payment/const";
 import {
-  FREE_NESTING_LIMIT,
-  NESTING_JOB_COLLECTIONS,
-} from "~~/server/features/payment/const";
+  getPlan,
+  getSubscriptionOf,
+  saveSubscription,
+} from "~~/server/features/payment/store";
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getSubscription,
@@ -11,14 +13,6 @@ import {
   mapSubscription,
 } from "~~/server/features/payment/stripe";
 import logger from "./logger";
-
-/**
- * @param {import('mongodb').Db} db
- * @returns {Promise<any>} the on-demand plan, or null before the first sync
- */
-function getPlan(db) {
-  return db.collection("subscription_plan").findOne({ id: "subscription" });
-}
 
 /**
  * Returns true if the user's stored subscription is on the on-demand plan and
@@ -46,11 +40,10 @@ function hasActiveSubscription(user, plan) {
  * Re-reads the subscription from Stripe and persists it. Used as a lazy
  * fallback when the locally stored period looks expired, so the polling lag
  * doesn't wrongly block a freshly-renewed subscriber.
- * @param {import('mongodb').Db} db
  * @param {any} user
  * @returns {Promise<boolean>} whether the refreshed subscription is active
  */
-async function refreshSubscription(db, user, plan) {
+async function refreshSubscription(user, plan) {
   const subscriptionId = user?.subscription?.stripeSubscriptionId;
   if (!subscriptionId) {
     return false;
@@ -58,9 +51,7 @@ async function refreshSubscription(db, user, plan) {
   try {
     const stripeSub = await getSubscription(subscriptionId);
     const mapped = mapSubscription(stripeSub);
-    await db
-      .collection("users")
-      .updateOne({ id: user.id }, { $set: { subscription: mapped } });
+    await saveSubscription(user.id, mapped);
     return hasActiveSubscription({ subscription: mapped }, plan);
   } catch (err) {
     logger.warn("Failed to refresh subscription from Stripe", {
@@ -76,22 +67,40 @@ async function refreshSubscription(db, user, plan) {
  * Counts the user's nesting jobs that are queued or running and not billed
  * yet. Each of them will consume a free run (or be billed) once it succeeds,
  * so they are reserved against the free quota at enqueue time.
- * @param {import('mongodb').Db} db
  * @param {string} userId
  * @returns {Promise<number>}
  */
-async function countUnbilledJobs(db, userId) {
-  const filter = {
-    ownerId: userId,
-    billingStatus: { $in: ["pending", "processing"] },
-    status: { $nin: ["error", "failed"] },
-  };
-  const counts = await Promise.all(
-    NESTING_JOB_COLLECTIONS.map((name) =>
-      db.collection(name).countDocuments(filter)
-    )
-  );
-  return counts.reduce((acc, count) => acc + count, 0);
+async function countUnbilledJobs(userId) {
+  const sql = await getDb();
+  const [{ count }] = await sql`
+    SELECT (
+      (SELECT count(*) FROM nesting_jobs
+        WHERE owner_id = ${userId}
+          AND billing_status IN ('pending', 'processing')
+          AND status NOT IN ('error', 'failed'))
+      +
+      (SELECT count(*) FROM strip_nesting_jobs
+        WHERE owner_id = ${userId}
+          AND billing_status IN ('pending', 'processing')
+          AND status NOT IN ('error', 'failed'))
+    )::int AS count
+  `;
+  return count;
+}
+
+/**
+ * @param {string} userId
+ * @returns {Promise<{id: string, freeNestingUsed: number, subscription: any}|null>}
+ */
+async function getUser(userId) {
+  const sql = await getDb();
+  const [user] = await sql`
+    SELECT id, free_nesting_used FROM users WHERE id = ${userId}
+  `;
+  if (!user) {
+    return null;
+  }
+  return { ...user, subscription: await getSubscriptionOf(userId) };
 }
 
 /**
@@ -100,15 +109,9 @@ async function countUnbilledJobs(db, userId) {
  * @returns {Promise<{freeRemaining: number, subscriptionStatus: string|null, requiresPaywall: boolean}>}
  */
 export async function getEntitlement(userId) {
-  const db = await connectDB();
-  const user = await db
-    .collection("users")
-    .findOne(
-      { id: userId },
-      { projection: { freeNestingUsed: 1, subscription: 1 } }
-    );
+  const user = await getUser(userId);
 
-  const plan = await getPlan(db);
+  const plan = await getPlan();
   const subscriptionStatus = isOnDemandPlan(user?.subscription, plan)
     ? user.subscription.status
     : null;
@@ -137,19 +140,13 @@ export async function getEntitlement(userId) {
  * @param {string} userId
  */
 export async function assertCanNest(userId) {
-  const db = await connectDB();
-  const user = await db
-    .collection("users")
-    .findOne(
-      { id: userId },
-      { projection: { id: 1, freeNestingUsed: 1, subscription: 1 } }
-    );
+  const user = await getUser(userId);
 
   if (!user) {
     throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
   }
 
-  const plan = await getPlan(db);
+  const plan = await getPlan();
   if (hasActiveSubscription(user, plan)) {
     return;
   }
@@ -158,12 +155,12 @@ export async function assertCanNest(userId) {
   // have caught a renewal yet, so verify against Stripe before denying.
   if (
     user.subscription?.stripeSubscriptionId &&
-    (await refreshSubscription(db, user, plan))
+    (await refreshSubscription(user, plan))
   ) {
     return;
   }
 
-  const reserved = await countUnbilledJobs(db, userId);
+  const reserved = await countUnbilledJobs(userId);
   if ((user.freeNestingUsed || 0) + reserved < FREE_NESTING_LIMIT) {
     return;
   }

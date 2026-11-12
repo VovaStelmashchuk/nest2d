@@ -1,4 +1,3 @@
-from datetime import datetime
 import io
 import math
 import os
@@ -9,7 +8,7 @@ from ezdxf import recover, xref
 from ezdxf.math import Matrix44
 import spyrrow
 
-from utils.mongo import db, strip_nest_dxf_bucket, strip_user_dxf_bucket
+from utils import db
 from utils.logger import setup_logger
 from core.input_builder import build_input_items
 
@@ -18,8 +17,6 @@ logger = setup_logger("core_stripnesting")
 # Cache of origin DXF documents keyed by file slug. Cleared at the start of each
 # job so memory does not grow and stale documents are never reused.
 _origin_doc_cache = {}
-
-strip_nesting_jobs = db["strip_nesting_job_queue"]
 
 # Total time budget given to the sparrow solver (seconds). Sparrow splits this
 # ~80% exploration / ~20% compression. Overridable per environment.
@@ -43,14 +40,14 @@ def _load_origin_doc(file_slug):
 
     Loaded with `recover.readfile` — the same loader the stripfileprocessing
     worker used when it captured the part handles — so the entity handles match
-    exactly what is stored in `polygonParts`.
+    exactly what is stored in `polygon_parts`.
     """
     if file_slug in _origin_doc_cache:
         return _origin_doc_cache[file_slug]
 
-    stream = strip_user_dxf_bucket.open_download_stream_by_name(file_slug)
+    data = db.read_file(db.BUCKET_STRIP_USER_DXF, file_slug)
     with tempfile.NamedTemporaryFile(suffix=".dxf", delete=False) as tmp:
-        tmp.write(stream.read())
+        tmp.write(data)
         tmp_path = tmp.name
 
     doc, _auditor = recover.readfile(tmp_path)
@@ -127,9 +124,7 @@ def _save_dxf_result(owner_id, file_name, drawing):
     data = text_stream.getvalue().encode("utf-8")
     text_stream.close()
 
-    strip_nest_dxf_bucket.upload_from_stream(
-        filename=file_name, source=data, metadata={"ownerId": owner_id}
-    )
+    db.save_file(db.BUCKET_STRIP_NEST_DXF, file_name, owner_id, data)
 
 
 def strip_nesting_process(doc):
@@ -142,7 +137,7 @@ def strip_nesting_process(doc):
     the UI (either [0] to keep it as-is or [0, 180] to also allow a 180° flip).
     """
     slug = doc.get("slug")
-    owner_id = doc.get("ownerId")
+    owner_id = doc.get("owner_id")
     files = doc.get("files") or []
     params = doc.get("params") or {}
     height = params.get("height")
@@ -173,9 +168,9 @@ def strip_nesting_process(doc):
         )
         total_requested += item.count
 
-    strip_nesting_jobs.update_one(
-        {"_id": doc.get("_id")},
-        {"$set": {"requested": total_requested, "update_ts": datetime.now()}},
+    db.execute(
+        "UPDATE strip_nesting_jobs SET requested = %s, update_ts = now() WHERE id = %s",
+        (total_requested, doc.get("id")),
     )
 
     instance = spyrrow.StripPackingInstance(
@@ -214,16 +209,12 @@ def strip_nesting_process(doc):
     dxf_file_name = f"{slug}.dxf"
     _save_dxf_result(owner_id, dxf_file_name, drawing)
 
-    strip_nesting_jobs.update_one(
-        {"slug": slug},
-        {
-            "$set": {
-                "dxf_files": [dxf_file_name],
-                "width": width,
-                "density": density,
-                "placed": total_placed,
-                "requested": total_requested,
-                "update_ts": datetime.now(),
-            }
-        },
+    db.execute(
+        """
+        UPDATE strip_nesting_jobs
+        SET dxf_files = %s, width = %s, density = %s, placed = %s, requested = %s,
+            update_ts = now()
+        WHERE id = %s
+        """,
+        ([dxf_file_name], width, density, total_placed, total_requested, doc.get("id")),
     )

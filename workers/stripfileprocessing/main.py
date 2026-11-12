@@ -3,10 +3,8 @@ import traceback
 import threading
 import signal
 import sys
-from datetime import datetime
 from utils.logger import setup_logger
-from utils.mongo import db
-from pymongo import ReturnDocument
+from utils import db
 from core.main import process_file
 
 logger = setup_logger("main_stripfileprocessing")
@@ -16,8 +14,6 @@ keep_alive_interval = 10
 
 current_doc_id = None
 shutdown_requested = False
-
-strip_user_dxf_files = db["strip_user_dxf_files"]
 
 def signal_handler(signum, frame):
     """Handle graceful shutdown signals"""
@@ -30,10 +26,7 @@ def signal_handler(signum, frame):
     if current_doc_id:
         try:
             logger.info(f"Resetting current job {current_doc_id} to pending status")
-            strip_user_dxf_files.update_one(
-                {"_id": current_doc_id},
-                {"$set": {"processingStatus": "pending"}}
-            )
+            set_status(current_doc_id, "pending")
             logger.info(f"Successfully reset job {current_doc_id} to pending")
         except Exception as e:
             logger.error(f"Failed to reset job {current_doc_id}: {e}")
@@ -46,11 +39,17 @@ def signal_handler(signum, frame):
 signal.signal(signal.SIGTERM, signal_handler)
 
 try:
-    db.command('ping')
+    db.execute("SELECT 1")
     logger.info("Database connection successful")
 except Exception as e:
     logger.error(f"Database connection failed: {e}")
     raise e
+
+def set_status(doc_id, status, error=None):
+    db.execute(
+        "UPDATE strip_user_dxf_files SET processing_status = %s, processing_error = %s WHERE id = %s",
+        (status, error, doc_id),
+    )
 
 def keep_alive_worker():
     global current_doc_id
@@ -58,9 +57,9 @@ def keep_alive_worker():
     while not shutdown_requested:
         if current_doc_id:
             try:
-                strip_user_dxf_files.update_one(
-                    {"_id": current_doc_id},
-                    {"$set": {"update_ts": datetime.now()}}
+                db.execute(
+                    "UPDATE strip_user_dxf_files SET update_ts = now() WHERE id = %s",
+                    (current_doc_id,),
                 )
                 logger.debug(f"Updated keep-alive for document {current_doc_id}")
             except Exception as e:
@@ -75,42 +74,30 @@ logger.info("Strip file processing worker started")
 
 while not shutdown_requested:
     logger.info("Strip worker try to find new files to process")
-    doc = strip_user_dxf_files.find_one_and_update(
-        {"processingStatus": "pending"},
-        {"$set": {"processingStatus": "processing"}},
-        return_document=ReturnDocument.AFTER
-    )
+    try:
+        doc = db.claim_next("strip_user_dxf_files", "processing_status")
+    except Exception as e:
+        # e.g. the app has not created the schema yet
+        logger.error("Failed to claim next file", extra={"error": str(e)})
+        time.sleep(5)
+        continue
 
     if doc is None:
         time.sleep(5)
         continue
 
-    current_doc_id = doc["_id"]
+    current_doc_id = doc["id"]
 
     try:
-        strip_user_dxf_files.update_one(
-            {"_id": current_doc_id},
-            {"$set": {"update_ts": datetime.now()}}
-        )
         result = process_file(doc)
 
         if result:
-            strip_user_dxf_files.update_one(
-                {"_id": current_doc_id},
-                {"$set": {"processingStatus": "completed"}}
-            )
+            set_status(current_doc_id, "completed")
         else:
-            strip_user_dxf_files.update_one(
-                {"_id": current_doc_id},
-                {"$set": {"processingStatus": "pending"}}
-            )
+            set_status(current_doc_id, "pending")
 
     except Exception as e:
         logger.error("Error in strip file processing", extra={"error": str(e), "traceback": traceback.format_exc()})
-        strip_user_dxf_files.update_one(
-            {"_id": current_doc_id},
-            {"$set": {"processingStatus": "error",
-                      "processingError": str(e)}}
-        )
+        set_status(current_doc_id, "error", str(e))
     finally:
         current_doc_id = None

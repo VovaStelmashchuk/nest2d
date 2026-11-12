@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from "h3";
 
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 import { saveFilesToProject } from "~~/server/core/project/dxf";
 import {
   generateRandomString,
@@ -13,18 +13,16 @@ export default defineEventHandler(async (event) => {
   if (!userId) {
     throw createError({ statusCode: 401, message: "Unauthorized" });
   }
-  const db = await connectDB();
+  const sql = await getDb();
   const projectName = generateEntityName();
   const projectSlug = `${standardSlugify(projectName, {
     keepCase: false,
   })}-${generateRandomString(6)}`;
 
-  await db.collection("projects").insertOne({
-    slug: projectSlug,
-    name: projectName,
-    createdAt: new Date(),
-    ownerId: userId,
-  });
+  await sql`
+    INSERT INTO projects (slug, name, owner_id)
+    VALUES (${projectSlug}, ${projectName}, ${userId})
+  `;
 
   await saveFilesToProject(event, projectSlug, userId);
 

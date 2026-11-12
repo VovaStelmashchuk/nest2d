@@ -1,5 +1,5 @@
 import logger from '~~/server/utils/logger';
-import { connectDB } from '~~/server/db/mongo';
+import { getDb } from '~~/server/db/postgres';
 
 async function sendEmail(to, subject, htmlBody) {
   try {
@@ -25,9 +25,9 @@ async function sendEmail(to, subject, htmlBody) {
 }
 
 export async function sendNestFinishEmail(nestingJob) {
-  const db = await connectDB();
-  const project = await db.collection('projects').findOne({ slug: nestingJob.projectSlug });
-  const user = await db.collection('users').findOne({ id: nestingJob.ownerId });
+  const sql = await getDb();
+  const [project] = await sql`SELECT slug, name FROM projects WHERE slug = ${nestingJob.projectSlug}`;
+  const [user] = await sql`SELECT email FROM users WHERE id = ${nestingJob.ownerId}`;
   if (!user || !project) {
     logger.error('User or project not found');
     throw createError({
@@ -51,8 +51,8 @@ export async function sendNestFinishEmail(nestingJob) {
 }
 
 export async function sendNewSupportMessageEmail(userId) {
-  const db = await connectDB();
-  const user = await db.collection('users').findOne({ id: userId });
+  const sql = await getDb();
+  const [user] = await sql`SELECT email FROM users WHERE id = ${userId}`;
   if (!user) {
     logger.error('User not found');
     throw createError({

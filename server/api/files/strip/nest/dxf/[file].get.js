@@ -1,4 +1,4 @@
-import { connectDB, getStripNestDxfBucket } from "~~/server/db/mongo";
+import { BUCKET, getFile } from "~~/server/db/files";
 import { assertStripFeatureEnabled } from "~~/server/utils/featureFlags";
 
 export default defineEventHandler(async (event) => {
@@ -13,28 +13,21 @@ export default defineEventHandler(async (event) => {
 
   const fileName = getRouterParam(event, "file");
 
-  const db = await connectDB();
-  const job = await db
-    .collection("strip_nesting_job_queue")
-    .findOne({ dxf_files: fileName });
-
-  if (!job) {
+  const file = await getFile(BUCKET.STRIP_NEST_DXF, fileName);
+  if (!file) {
     throw createError({ statusCode: 404, statusMessage: "File not found" });
   }
 
-  if (job.ownerId !== userId && event.context.auth.isAdmin !== true) {
+  if (file.ownerId !== userId && event.context.auth.isAdmin !== true) {
     throw createError({
       statusCode: 401,
       statusMessage: "Unauthorized",
     });
   }
 
-  const stripNestDxfBucket = await getStripNestDxfBucket();
-  const readStream = stripNestDxfBucket.openDownloadStreamByName(fileName);
-
   setResponseHeaders(event, {
     "Content-Type": "application/octet-stream",
     "Cache-Control": "public, max-age=86400", // Cache for 1 day
   });
-  return readStream;
+  return file.data;
 });

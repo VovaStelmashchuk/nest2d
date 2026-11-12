@@ -1,42 +1,24 @@
-import { connectDB } from "~/server/db/mongo"; 
+import { getDb } from "~/server/db/postgres";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId || "anonymous";
 
-  const db = await connectDB();
-  const userProjects = await db
-    .collection("projects")
-    .find({ ownerId: userId })
-    .sort({ createdAt: -1 })
-    .project({ slug: 1, name: 1, createdAt: 1 })
-    .toArray();
-
-  const queueList = await db
-    .collection("nesting_jobs")
-    .find({ ownerId: userId })
-    .sort({ createdAt: -1 })
-    .project({ projectSlug: 1 })
-    .toArray();
-
-  const uiProjects = mapProject(userProjects, queueList);
+  const sql = await getDb();
+  const projects = await sql`
+    SELECT p.slug, p.name, p.created_at, count(j.id)::int AS results
+    FROM projects p
+    LEFT JOIN nesting_jobs j ON j.project_slug = p.slug AND j.owner_id = p.owner_id
+    WHERE p.owner_id = ${userId}
+    GROUP BY p.slug
+    ORDER BY p.created_at DESC
+  `;
 
   return {
-    queueList: queueList,
-    projects: uiProjects,
-  };
-});
-
-const mapProject = (projects, queueList) => {
-  return projects.map((project) => {
-    const resultsLength = queueList.filter((queueItem) => {
-      return queueItem.projectSlug === project.slug;
-    }).length;
-
-    return {
+    projects: projects.map((project) => ({
       slug: project.slug,
       name: project.name,
       createdAt: project.createdAt,
-      results: resultsLength,
-    };
-  });
-};
+      results: project.results,
+    })),
+  };
+});

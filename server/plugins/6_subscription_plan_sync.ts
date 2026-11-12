@@ -1,8 +1,8 @@
-import { connectDB } from '~~/server/db/mongo'
+import { getDb } from '~~/server/db/postgres'
 
 /**
  * Syncs the on-demand (metered) plan from Stripe into the `subscription_plan`
- * collection (a single document). The plan is the Product marked with
+ * table (a single row). The plan is the Product marked with
  * metadata.type=metered, created by scripts/stripe-setup-metered.mjs. Its
  * default price is a metered price attached to a Billing Meter.
  */
@@ -60,10 +60,20 @@ export default defineNitroPlugin(async () => {
         updatedAt: new Date(),
     }
 
-    const db = await connectDB()
-    await db
-        .collection('subscription_plan')
-        .replaceOne({ id: 'subscription' }, plan, { upsert: true })
+    const sql = await getDb()
+    await sql`
+        INSERT INTO subscription_plan ${sql(plan)}
+        ON CONFLICT (id) DO UPDATE SET
+            product_id = EXCLUDED.product_id,
+            price_id = EXCLUDED.price_id,
+            meter_event_name = EXCLUDED.meter_event_name,
+            title = EXCLUDED.title,
+            description = EXCLUDED.description,
+            interval = EXCLUDED.interval,
+            currency = EXCLUDED.currency,
+            unit_amount_decimal = EXCLUDED.unit_amount_decimal,
+            updated_at = EXCLUDED.updated_at
+    `
 
     console.log('[subscription-plan-sync] Synced metered plan', plan.priceId)
 })

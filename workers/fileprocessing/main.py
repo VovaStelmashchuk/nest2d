@@ -4,10 +4,8 @@ import traceback
 import threading
 import signal
 import sys
-from datetime import datetime, timedelta
 from utils.logger import setup_logger
-from utils.mongo import db, _client
-from pymongo import ReturnDocument
+from utils import db
 from core.main import process_file
 
 logger = setup_logger("main_fileprocessing")
@@ -21,53 +19,54 @@ shutdown_requested = False
 def signal_handler(signum, frame):
     """Handle graceful shutdown signals"""
     global current_doc_id, shutdown_requested
-    
+
     logger.info(f"Received {signum} signal, initiating graceful shutdown")
-    
+
     shutdown_requested = True
-    
+
     if current_doc_id:
         try:
             logger.info(f"Resetting current job {current_doc_id} to pending status")
-            user_dxf_files.update_one(
-                {"_id": current_doc_id},
-                {"$set": {"processingStatus": "pending"}}
-            )
+            set_status(current_doc_id, "pending")
             logger.info(f"Successfully reset job {current_doc_id} to pending")
         except Exception as e:
             logger.error(f"Failed to reset job {current_doc_id}: {e}")
     else:
         logger.info("No current job to reset")
-    
+
     logger.info("Graceful shutdown completed")
     sys.exit(0)
 
 signal.signal(signal.SIGTERM, signal_handler)
 
 try:
-    db.command('ping')
+    db.execute("SELECT 1")
     logger.info("Database connection successful")
 
 except Exception as e:
     logger.error(f"Database connection failed: {e}")
     raise e
 
-user_dxf_files = db["user_dxf_files"]
+def set_status(doc_id, status, error=None):
+    db.execute(
+        "UPDATE user_dxf_files SET processing_status = %s, processing_error = %s WHERE id = %s",
+        (status, error, doc_id),
+    )
 
 def keep_alive_worker():
     global current_doc_id
-    
+
     while not shutdown_requested:
         if current_doc_id:
             try:
-                user_dxf_files.update_one(
-                    {"_id": current_doc_id},
-                    {"$set": {"update_ts": datetime.now()}}
+                db.execute(
+                    "UPDATE user_dxf_files SET update_ts = now() WHERE id = %s",
+                    (current_doc_id,),
                 )
                 logger.debug(f"Updated keep-alive for document {current_doc_id}")
             except Exception as e:
                 logger.error(f"Failed to update keep-alive: {e}")
-        
+
         time.sleep(keep_alive_interval)
 
 keepalive_thread = threading.Thread(target=keep_alive_worker, daemon=True)
@@ -79,42 +78,32 @@ logger.info("Worker file processing started with tag", extra={"tag": woker_tag})
 
 while not shutdown_requested:
     logger.info("Worker file processing try to find new files to process")
-    doc = user_dxf_files.find_one_and_update(
-        {"processingStatus": "pending", "worker_tag": woker_tag },
-        {"$set": {"processingStatus": "processing"}},
-        return_document=ReturnDocument.AFTER
-    )
-    
+    try:
+        doc = db.claim_next(
+            "user_dxf_files", "processing_status", "AND worker_tag = %s", (woker_tag,)
+        )
+    except Exception as e:
+        # e.g. the app has not created the schema yet
+        logger.error("Failed to claim next file", extra={"error": str(e)})
+        time.sleep(5)
+        continue
+
     if doc is None:
         time.sleep(5)
         continue
-    
-    current_doc_id = doc["_id"]
-    
+
+    current_doc_id = doc["id"]
+
     try:
-        user_dxf_files.update_one(
-            {"_id": current_doc_id },
-            {"$set": {"update_ts": datetime.now()}}
-        )
         result = process_file(doc)
-        
+
         if result:
-            user_dxf_files.update_one(
-                {"_id": current_doc_id},
-                {"$set": {"processingStatus": "completed"}}
-            )
+            set_status(current_doc_id, "completed")
         else:
-            user_dxf_files.update_one(
-                {"_id": current_doc_id},
-                {"$set": {"processingStatus": "pending"}}
-            )
-            
+            set_status(current_doc_id, "pending")
+
     except Exception as e:
         logger.error("Error in project processing", extra={"error": str(e), "traceback": traceback.format_exc()})
-        user_dxf_files.update_one(
-            {"_id": current_doc_id},
-            {"$set": {"processingStatus": "error",
-                      "processingError": str(e)}}
-        )
+        set_status(current_doc_id, "error", str(e))
     finally:
         current_doc_id = None

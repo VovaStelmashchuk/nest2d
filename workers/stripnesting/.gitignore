@@ -11,5 +11,5 @@ logs.log
 .env.*
 !.env.example
 
-# Local mongo data
-.mongo-data
+# Local postgres data
+.postgres-data

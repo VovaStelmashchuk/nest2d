@@ -9,7 +9,7 @@ export default defineNuxtConfig({
         typeCheck: false
     },
     runtimeConfig: {
-        mongoUri: '',
+        databaseUrl: '',
         stripeSecretKey: '',
         resendToken: '',
         apiToken: '',

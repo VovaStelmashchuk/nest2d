@@ -1,4 +1,4 @@
-import { connectDB } from "~/server/db/mongo";
+import { getDb } from "~/server/db/postgres";
 import { generateRandomString } from "~/server/utils/strings";
 
 export function generateSession() {
@@ -15,44 +15,28 @@ export function generateSession() {
 }
 
 export async function removeSessionFromUser(sessionId) {
-  const db = await connectDB();
-  await db.collection("users").updateOne(
-    {
-      sessions: {
-        $elemMatch: {
-          sessionId: sessionId,
-        },
-      },
-    },
-    {
-      $pull: {
-        sessions: {
-          sessionId: sessionId,
-        },
-      },
-    }
-  );
+  if (!sessionId) {
+    return;
+  }
+  const sql = await getDb();
+  await sql`DELETE FROM sessions WHERE session_id = ${sessionId}`;
 }
 
+/**
+ * @returns {Promise<{id: string, isAdmin: boolean}|null>}
+ */
 export async function getUserBySessionId(sessionId) {
-  const db = await connectDB();
-  const user = await db.collection("users").findOne({
-    sessions: {
-      $elemMatch: {
-        sessionId: sessionId,
-        expiresAt: {
-          $gt: new Date(),
-        },
-      },
-    },
-  });
-
-  if (user) {
-    await db.collection("users").updateOne(
-      { _id: user._id },
-      { $set: { lastActiveAt: new Date() } }
-    );
+  if (!sessionId) {
+    return null;
   }
-
-  return user;
+  const sql = await getDb();
+  const [user] = await sql`
+    UPDATE users SET last_active_at = now()
+    FROM sessions
+    WHERE sessions.user_id = users.id
+      AND sessions.session_id = ${sessionId}
+      AND sessions.expires_at > now()
+    RETURNING users.id, users.is_admin
+  `;
+  return user || null;
 }

@@ -6,8 +6,7 @@ import signal
 import sys
 from datetime import datetime
 from utils.logger import setup_logger
-from utils.mongo import db
-from pymongo import ReturnDocument
+from utils import db
 from core.main import strip_nesting_process
 
 logger = setup_logger("main_stripnesting")
@@ -18,7 +17,6 @@ keep_alive_interval = 10
 current_doc_id = None
 shutdown_requested = False
 
-strip_nesting_jobs = db["strip_nesting_job_queue"]
 
 
 def signal_handler(signum, frame):
@@ -31,9 +29,9 @@ def signal_handler(signum, frame):
     if current_doc_id:
         try:
             logger.info(f"Resetting current job {current_doc_id} to pending status")
-            strip_nesting_jobs.update_one(
-                {"_id": current_doc_id},
-                {"$set": {"status": "pending"}},
+            db.execute(
+                "UPDATE strip_nesting_jobs SET status = 'pending' WHERE id = %s",
+                (current_doc_id,),
             )
             logger.info(f"Successfully reset job {current_doc_id} to pending")
         except Exception as e:
@@ -48,7 +46,7 @@ def signal_handler(signum, frame):
 signal.signal(signal.SIGTERM, signal_handler)
 
 try:
-    db.command("ping")
+    db.execute("SELECT 1")
     logger.info("Database connection successful")
 except Exception as e:
     logger.error(f"Database connection failed: {e}")
@@ -61,9 +59,9 @@ def keep_alive_worker():
     while not shutdown_requested:
         if current_doc_id:
             try:
-                strip_nesting_jobs.update_one(
-                    {"_id": current_doc_id},
-                    {"$set": {"update_ts": datetime.now()}},
+                db.execute(
+                    "UPDATE strip_nesting_jobs SET update_ts = now() WHERE id = %s",
+                    (current_doc_id,),
                 )
                 logger.debug(f"Updated keep-alive for document {current_doc_id}")
             except Exception as e:
@@ -77,23 +75,25 @@ keepalive_thread.start()
 
 while not shutdown_requested:
     logger.info("Strip nesting worker looking for pending jobs")
-    doc = strip_nesting_jobs.find_one_and_update(
-        {"status": "pending"},
-        {"$set": {"status": "processing"}},
-        return_document=ReturnDocument.AFTER,
-    )
+    try:
+        doc = db.claim_next("strip_nesting_jobs", "status")
+    except Exception as e:
+        # e.g. the app has not created the schema yet
+        logger.error("Failed to claim next job", extra={"error": str(e)})
+        time.sleep(5)
+        continue
 
     if doc is None:
         time.sleep(5)
         continue
 
-    current_doc_id = doc["_id"]
+    current_doc_id = doc["id"]
 
     try:
         start_at = datetime.now()
-        strip_nesting_jobs.update_one(
-            {"_id": current_doc_id},
-            {"$set": {"update_ts": datetime.now(), "startAt": start_at}},
+        db.execute(
+            "UPDATE strip_nesting_jobs SET start_at = now() WHERE id = %s",
+            (current_doc_id,),
         )
 
         strip_nesting_process(doc)
@@ -101,32 +101,26 @@ while not shutdown_requested:
         time_taken = datetime.now() - start_at
         time_taken_minutes = math.ceil(time_taken.total_seconds() / 60)
 
-        strip_nesting_jobs.update_one(
-            {"_id": current_doc_id},
-            {
-                "$set": {
-                    "status": "done",
-                    "finishedAt": datetime.now(),
-                    "update_ts": datetime.now(),
-                    "timeTaken": time_taken_minutes,
-                }
-            },
+        db.execute(
+            """
+            UPDATE strip_nesting_jobs
+            SET status = 'done', finished_at = now(), update_ts = now(), time_taken = %s
+            WHERE id = %s
+            """,
+            (time_taken_minutes, current_doc_id),
         )
     except Exception as e:
         logger.error(
             "Error in strip nesting processing",
             extra={"error": str(e), "traceback": traceback.format_exc()},
         )
-        strip_nesting_jobs.update_one(
-            {"_id": current_doc_id},
-            {
-                "$set": {
-                    "status": "error",
-                    "error": str(e),
-                    "update_ts": datetime.now(),
-                    "finishedAt": datetime.now(),
-                }
-            },
+        db.execute(
+            """
+            UPDATE strip_nesting_jobs
+            SET status = 'error', error = %s, update_ts = now(), finished_at = now()
+            WHERE id = %s
+            """,
+            (str(e), current_doc_id),
         )
     finally:
         current_doc_id = None

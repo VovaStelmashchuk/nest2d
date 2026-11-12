@@ -3,7 +3,7 @@ services:
   user-file-processing-worker-normal:
     image: ghcr.io/vovastelmashchuk/user-file-processing-worker:latest
     environment:
-      - MONGO_URI=mongodb://mongo:27017/nest2d
+      - DATABASE_URL=postgres://nest2d:nest2d@postgres:5432/nest2d
       - WORKER_TAG=normal
       - MAX_ENTITY_LIMIT=999
     deploy:
@@ -14,7 +14,7 @@ services:
   nesting-worker:
     image: ghcr.io/vovastelmashchuk/nesting-worker:latest
     environment:
-      - MONGO_URI=mongodb://mongo:27017/nest2d
+      - DATABASE_URL=postgres://nest2d:nest2d@postgres:5432/nest2d
     deploy:
       replicas: 1
       update_config:
@@ -23,7 +23,7 @@ services:
   strip-file-processing-worker:
     image: ghcr.io/vovastelmashchuk/strip-file-processing-worker:latest
     environment:
-      - MONGO_URI=mongodb://mongo:27017/nest2d
+      - DATABASE_URL=postgres://nest2d:nest2d@postgres:5432/nest2d
     deploy:
       replicas: 1
       update_config:
@@ -32,20 +32,22 @@ services:
   strip-nesting-worker:
     image: ghcr.io/vovastelmashchuk/strip-nesting-worker:latest
     environment:
-      - MONGO_URI=mongodb://mongo:27017/nest2d
+      - DATABASE_URL=postgres://nest2d:nest2d@postgres:5432/nest2d
     deploy:
       replicas: 1
       update_config:
         order: start-first
 
-  mongo:
-    image: mongo:latest
-    container_name: nest2d_mongo
+  postgres:
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=nest2d
+      - POSTGRES_PASSWORD=nest2d
+      - POSTGRES_DB=nest2d
     ports:
-      - "27017:27017"
+      - "5432:5432"
     volumes:
-      - mongo-data:/data/db
-    restart: always
+      - postgres-data:/var/lib/postgresql/data
 
 volumes:
-  mongo-data:
+  postgres-data:

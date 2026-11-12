@@ -1,4 +1,4 @@
-import { connectDB } from "~/server/db/mongo";
+import { getDb } from "~/server/db/postgres";
 import { assertStripFeatureEnabled } from "~~/server/utils/featureFlags";
 
 export default defineEventHandler(async (event) => {
@@ -8,13 +8,12 @@ export default defineEventHandler(async (event) => {
   }
   await assertStripFeatureEnabled(userId);
 
-  const db = await connectDB();
-  const stripProjects = await db
-    .collection("strip_projects")
-    .find({ ownerId: userId })
-    .sort({ createdAt: -1 })
-    .project({ slug: 1, name: 1, createdAt: 1 })
-    .toArray();
+  const sql = await getDb();
+  const stripProjects = await sql`
+    SELECT slug, name, created_at FROM strip_projects
+    WHERE owner_id = ${userId}
+    ORDER BY created_at DESC
+  `;
 
   const projects = stripProjects.map((project) => ({
     slug: project.slug,

@@ -20,7 +20,7 @@ __pycache__
 venv
 .venv
 
-# Local mongo data (when running mongo alongside the worker for testing)
-.mongo-data
+# Local postgres data
+.postgres-data
 
 test-data

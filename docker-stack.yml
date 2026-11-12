@@ -10,7 +10,7 @@ services:
     environment:
       - NUXT_PUBLIC_BASE_URL=https://nest2d.stelmashchuk.dev
       - NUXT_PUBLIC_GOOGLE_CLIENT_ID=476104126469-bv13u3dlpooq1j3jglcgj7sup6dt26nk.apps.googleusercontent.com
-      - NUXT_MONGO_URI=${MONGO_URI}
+      - NUXT_DATABASE_URL=${DATABASE_URL}
       - NUXT_RESEND_TOKEN=${RESEND_TOKEN}
       - NUXT_API_TOKEN=${API_TOKEN}
       - NUXT_STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
@@ -19,7 +19,6 @@ services:
         order: start-first
     networks:
       - infra_reverse-proxy
-      - infra_mongo-rs-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/service/health"]
       interval: 60s
@@ -30,64 +29,52 @@ services:
   user-file-processing-worker-normal:
     image: ghcr.io/vovastelmashchuk/user-file-processing-worker:${GIT_COMMIT_HASH:-latest}
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - DATABASE_URL=${DATABASE_URL}
       - WORKER_TAG=normal
       - MAX_ENTITY_LIMIT=999
     deploy:
       replicas: ${WORKERS_REPLICAS}
       update_config:
         order: start-first
-    networks:
-      - infra_mongo-rs-net
 
   user-file-processing-worker-1k-entity-count:
     image: ghcr.io/vovastelmashchuk/user-file-processing-worker:${GIT_COMMIT_HASH:-latest}
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - DATABASE_URL=${DATABASE_URL}
       - WORKER_TAG=1k_entity_count
       - MAX_ENTITY_LIMIT=999999
     deploy:
       replicas: ${WORKERS_REPLICAS}
       update_config:
         order: start-first
-    networks:
-      - infra_mongo-rs-net
 
   nesting-worker:
     image: ghcr.io/vovastelmashchuk/nesting-worker:${GIT_COMMIT_HASH:-latest}
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - DATABASE_URL=${DATABASE_URL}
     deploy:
       replicas: ${WORKERS_REPLICAS}
       update_config:
         order: start-first
-    networks:
-      - infra_mongo-rs-net
 
   strip-file-processing-worker:
     image: ghcr.io/vovastelmashchuk/strip-file-processing-worker:${GIT_COMMIT_HASH:-latest}
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - DATABASE_URL=${DATABASE_URL}
     deploy:
       replicas: ${WORKERS_REPLICAS}
       update_config:
         order: start-first
-    networks:
-      - infra_mongo-rs-net
 
   strip-nesting-worker:
     image: ghcr.io/vovastelmashchuk/strip-nesting-worker:${GIT_COMMIT_HASH:-latest}
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - DATABASE_URL=${DATABASE_URL}
     deploy:
       replicas: ${WORKERS_REPLICAS}
       update_config:
         order: start-first
-    networks:
-      - infra_mongo-rs-net
 
 networks:
   infra_reverse-proxy:
-    external: true
-  infra_mongo-rs-net:
     external: true

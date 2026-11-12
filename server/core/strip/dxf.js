@@ -1,6 +1,7 @@
 import { createError, readMultipartFormData } from "h3";
 
-import { connectDB, getStripUserDxfBucket } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
+import { BUCKET, saveFile } from "~~/server/db/files";
 import { generateRandomString } from "~~/server/utils/strings";
 import { trackEvent } from "~~/server/tracking/add";
 
@@ -8,7 +9,7 @@ import standardSlugify from "standard-slugify";
 
 export async function saveFilesToStripProject(event, stripSlug, userId) {
   const fields = await readMultipartFormData(event);
-  const dxfFileFields = fields.filter((field) => field.name === "dxf");
+  const dxfFileFields = (fields || []).filter((field) => field.name === "dxf");
 
   if (dxfFileFields.length === 0) {
     throw createError({
@@ -17,44 +18,38 @@ export async function saveFilesToStripProject(event, stripSlug, userId) {
     });
   }
 
-  const dxfUserBucket = await getStripUserDxfBucket();
+  const sql = await getDb();
 
-  const file_records = [];
+  const fileRecords = await sql.begin(async (tx) => {
+    const records = [];
+    for (const dxfFile of dxfFileFields) {
+      const userFileName = dxfFile.filename;
+      const fileSlug = standardSlugify(userFileName, {
+        keepCase: false,
+      }) + `-${generateRandomString(6)}.dxf`;
 
-  dxfFileFields.forEach((dxfFile) => {
-    const fileBuffer = dxfFile.data;
-    const userFileName = dxfFile.filename;
-    const file_slug = standardSlugify(userFileName, {
-      keepCase: false,
-    }) + `-${generateRandomString(6)}.dxf`;
+      await saveFile(BUCKET.STRIP_USER_DXF, fileSlug, userId, dxfFile.data, tx);
 
-    const uploadSream = dxfUserBucket.openUploadStream(file_slug);
-    uploadSream.write(fileBuffer);
-    uploadSream.end();
-
-    const file_record = {
-      slug: file_slug,
-      name: userFileName,
-      processingStatus: "pending",
-      stripSlug: stripSlug,
-      ownerId: userId,
-      uploadAt: new Date(),
-      flattening: 0.01,
-      worker_tag: "strip",
-    };
-
-    file_records.push(file_record);
+      const record = {
+        slug: fileSlug,
+        name: userFileName,
+        processingStatus: "pending",
+        stripSlug: stripSlug,
+        ownerId: userId,
+        flattening: 0.01,
+        workerTag: "strip",
+      };
+      await tx`INSERT INTO strip_user_dxf_files ${tx(record)}`;
+      records.push(record);
+    }
+    return records;
   });
 
-  file_records.forEach((file_record) => {
+  fileRecords.forEach((fileRecord) => {
     trackEvent(event, "create_strip_dxf_file", {
-      fileName: file_record.name,
-      fileSlug: file_record.slug,
+      fileName: fileRecord.name,
+      fileSlug: fileRecord.slug,
       stripSlug: stripSlug,
     });
   });
-
-  const db = await connectDB();
-
-  await db.collection("strip_user_dxf_files").insertMany(file_records);
 }

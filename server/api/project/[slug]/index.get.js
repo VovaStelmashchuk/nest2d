@@ -1,4 +1,4 @@
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 
 export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.userId;
@@ -9,28 +9,19 @@ export default defineEventHandler(async (event) => {
 
   const slug = getRouterParam(event, "slug");
 
-  const db = await connectDB();
-  const project = await db.collection("projects").findOne(
-    { slug: slug },
-    {
-      projection: {
-        name: 1,
-        slug: 1,
-      },
-    }
-  );
+  const sql = await getDb();
+  const [project] = await sql`SELECT name, slug FROM projects WHERE slug = ${slug}`;
 
   if (!project) {
     throw createError({ statusCode: 404, message: "Project not found" });
   }
 
-  const projectFiles = await db.collection("user_dxf_files")
-    .find({
-      projectSlug: slug,
-      ownerId: userId,
-    })
-    .sort({ uploadAt: 1 })
-    .toArray();
+  const projectFiles = await sql`
+    SELECT slug, name, processing_status, svg_file_slug, polygon_parts
+    FROM user_dxf_files
+    WHERE project_slug = ${slug} AND owner_id = ${userId}
+    ORDER BY upload_at, id
+  `;
 
   return {
     name: project.name,

@@ -1,16 +1,15 @@
+import io
 import time
 
 from utils.logger import setup_logger
-from utils.mongo import db, strip_user_dxf_bucket
+from utils import db
 from dxf_utils import read_dxf
 from core.geometry.build_geometry import build_geometry
-
-strip_user_dxf_files = db["strip_user_dxf_files"]
 
 
 def _check_handle_coverage(original_footprints, polygon_parts, logger, slug):
     """
-    Compare how many original DXF handles ended up in the saved polygonParts.
+    Compare how many original DXF handles ended up in the saved polygon_parts.
 
     Every original entity should be attached to the part that contains it. Any
     handle present in the source DXF but missing from the saved parts means an
@@ -52,20 +51,20 @@ def _check_handle_coverage(original_footprints, polygon_parts, logger, slug):
 def _close_polygon_from_dxf(doc):
     """
     Reads the user input DXF for a strip file, builds the closed polygon parts
-    and attaches them as the `polygonParts` field (coordinates + handles +
-    bounding box) to the strip_user_dxf_files document.
+    and attaches them as the `polygon_parts` column (coordinates + handles +
+    bounding box) of the strip_user_dxf_files row.
     """
     logger = setup_logger("strip_dxf_polygonizer")
 
-    if doc.get("polygonParts"):
+    if doc.get("polygon_parts"):
         logger.info("polygon_parts_already_exist", extra={"slug": doc["slug"]})
 
     tolerance = doc.get("flattening", 0.01)
 
     start_time = time.time()
 
-    grid_out = strip_user_dxf_bucket.open_download_stream_by_name(doc["slug"])
-    drawing, original_footprints = read_dxf(grid_out)
+    dxf_bytes = db.read_file(db.BUCKET_STRIP_USER_DXF, doc["slug"])
+    drawing, original_footprints = read_dxf(io.BytesIO(dxf_bytes))
 
     closed_parts = build_geometry(drawing, tolerance, original_footprints)
 
@@ -76,17 +75,17 @@ def _close_polygon_from_dxf(doc):
 
     polygon_parts = []
     for part in closed_parts:
-        mongo_dict = part.to_mongo_dict()
-        if mongo_dict is not None:
-            polygon_parts.append(mongo_dict)
+        part_dict = part.to_dict()
+        if part_dict is not None:
+            polygon_parts.append(part_dict)
 
     _check_handle_coverage(original_footprints, polygon_parts, logger, doc["slug"])
 
-    strip_user_dxf_files.update_one(
-        {"_id": doc["_id"]},
-        {"$set": {"polygonParts": polygon_parts}}
+    db.execute(
+        "UPDATE strip_user_dxf_files SET polygon_parts = %s WHERE id = %s",
+        (db.json(polygon_parts), doc["id"]),
     )
-    doc["polygonParts"] = polygon_parts
+    doc["polygon_parts"] = polygon_parts
 
     end_time = time.time()
     logger.info("time taken", extra={"time": end_time - start_time})
@@ -107,11 +106,9 @@ def process_file(doc):
     end_time = time.time()
     logger.info("time taken", extra={"time": end_time - start_time})
 
-    original_processing_time = doc.get("processingTime", 0)
-
-    strip_user_dxf_files.update_one(
-        {"_id": doc["_id"]},
-        {"$set": {"processingTime": original_processing_time + (end_time - start_time)}}
+    db.execute(
+        "UPDATE strip_user_dxf_files SET processing_time = processing_time + %s WHERE id = %s",
+        (end_time - start_time, doc["id"]),
     )
 
     return True

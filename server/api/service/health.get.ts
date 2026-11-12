@@ -1,11 +1,11 @@
 import { defineEventHandler } from "h3";
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 
 export default defineEventHandler(async (event) => {
-    const db = await connectDB()
     let isDbConnected = true
     try {
-        await db.command({ ping: 1 })
+        const sql = await getDb()
+        await sql`SELECT 1`
     } catch (error) {
         isDbConnected = false
     }

@@ -23,7 +23,7 @@ logs
 .env.*
 !.env.example
 
-.mongo-data
+.postgres-data
 
 .secret.json
 .prod-secret.json
@@ -43,5 +43,5 @@ __pycache__
 # test data 
 .test-data
 
-.mongo-data
+.postgres-data
 

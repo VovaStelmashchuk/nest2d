@@ -18,7 +18,7 @@
             <UiScrollbar ref="messagesContainer" class="support__messages message-list">
                 <template
                     v-for="message in messagesList"
-                    :key="message._id"
+                    :key="message.id"
                 >
                     <div v-if="message.day" class="message-list__day day">
                         <span class="day__label">

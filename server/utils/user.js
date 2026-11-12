@@ -1,4 +1,4 @@
-import { connectDB } from '~/server/db/mongo'
+import { getDb } from '~/server/db/postgres'
 import { generateSession } from './auth'
 import { sendWelcomeMessage } from '~/server/features/support/welcomemessage'
 import { downloadAndStoreAvatar } from './avatar'
@@ -21,37 +21,32 @@ export async function createOrUpdateUser({
     }
 
     const session = generateSession()
-    const db = await connectDB()
+    const sql = await getDb()
+    const userId = `google:${providerId}`
 
-    const avatarKey = await downloadAndStoreAvatar(providerId, avatarUrl)
+    // xmax = 0 only for a freshly inserted row.
+    const [{ isNew }] = await sql`
+        INSERT INTO users (id, provider, email, name)
+        VALUES (${userId}, 'google', ${email}, ${name})
+        ON CONFLICT (id) DO UPDATE SET
+            provider = EXCLUDED.provider,
+            email = EXCLUDED.email,
+            name = EXCLUDED.name
+        RETURNING (xmax = 0) AS is_new
+    `
 
-    const updateData = {
-        $set: {
-            provider: 'google',
-            email,
-            name,
-            avatarFileName: avatarKey,
-        },
-        $setOnInsert: {
-            createdAt: new Date(),
-            isStripFeatureEnable: true,
-            freeNestingUsed: 0,
-        },
-        $push: {
-            sessions: session
-        }
+    await sql`
+        INSERT INTO sessions (session_id, user_id, expires_at, created_at)
+        VALUES (${session.sessionId}, ${userId}, ${session.expiresAt}, ${session.createdAt})
+    `
+
+    try {
+        await downloadAndStoreAvatar(userId, avatarUrl)
+    } catch (err) {
+        logger.warn('Failed to store avatar', { userId, err })
     }
 
-    const userId = `google:${providerId}`
-    const isUserExists = await db.collection('users').findOne({ id: userId })
-
-    await db.collection('users').updateOne(
-        { id: userId },
-        updateData,
-        { upsert: true }
-    )
-
-    if (!isUserExists) {
+    if (isNew) {
         try {
             await sendWelcomeMessage(userId)
         } catch (err) {
@@ -59,10 +54,12 @@ export async function createOrUpdateUser({
         }
     }
 
-    await db.collection('tracking').updateMany(
-        { sessionKey: sessionId, userId: { $exists: false } },
-        { $set: { userId: userId } }
-    )
+    if (sessionId) {
+        await sql`
+            UPDATE tracking SET user_id = ${userId}
+            WHERE session_key = ${sessionId} AND user_id IS NULL
+        `
+    }
 
     return session
 }
@@ -76,4 +73,4 @@ export function setSessionCookie(event, session) {
     setCookie(event, 'sessionId', session.sessionId, {
         expires: new Date(session.expiresAt)
     })
-} 
+}

@@ -1,4 +1,4 @@
-import { connectDB } from '../db/mongo'
+import { getDb } from '../db/postgres'
 import logger from '../utils/logger'
 
 const SENSITIVE_KEY_REGEX = /(token|password|pass)/i
@@ -64,20 +64,16 @@ export default defineEventHandler(async (event) => {
         const duration = Date.now() - start
         const statusCode = event.node.res.statusCode
 
-        connectDB().then(db => {
-            db.collection('http').insertOne({
-                method,
-                url,
-                isSSE,
-                userAgent,
-                userId,
-                requestBody,
-                statusCode,
-                duration,
-                responseBody,
-                timestamp: new Date()
-            })
-        })
+        getDb().then(sql => sql`
+            INSERT INTO http_logs (
+                method, url, is_sse, user_agent, user_id, request_body,
+                status_code, duration, response_body
+            ) VALUES (
+                ${method}, ${url}, ${isSSE}, ${userAgent}, ${userId},
+                ${requestBody === undefined ? null : sql.json(requestBody)},
+                ${statusCode}, ${duration}, ${sql.json(responseBody)}
+            )
+        `).catch(err => logger.error('Failed to save http log', err))
 
         return originalEnd.apply(this, [chunk, ...args])
     }

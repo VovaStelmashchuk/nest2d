@@ -2,28 +2,31 @@
 
 This worker processes DXF files uploaded for the **strip nesting** feature. It is a
 separate worker from the regular `fileprocessing` worker and operates on its own
-MongoDB collection / GridFS bucket so the two never conflict.
+Postgres table / file bucket so the two never conflict.
 
 What it does:
 
-- Polls the `strip_user_dxf_files` collection for documents with
-  `processingStatus: "pending"` (there is **no `worker_tag` concept** here — every
+- Polls the `strip_user_dxf_files` table for rows with
+  `processing_status = 'pending'` (there is **no `worker_tag` concept** here — every
   pending strip file is eligible).
-- Reads the user input DXF from the `stripUserDxf` GridFS bucket.
+- Reads the user input DXF from the `files` table (bucket `strip_user_dxf`).
 - Rebuilds the DXF and computes the closed polygons, using the DXF `handle` value
   as the unique identifier for the parts.
-- Attaches the result to the document as the `polygonParts` field — a list of
+- Stores the result in the `polygon_parts` jsonb column — a list of
   objects, each with `coordinates`, `handles`, `width` and `height`.
-- Marks the document `completed` (or `error` on failure).
+- Marks the row `completed` (or `error` on failure).
 
 ## Configuration
 
-The worker reads `MONGO_URI` from the environment (a local `.env` file is supported
+The worker reads `DATABASE_URL` from the environment (a local `.env` file is supported
 via `python-dotenv`):
 
 ```
-MONGO_URI=mongodb://192.168.64.2:27017/nest2d
+DATABASE_URL=postgres://nest2d:nest2d@localhost:5432/nest2d
 ```
+
+The schema is created and migrated by the main app on startup, so start the app
+once against the database before running the worker.
 
 ## Local development run
 
@@ -60,7 +63,7 @@ docker build -t nest2d-worker-stripfileprocessing:local .
 > Docker.
 
 Run it for local development (mounts the source and uses host networking so it can
-reach a local MongoDB):
+reach a local Postgres):
 
 ```sh
 docker run --network host --env-file ./.env -it -v "$(pwd):/app" -w /app nest2d-worker-stripfileprocessing:local python main.py
@@ -72,7 +75,7 @@ Or drop into a shell instead:
 docker run --network host --env-file ./.env -it -v "$(pwd):/app" -w /app nest2d-worker-stripfileprocessing:local bash
 ```
 
-## Debugging — visualize polygonParts
+## Debugging — visualize polygon_parts
 
 `show_polygon_parts.py` connects to the same database (via the shared `.env`) and
 helps inspect what the worker produced.
@@ -83,7 +86,7 @@ List all strip files for an owner (slug + project name + status):
 python show_polygon_parts.py --owner "google:1234567890"
 ```
 
-Plot the `polygonParts` of a single file by its slug (each part is drawn as a
+Plot the `polygon_parts` of a single file by its slug (each part is drawn as a
 closed polygon, labelled with its handle count):
 
 ```sh

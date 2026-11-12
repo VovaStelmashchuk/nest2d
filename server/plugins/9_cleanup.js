@@ -1,14 +1,4 @@
-import {
-    connectDB,
-    getAvatarBucket,
-    getDxfResultBucket,
-    getStripNestDxfBucket,
-    getStripUserDxfBucket,
-    getSvgResultBucket,
-    getUserDxfBucket,
-    getUserDxfFilesSvgBucket,
-    getValidUserDxfBucket,
-} from "../db/mongo";
+import { getDb } from "../db/postgres";
 import logger from "../utils/logger";
 
 const tag = "cleanup";
@@ -26,202 +16,66 @@ const BILLABLE_SUBSCRIPTION_STATUSES = ["trialing", "active", "past_due", "unpai
 const UNSETTLED_JOB_STATUSES = ["pending", "processing"];
 
 /**
- * Finds up to BATCH_LIMIT documents whose parent (looked up by key) is gone.
- * @param {import('mongodb').Db} db
- * @param {{collection: string, localField: string, from: string, foreignField: string, match?: object}} options
- * @returns {Promise<any[]>}
- */
-async function findOrphans(db, { collection, localField, from, foreignField, match = {} }) {
-    return await db
-        .collection(collection)
-        .aggregate([
-            { $match: match },
-            { $lookup: { from, localField, foreignField, as: "__parent" } },
-            { $match: { "__parent.0": { $exists: false } } },
-            { $limit: BATCH_LIMIT },
-            { $project: { __parent: 0 } },
-        ])
-        .toArray();
-}
-
-/**
- * @param {import('mongodb').GridFSBucket} bucket
- * @param {string[]} filenames
- * @returns {Promise<number>} number of deleted files
- */
-async function deleteGridFsFiles(bucket, filenames) {
-    const names = filenames.filter(Boolean);
-    if (names.length === 0) {
-        return 0;
-    }
-    const files = await bucket.find({ filename: { $in: names } }).toArray();
-    for (const file of files) {
-        await bucket.delete(file._id);
-    }
-    return files.length;
-}
-
-async function deleteByIds(db, collection, docs) {
-    if (docs.length === 0) {
-        return 0;
-    }
-    const result = await db
-        .collection(collection)
-        .deleteMany({ _id: { $in: docs.map((doc) => doc._id) } });
-    return result.deletedCount;
-}
-
-/**
  * Users who have not logged in for a year: every session has expired
  * (sessions live one year from login) and there was no activity or signup
- * within the year. Admins and users with a billable subscription are kept.
+ * within the year. Admins, users with a billable subscription and users with
+ * unsettled nesting jobs are kept.
+ *
+ * Everything the user owns (sessions, projects, files, jobs, support
+ * messages, ...) is removed by ON DELETE CASCADE.
+ * @param {import('postgres').Sql} sql
  */
-async function deleteInactiveUsers(db) {
-    const now = new Date();
-    const cutoff = new Date(now.getTime() - INACTIVE_USER_AFTER_MS);
+async function deleteInactiveUsers(sql) {
+    const cutoff = new Date(Date.now() - INACTIVE_USER_AFTER_MS);
 
-    const users = await db
-        .collection("users")
-        .find(
-            {
-                isAdmin: { $ne: true },
-                "subscription.status": { $nin: BILLABLE_SUBSCRIPTION_STATUSES },
-                sessions: { $not: { $elemMatch: { expiresAt: { $gt: now } } } },
-                $and: [
-                    { $or: [{ lastActiveAt: { $lt: cutoff } }, { lastActiveAt: { $exists: false } }] },
-                    { $or: [{ createdAt: { $lt: cutoff } }, { createdAt: { $exists: false } }] },
-                ],
-            },
-            { projection: { _id: 1, id: 1, avatarFileName: 1 } }
+    const deleted = await sql`
+        DELETE FROM users WHERE id IN (
+            SELECT u.id FROM users u
+            LEFT JOIN user_subscriptions s ON s.user_id = u.id
+            WHERE NOT u.is_admin
+              AND (s.status IS NULL OR s.status NOT IN ${sql(BILLABLE_SUBSCRIPTION_STATUSES)})
+              AND NOT EXISTS (
+                  SELECT 1 FROM sessions
+                  WHERE sessions.user_id = u.id AND sessions.expires_at > now()
+              )
+              AND (u.last_active_at IS NULL OR u.last_active_at < ${cutoff})
+              AND u.created_at < ${cutoff}
+              AND NOT EXISTS (
+                  SELECT 1 FROM nesting_jobs j
+                  WHERE j.owner_id = u.id
+                    AND (j.status IN ${sql(UNSETTLED_JOB_STATUSES)}
+                         OR j.billing_status IN ${sql(UNSETTLED_JOB_STATUSES)})
+              )
+              AND NOT EXISTS (
+                  SELECT 1 FROM strip_nesting_jobs j
+                  WHERE j.owner_id = u.id
+                    AND (j.status IN ${sql(UNSETTLED_JOB_STATUSES)}
+                         OR j.billing_status IN ${sql(UNSETTLED_JOB_STATUSES)})
+              )
+            LIMIT ${BATCH_LIMIT}
         )
-        .limit(BATCH_LIMIT)
-        .toArray();
-
-    const avatars = await deleteGridFsFiles(
-        await getAvatarBucket(),
-        users.map((user) => user.avatarFileName)
-    );
-    const deleted = await deleteByIds(db, "users", users);
-    return { users: deleted, avatars };
+        RETURNING id
+    `;
+    return { users: deleted.count };
 }
 
-async function deleteOwnerlessProjects(db) {
-    const projects = await findOrphans(db, {
-        collection: "projects",
-        localField: "ownerId",
-        from: "users",
-        foreignField: "id",
-    });
-    const stripProjects = await findOrphans(db, {
-        collection: "strip_projects",
-        localField: "ownerId",
-        from: "users",
-        foreignField: "id",
-    });
-    return {
-        projects: await deleteByIds(db, "projects", projects),
-        stripProjects: await deleteByIds(db, "strip_projects", stripProjects),
-    };
+/**
+ * @param {import('postgres').Sql} sql
+ */
+async function deleteExpiredSessions(sql) {
+    const deleted = await sql`DELETE FROM sessions WHERE expires_at < now()`;
+    return { sessions: deleted.count };
 }
 
-async function deleteOrphanProjectFiles(db) {
-    const files = await findOrphans(db, {
-        collection: "user_dxf_files",
-        localField: "projectSlug",
-        from: "projects",
-        foreignField: "slug",
-    });
-    const slugs = files.map((file) => file.slug);
-    const blobs =
-        (await deleteGridFsFiles(await getUserDxfBucket(), slugs)) +
-        (await deleteGridFsFiles(await getValidUserDxfBucket(), slugs)) +
-        (await deleteGridFsFiles(
-            await getUserDxfFilesSvgBucket(),
-            files.map((file) => file.svgFileSlug)
-        ));
-    return { files: await deleteByIds(db, "user_dxf_files", files), blobs };
-}
-
-async function deleteOrphanStripFiles(db) {
-    const files = await findOrphans(db, {
-        collection: "strip_user_dxf_files",
-        localField: "stripSlug",
-        from: "strip_projects",
-        foreignField: "slug",
-    });
-    const blobs = await deleteGridFsFiles(
-        await getStripUserDxfBucket(),
-        files.map((file) => file.slug)
-    );
-    return { files: await deleteByIds(db, "strip_user_dxf_files", files), blobs };
-}
-
-async function deleteOrphanNestingJobs(db) {
-    const settled = {
-        status: { $nin: UNSETTLED_JOB_STATUSES },
-        billingStatus: { $nin: UNSETTLED_JOB_STATUSES },
-    };
-
-    const jobs = await findOrphans(db, {
-        collection: "nesting_jobs",
-        localField: "projectSlug",
-        from: "projects",
-        foreignField: "slug",
-        match: settled,
-    });
-    const jobBlobs =
-        (await deleteGridFsFiles(
-            await getDxfResultBucket(),
-            jobs.flatMap((job) => job.dxf_files || [])
-        )) +
-        (await deleteGridFsFiles(
-            await getSvgResultBucket(),
-            jobs.flatMap((job) => job.svg_files || [])
-        ));
-
-    const stripJobs = await findOrphans(db, {
-        collection: "strip_nesting_job_queue",
-        localField: "stripSlug",
-        from: "strip_projects",
-        foreignField: "slug",
-        match: settled,
-    });
-    const stripJobBlobs = await deleteGridFsFiles(
-        await getStripNestDxfBucket(),
-        stripJobs.flatMap((job) => job.dxf_files || [])
-    );
-
-    return {
-        jobs: await deleteByIds(db, "nesting_jobs", jobs),
-        stripJobs: await deleteByIds(db, "strip_nesting_job_queue", stripJobs),
-        blobs: jobBlobs + stripJobBlobs,
-    };
-}
-
-async function deleteOrphanSupportMessages(db) {
-    const messages = await findOrphans(db, {
-        collection: "supportMessages",
-        localField: "userId",
-        from: "users",
-        foreignField: "id",
-    });
-    return { supportMessages: await deleteByIds(db, "supportMessages", messages) };
-}
-
-// Ordered parents first, so one run cascades: users -> projects -> files/jobs.
 const steps = [
     ["inactive users", deleteInactiveUsers],
-    ["ownerless projects", deleteOwnerlessProjects],
-    ["orphan project files", deleteOrphanProjectFiles],
-    ["orphan strip files", deleteOrphanStripFiles],
-    ["orphan nesting jobs", deleteOrphanNestingJobs],
-    ["orphan support messages", deleteOrphanSupportMessages],
+    ["expired sessions", deleteExpiredSessions],
 ];
 
-async function runCleanup(db) {
+async function runCleanup(sql) {
     for (const [name, step] of steps) {
         try {
-            const result = await step(db);
+            const result = await step(sql);
             logger.info(`[${tag}] ${name}: ${JSON.stringify(result)}`);
         } catch (err) {
             logger.error(`[${tag}] Step failed: ${name}: ${err?.message || err}`);
@@ -230,37 +84,31 @@ async function runCleanup(db) {
 }
 
 /**
- * Claims today's run. The lock document makes the job run once a day across
+ * Claims today's run. The lock row makes the job run once a day across
  * restarts and multiple app instances.
+ * @param {import('postgres').Sql} sql
  * @returns {Promise<boolean>}
  */
-async function claimRun(db) {
-    const now = new Date();
-    try {
-        const claimed = await db.collection("job_locks").findOneAndUpdate(
-            { _id: tag, lastRunAt: { $not: { $gt: new Date(now.getTime() - RUN_EVERY_MS) } } },
-            { $set: { lastRunAt: now } },
-            { upsert: true, returnDocument: "after" }
-        );
-        return claimed !== null;
-    } catch (err) {
-        // Duplicate key: the lock exists and was claimed within the last day.
-        if (err?.code === 11000) {
-            return false;
-        }
-        throw err;
-    }
+async function claimRun(sql) {
+    const lastAllowed = new Date(Date.now() - RUN_EVERY_MS);
+    const claimed = await sql`
+        INSERT INTO job_locks (name, last_run_at) VALUES (${tag}, now())
+        ON CONFLICT (name) DO UPDATE SET last_run_at = now()
+        WHERE job_locks.last_run_at <= ${lastAllowed}
+        RETURNING name
+    `;
+    return claimed.length > 0;
 }
 
 export default defineNitroPlugin(async () => {
     logger.info(`[${tag}] Cleanup plugin start`);
-    const db = await connectDB();
 
     while (true) {
         try {
-            if (await claimRun(db)) {
+            const sql = await getDb();
+            if (await claimRun(sql)) {
                 logger.info(`[${tag}] Cleanup run start`);
-                await runCleanup(db);
+                await runCleanup(sql);
                 logger.info(`[${tag}] Cleanup run done`);
             }
         } catch (err) {

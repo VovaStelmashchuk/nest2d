@@ -3,7 +3,7 @@ import { getResults } from '~/server/features/results/resultcontroller'
 export default defineEventHandler(async (event) => {
     const userId = event.context?.auth?.userId
     if (!userId) {
-        setResponseStatus(401)
+        setResponseStatus(event, 401)
         return
     }
 

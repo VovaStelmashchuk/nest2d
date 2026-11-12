@@ -1,7 +1,7 @@
-import { connectDB, getDxfResultBucket } from "~/server/db/mongo";
+import { getDb } from "~/server/db/postgres";
+import { BUCKET, getFiles } from "~/server/db/files";
 import { createError } from "h3";
 import archiver from "archiver";
-import { getRouterParam } from "#imports"; // fallback, adjust if needed
 import { trackEvent } from "~~/server/tracking/add"
 
 export default defineEventHandler(async (event) => {
@@ -13,16 +13,19 @@ export default defineEventHandler(async (event) => {
         });
     }
     const nestSlug = getRouterParam(event, "nestslug");
-    const db = await connectDB();
-    const nestResult = await db.collection('nesting_jobs').findOne({ slug: nestSlug, ownerId: userId })
+    const sql = await getDb();
+    const [nestResult] = await sql`
+        SELECT dxf_files FROM nesting_jobs WHERE slug = ${nestSlug} AND owner_id = ${userId}
+    `
+    if (!nestResult) {
+        throw createError({ statusCode: 404, statusMessage: "Nesting result not found" });
+    }
 
     await trackEvent(event, "download_nested_result_zip_file", {
         nestSlug: nestSlug,
     })
 
-    const nestDxfBucket = await getDxfResultBucket();
-
-    const dxfFiles = await nestDxfBucket.find({ filename: { $in: nestResult.dxf_files } }).toArray();
+    const dxfFiles = await getFiles(BUCKET.NEST_DXF, nestResult.dxfFiles);
 
     setResponseHeaders(event, {
         "Content-Type": "application/zip",
@@ -42,8 +45,7 @@ export default defineEventHandler(async (event) => {
     archive.pipe(event.res);
 
     for (const file of dxfFiles) {
-        const stream = nestDxfBucket.openDownloadStreamByName(file.filename);
-        archive.append(stream, { name: file.filename });
+        archive.append(file.data, { name: file.name });
     }
     await archive.finalize();
     return event.res;

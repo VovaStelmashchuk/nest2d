@@ -10,9 +10,9 @@ export const packages = [
         license: "MIT" 
     },
     { 
-        name: "mongodb", 
-        version: "6.8", 
-        license: "Apache-2.0" 
+        name: "postgres", 
+        version: "3.4.9", 
+        license: "Unlicense" 
     },
     { 
         name: "vite", 

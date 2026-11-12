@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from "h3";
 
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 import { saveFilesToStripProject } from "~~/server/core/strip/dxf";
 import { assertStripFeatureEnabled } from "~~/server/utils/featureFlags";
 
@@ -12,11 +12,9 @@ export default defineEventHandler(async (event) => {
   await assertStripFeatureEnabled(userId);
   const stripSlug = getRouterParam(event, "slug");
 
-  const db = await connectDB();
+  const sql = await getDb();
 
-  const strip = await db.collection("strip_projects").findOne({
-    slug: stripSlug,
-  });
+  const [strip] = await sql`SELECT owner_id FROM strip_projects WHERE slug = ${stripSlug}`;
 
   if (!strip) {
     throw createError({ statusCode: 404, message: "Strip project not found" });

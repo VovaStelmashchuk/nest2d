@@ -1,6 +1,7 @@
-import { connectDB } from '~~/server/db/mongo'
+import { getDb } from '~~/server/db/postgres'
 import { generateRandomString } from '~~/server/utils/strings'
 import { createCustomer, createMeteredCheckout } from '~~/server/features/payment/stripe'
+import { getPlan } from '~~/server/features/payment/store'
 
 const baseUrl = useRuntimeConfig().public.baseUrl
 
@@ -10,14 +11,14 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
     }
 
-    const db = await connectDB()
+    const sql = await getDb()
 
-    const user = await db.collection('users').findOne({ id: userId })
+    const [user] = await sql`SELECT id, email, stripe_customer_id FROM users WHERE id = ${userId}`
     if (!user) {
         throw createError({ statusCode: 401, statusMessage: 'User not found' })
     }
 
-    const plan = await db.collection('subscription_plan').findOne({ id: 'subscription' })
+    const plan = await getPlan()
     if (!plan?.priceId) {
         throw createError({ statusCode: 503, statusMessage: 'Billing plan not available' })
     }
@@ -27,9 +28,7 @@ export default defineEventHandler(async (event) => {
     let customerId = user.stripeCustomerId
     if (!customerId) {
         customerId = await createCustomer({ email: user.email, userId: user.id })
-        await db
-            .collection('users')
-            .updateOne({ id: user.id }, { $set: { stripeCustomerId: customerId } })
+        await sql`UPDATE users SET stripe_customer_id = ${customerId} WHERE id = ${user.id}`
     }
 
     const internalId = generateRandomString(24)
@@ -44,15 +43,10 @@ export default defineEventHandler(async (event) => {
         cancelUrl: redirectUrl,
     })
 
-    await db.collection('subscription_checkouts').insertOne({
-        internalId,
-        userId: user.id,
-        checkoutId: sessionId,
-        status: 'created',
-        attempt: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    })
+    await sql`
+        INSERT INTO subscription_checkouts (internal_id, user_id, checkout_id, status)
+        VALUES (${internalId}, ${user.id}, ${sessionId}, 'created')
+    `
 
     return { url }
 })

@@ -1,4 +1,4 @@
-import { getDxfResultBucket } from "~/server/db/mongo";
+import { BUCKET, getFile } from "~/server/db/files";
 import { trackEvent } from "~~/server/tracking/add"
 
 export default defineEventHandler(async (event) => {
@@ -12,12 +12,12 @@ export default defineEventHandler(async (event) => {
 
     const fileName = getRouterParam(event, "file");
 
-    const resultDxfBucket = await getDxfResultBucket();
+    const file = await getFile(BUCKET.NEST_DXF, fileName);
+    if (!file) {
+        throw createError({ statusCode: 404, statusMessage: "File not found" });
+    }
 
-    const files = await resultDxfBucket.find({ filename: fileName }).toArray()
-    const metadata = files[0].metadata
-
-    if (metadata.ownerId !== userId && !(event.context.auth.isAdmin == true)) {
+    if (file.ownerId !== userId && !(event.context.auth.isAdmin == true)) {
         throw createError({
             statusCode: 401,
             statusMessage: "Unauthorized",
@@ -28,12 +28,10 @@ export default defineEventHandler(async (event) => {
         fileName: fileName,
     })
 
-    const readStream = resultDxfBucket.openDownloadStreamByName(fileName);
-
     setResponseHeaders(event, {
         "Content-Type": "application/octet-stream",
         "Content-Disposition": `attachment; filename="${fileName}"`,
         "Cache-Control": "public, max-age=86400", // Cache for 1 day
     });
-    return readStream;
+    return file.data;
 });

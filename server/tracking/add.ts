@@ -1,5 +1,6 @@
-import { connectDB } from "../db/mongo"
+import { getDb } from "../db/postgres"
 import type { H3Event } from "h3"
+import logger from "../utils/logger"
 import { COUNTRY_HEADER_NAME, TRACKING_COOKIE_NAME } from "./const"
 
 export type TrackDBRecord = {
@@ -11,26 +12,38 @@ export type TrackDBRecord = {
     userId: string | null
 }
 
-export async function saveTrackRecordInBackground(record: TrackDBRecord) {
-    const db = await connectDB()
-    db.collection('tracking').insertOne(record)
+async function insertTrackRecord(record: TrackDBRecord) {
+    const sql = await getDb()
+    await sql`
+        INSERT INTO tracking (action, country, data, session_key, user_id, created_at)
+        VALUES (
+            ${record.action}, ${record.country ?? null},
+            ${record.data == null ? null : sql.json(record.data)},
+            ${record.sessionKey ?? null}, ${record.userId ?? null}, ${record.timestamp}
+        )
+    `
 }
 
-export async function trackEvent(event: H3Event<any>, action: string, data: Record<string, string>) {
-    const db = await connectDB()
+export async function saveTrackRecordInBackground(record: TrackDBRecord) {
+    insertTrackRecord(record).catch((err) => logger.error('Failed to save tracking record', err))
+}
+
+export async function trackEvent(event: H3Event<any>, action: string, data?: Record<string, string>) {
     const country = event.node.req.headers[COUNTRY_HEADER_NAME] as string
     const sessionKey = getCookie(event, TRACKING_COOKIE_NAME) as string
 
     const userId = event.context.auth?.userId
 
-    const timestamp = new Date()
-    const record: TrackDBRecord = {
-        action: action,
-        country: country,
-        data: data,
-        sessionKey: sessionKey,
-        timestamp: timestamp,
-        userId: userId,
+    try {
+        await insertTrackRecord({
+            action: action,
+            country: country,
+            data: data,
+            sessionKey: sessionKey,
+            timestamp: new Date(),
+            userId: userId,
+        })
+    } catch (err) {
+        logger.error('Failed to save tracking record', err)
     }
-    await db.collection('tracking').insertOne(record)
 }

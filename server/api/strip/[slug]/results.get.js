@@ -1,4 +1,4 @@
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 import { assertStripFeatureEnabled } from "~~/server/utils/featureFlags";
 
 export default defineEventHandler(async (event) => {
@@ -10,20 +10,21 @@ export default defineEventHandler(async (event) => {
 
   const slug = getRouterParam(event, "slug");
 
-  const db = await connectDB();
+  const sql = await getDb();
 
-  const strip = await db
-    .collection("strip_projects")
-    .findOne({ slug: slug, ownerId: userId }, { projection: { slug: 1 } });
+  const [strip] = await sql`
+    SELECT slug FROM strip_projects WHERE slug = ${slug} AND owner_id = ${userId}
+  `;
   if (!strip) {
     throw createError({ statusCode: 404, message: "Strip project not found" });
   }
 
-  const jobs = await db
-    .collection("strip_nesting_job_queue")
-    .find({ stripSlug: slug, ownerId: userId })
-    .sort({ createdAt: -1 })
-    .toArray();
+  const jobs = await sql`
+    SELECT slug, status, params, width, files, dxf_files, created_at
+    FROM strip_nesting_jobs
+    WHERE strip_slug = ${slug} AND owner_id = ${userId}
+    ORDER BY created_at DESC
+  `;
 
   return {
     items: jobs.map((job) => mapJobToUi(job)),
@@ -32,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
 const mapJobToUi = (job) => {
   const files = job.files || [];
-  const dxfFile = (job.dxf_files || [])[0] || null;
+  const dxfFile = (job.dxfFiles || [])[0] || null;
   return {
     slug: job.slug,
     status: job.status,

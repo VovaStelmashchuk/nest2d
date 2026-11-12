@@ -1,5 +1,5 @@
-import { defineEventHandler, readBody } from "h3";
-import { connectDB } from "~~/server/db/mongo";
+import { defineEventHandler } from "h3";
+import { getDb } from "~~/server/db/postgres";
 import logger from "~~/server/utils/logger";
 
 export default defineEventHandler(async (event) => {
@@ -11,28 +11,13 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const db = await connectDB();
-    const user = await db.collection("users").findOne({ id: userId });
-    if (!user) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: "Unauthorized",
-        });
-    }
-
     const nestSlug = getRouterParam(event, "slug");
 
-    await db.collection("nesting_jobs").updateOne(
-        {
-            slug: nestSlug,
-            ownerId: userId
-        },
-        {
-            $set: {
-                emailNotify: 'need_notify'
-            }
-        }
-    );
+    const sql = await getDb();
+    await sql`
+        UPDATE nesting_jobs SET email_notify = 'need_notify'
+        WHERE slug = ${nestSlug} AND owner_id = ${userId}
+    `;
 
     logger.info(`Updated email notification setting for nest ${nestSlug} to need_notify`);
 });

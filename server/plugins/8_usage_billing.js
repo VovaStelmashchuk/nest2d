@@ -1,8 +1,9 @@
-import { connectDB } from "../db/mongo";
+import { getDb } from "../db/postgres";
 import {
     FREE_NESTING_LIMIT,
-    NESTING_JOB_COLLECTIONS,
+    NESTING_JOB_TABLES,
 } from "../features/payment/const";
+import { getPlan, getSubscriptionOf } from "../features/payment/store";
 import { isOnDemandPlan, reportMeterEvent } from "../features/payment/stripe";
 import logger from "../utils/logger";
 
@@ -15,96 +16,95 @@ const MAX_ATTEMPTS = 5;
  * Settles one successful nesting job: spends a free run if any are left,
  * otherwise reports one unit of usage to the Stripe meter.
  *
- * Only jobs enqueued with billingStatus "pending" are considered, so jobs
- * created before on-demand billing are never billed. Final states:
+ * Only jobs enqueued with billing_status "pending" are considered. Final states:
  * - free: covered by the free quota
  * - billed: usage reported to Stripe
  * - unbilled: no free runs and no metered subscription (logged)
  * - skipped: the run failed, nothing to bill
  * - failed: Stripe kept rejecting the report
  *
- * @param {import('mongodb').Db} db
- * @param {string} collectionName
+ * @param {import('postgres').Sql} sql
+ * @param {string} tableName
  * @returns {Promise<boolean>} whether a job was processed
  */
-async function settleNextJob(db, collectionName) {
-    const collection = db.collection(collectionName);
+async function settleNextJob(sql, tableName) {
+    const table = sql(tableName);
 
     // Failed runs are never billed and do not consume a free run.
-    await collection.updateMany(
-        { billingStatus: "pending", status: { $in: ["error", "failed"] } },
-        { $set: { billingStatus: "skipped", billedAt: new Date() } }
-    );
+    await sql`
+        UPDATE ${table} SET billing_status = 'skipped', billed_at = now()
+        WHERE billing_status = 'pending' AND status IN ('error', 'failed')
+    `;
 
-    const job = await collection.findOneAndUpdate(
-        {
-            billingStatus: "pending",
-            status: "done",
-            billingAttempt: { $not: { $gte: MAX_ATTEMPTS } },
-        },
-        { $set: { billingStatus: "processing" }, $inc: { billingAttempt: 1 } },
-        { returnDocument: "after" }
-    );
+    const [job] = await sql`
+        UPDATE ${table}
+        SET billing_status = 'processing', billing_attempt = billing_attempt + 1
+        WHERE id = (
+            SELECT id FROM ${table}
+            WHERE billing_status = 'pending'
+              AND status = 'done'
+              AND billing_attempt < ${MAX_ATTEMPTS}
+            ORDER BY id
+            LIMIT 1
+            FOR UPDATE SKIP LOCKED
+        )
+        RETURNING id, slug, owner_id, billing_attempt
+    `;
 
     if (!job) {
         return false;
     }
 
-    const settle = (billingStatus) =>
-        collection.updateOne(
-            { _id: job._id },
-            { $set: { billingStatus, billedAt: new Date() } }
-        );
+    const settle = (billingStatus) => sql`
+        UPDATE ${table} SET billing_status = ${billingStatus}, billed_at = now()
+        WHERE id = ${job.id}
+    `;
 
     try {
         // Atomically spend a free run; the guard keeps concurrent settlements
         // from overspending the quota.
-        const freeRun = await db.collection("users").findOneAndUpdate(
-            { id: job.ownerId, freeNestingUsed: { $not: { $gte: FREE_NESTING_LIMIT } } },
-            { $inc: { freeNestingUsed: 1 } }
-        );
+        const [freeRun] = await sql`
+            UPDATE users SET free_nesting_used = free_nesting_used + 1
+            WHERE id = ${job.ownerId} AND free_nesting_used < ${FREE_NESTING_LIMIT}
+            RETURNING id
+        `;
         if (freeRun) {
             await settle("free");
             return true;
         }
 
-        const user = await db
-            .collection("users")
-            .findOne(
-                { id: job.ownerId },
-                { projection: { id: 1, stripeCustomerId: 1, subscription: 1 } }
-            );
-        const plan = await db
-            .collection("subscription_plan")
-            .findOne({ id: "subscription" });
+        const [user] = await sql`
+            SELECT id, stripe_customer_id FROM users WHERE id = ${job.ownerId}
+        `;
+        const subscription = await getSubscriptionOf(job.ownerId);
+        const plan = await getPlan();
 
         if (
             plan?.meterEventName &&
             user?.stripeCustomerId &&
-            isOnDemandPlan(user.subscription, plan)
+            isOnDemandPlan(subscription, plan)
         ) {
             await reportMeterEvent({
                 eventName: plan.meterEventName,
                 customerId: user.stripeCustomerId,
-                identifier: `${collectionName}:${job._id}`,
+                identifier: `${tableName}:${job.id}`,
             });
             await settle("billed");
             return true;
         }
 
         logger.warn(
-            `[${tag}] No free runs and no metered subscription: ${collectionName}/${job.slug} user=${job.ownerId}`
+            `[${tag}] No free runs and no metered subscription: ${tableName}/${job.slug} user=${job.ownerId}`
         );
         await settle("unbilled");
     } catch (err) {
         logger.warn(
-            `[${tag}] Failed to settle job ${collectionName}/${job.slug}: ${err?.message || err}`
+            `[${tag}] Failed to settle job ${tableName}/${job.slug}: ${err?.message || err}`
         );
         const nextStatus = job.billingAttempt >= MAX_ATTEMPTS ? "failed" : "pending";
-        await collection.updateOne(
-            { _id: job._id },
-            { $set: { billingStatus: nextStatus } }
-        );
+        await sql`
+            UPDATE ${table} SET billing_status = ${nextStatus} WHERE id = ${job.id}
+        `;
     }
 
     return true;
@@ -112,24 +112,35 @@ async function settleNextJob(db, collectionName) {
 
 export default defineNitroPlugin(async () => {
     logger.info(`[${tag}] Usage billing plugin start`);
-    const db = await connectDB();
 
-    // Return jobs left mid-settlement by a previous process to the queue.
-    // Meter events are idempotent per job, so a retry cannot double bill.
-    for (const name of NESTING_JOB_COLLECTIONS) {
-        await db
-            .collection(name)
-            .updateMany({ billingStatus: "processing" }, { $set: { billingStatus: "pending" } });
-    }
-
+    let initialized = false;
     while (true) {
         let didWork = false;
-        for (const name of NESTING_JOB_COLLECTIONS) {
-            try {
-                didWork = (await settleNextJob(db, name)) || didWork;
-            } catch (err) {
-                logger.error(`[${tag}] Usage billing loop error (${name}): ${err?.message || err}`);
+        try {
+            const sql = await getDb();
+
+            if (!initialized) {
+                // Return jobs left mid-settlement by a previous process to the
+                // queue. Meter events are idempotent per job, so a retry cannot
+                // double bill.
+                for (const name of NESTING_JOB_TABLES) {
+                    await sql`
+                        UPDATE ${sql(name)} SET billing_status = 'pending'
+                        WHERE billing_status = 'processing'
+                    `;
+                }
+                initialized = true;
             }
+
+            for (const name of NESTING_JOB_TABLES) {
+                try {
+                    didWork = (await settleNextJob(sql, name)) || didWork;
+                } catch (err) {
+                    logger.error(`[${tag}] Usage billing loop error (${name}): ${err?.message || err}`);
+                }
+            }
+        } catch (err) {
+            logger.error(`[${tag}] Usage billing loop error: ${err?.message || err}`);
         }
 
         if (!didWork) {

@@ -1,4 +1,4 @@
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 import { assertStripFeatureEnabled } from "~~/server/utils/featureFlags";
 
 export default defineEventHandler(async (event) => {
@@ -11,17 +11,8 @@ export default defineEventHandler(async (event) => {
 
   const slug = getRouterParam(event, "slug");
 
-  const db = await connectDB();
-  const strip = await db.collection("strip_projects").findOne(
-    { slug: slug },
-    {
-      projection: {
-        name: 1,
-        slug: 1,
-        ownerId: 1,
-      },
-    }
-  );
+  const sql = await getDb();
+  const [strip] = await sql`SELECT name, slug, owner_id FROM strip_projects WHERE slug = ${slug}`;
 
   if (!strip) {
     throw createError({ statusCode: 404, message: "Strip project not found" });
@@ -31,14 +22,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: "Forbidden" });
   }
 
-  const stripFiles = await db
-    .collection("strip_user_dxf_files")
-    .find({
-      stripSlug: slug,
-      ownerId: userId,
-    })
-    .sort({ uploadAt: 1 })
-    .toArray();
+  const stripFiles = await sql`
+    SELECT slug, name, processing_status, polygon_parts
+    FROM strip_user_dxf_files
+    WHERE strip_slug = ${slug} AND owner_id = ${userId}
+    ORDER BY upload_at, id
+  `;
 
   return {
     name: strip.name,

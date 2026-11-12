@@ -1,15 +1,15 @@
 import { createError } from "h3";
-import { connectDB } from "~~/server/db/mongo";
+import { getDb } from "~~/server/db/postgres";
 
 /**
  * @param {string} userId
  * @returns {Promise<boolean>}
  */
 export async function isStripFeatureEnabled(userId) {
-  const db = await connectDB();
-  const user = await db
-    .collection("users")
-    .findOne({ id: userId }, { projection: { isStripFeatureEnable: 1 } });
+  const sql = await getDb();
+  const [user] = await sql`
+    SELECT is_strip_feature_enable FROM users WHERE id = ${userId}
+  `;
   return Boolean(user?.isStripFeatureEnable);
 }
 
